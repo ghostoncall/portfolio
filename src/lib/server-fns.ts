@@ -9,6 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, eq, isNull, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { getAuthUser, getSupabaseServer } from "@/lib/supabase.server";
+import nodemailer from "nodemailer";
 import {
   blogSettings,
   contactMessages,
@@ -1223,5 +1224,60 @@ export const getAdminUser = createServerFn({ method: "GET", strict: false }).han
     const user = await getAuthUser(request);
     if (!user) return null;
     return { id: user.id, email: user.email ?? null };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Contact form submission
+// ---------------------------------------------------------------------------
+
+export const sendContactEmail = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data }: any) => {
+    const { name, email, message } = data;
+
+    if (!name || !email || !message) {
+      throw new Error("Name, email, and message are required.");
+    }
+
+    // Save to database
+    const db = getDb();
+    await db.insert(contactMessages).values({
+      id: crypto.randomUUID(),
+      name,
+      email,
+      message,
+    });
+
+    // Send email via SMTP
+    const smtpHost = import.meta.env["SMTP_HOST"];
+    const smtpPort = Number(import.meta.env["SMTP_PORT"] || 587);
+    const smtpUser = import.meta.env["SMTP_USER"];
+    const smtpPass = import.meta.env["SMTP_PASS"];
+    const smtpFrom = import.meta.env["SMTP_FROM"];
+    const smtpTo = import.meta.env["SMTP_TO"];
+
+    if (smtpHost && smtpUser && smtpPass && smtpFrom && smtpTo) {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: { user: smtpUser, pass: smtpPass },
+      });
+
+      await transporter.sendMail({
+        from: `Portfolio Contact <${smtpFrom}>`,
+        to: smtpTo,
+        subject: `New contact form submission from ${name}`,
+        text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+        html: `
+          <h2>New contact form submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Message:</strong><br>${message.replace(/\n/g, "<br>")}</p>
+        `,
+      });
+    }
+
+    return { ok: true };
   },
 );

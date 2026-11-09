@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { getSiteIdentity } from "@/lib/server-fns";
+import { sendContactEmail } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/contact")({
   loader: async () => {
@@ -47,9 +48,22 @@ function Contact() {
       ) : (
         <form
           className="mt-8 space-y-5"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            setSent(true);
+            const formData = new FormData(e.target as HTMLFormElement);
+            try {
+              await (sendContactEmail as any)({
+                data: {
+                  name: formData.get("name") as string,
+                  email: formData.get("email") as string,
+                  message: formData.get("message") as string,
+                },
+              });
+              setSent(true);
+            } catch (err: any) {
+              setSent(false);
+              alert(err.message || "Failed to send message. Please try again.");
+            }
           }}
         >
           <label className="block">
