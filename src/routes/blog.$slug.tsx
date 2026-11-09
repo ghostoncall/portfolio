@@ -46,13 +46,16 @@ export const Route = createFileRoute("/blog/$slug")({
       links: canonical ? [{ rel: "canonical", href: canonical }] : [],
     };
   },
-  notFoundComponent: () => (
-    <PageShell crumbs={["Blog"]} title="Post not found">
-      <Link to="/blog" className="text-link hover:underline">
-        Back to the blog
-      </Link>
-    </PageShell>
-  ),
+  notFoundComponent: () => {
+    const { site } = Route.useLoaderData() as { site: any };
+    return (
+      <PageShell crumbs={["Blog"]} title="Post not found" site={site}>
+        <Link to="/blog" className="text-link hover:underline">
+          Back to the blog
+        </Link>
+      </PageShell>
+    );
+  },
   component: PostPage,
 });
 
@@ -62,7 +65,7 @@ function PostPage() {
 
   return (
     <div style={vars} className="blog-theme">
-      <PageShell crumbs={["Blog", post.title]} title={post.title}>
+      <PageShell crumbs={["Blog", post.title]} title={post.title} site={site}>
         <BlogRenderer post={post} themeVars={vars} />
         <Link
           to="/blog"

@@ -27,20 +27,23 @@ export const Route = createFileRoute("/projects/$slug")({
         : [{ title: "Project not found" }, { name: "robots", content: "noindex" }],
     };
   },
-  notFoundComponent: () => (
-    <PageShell crumbs={["Projects"]} title="Project not found">
-      <Link to="/projects" className="text-link hover:underline">
-        Back to projects
-      </Link>
-    </PageShell>
-  ),
+  notFoundComponent: () => {
+    const { site } = Route.useLoaderData() as { site: any };
+    return (
+      <PageShell crumbs={["Projects"]} title="Project not found" site={site}>
+        <Link to="/projects" className="text-link hover:underline">
+          Back to projects
+        </Link>
+      </PageShell>
+    );
+  },
   component: ProjectPage,
 });
 
 function ProjectPage() {
   const { project, site } = Route.useLoaderData();
   return (
-    <PageShell crumbs={["Projects", project.title]} title={project.title}>
+    <PageShell crumbs={["Projects", project.title]} title={project.title} site={site}>
       <p className="font-serif text-xl italic text-muted-foreground">{project.dek}</p>
       <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-border py-4 text-sm md:grid-cols-3">
         <div>

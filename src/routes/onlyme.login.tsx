@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { site } from "@/content/site";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
+import { getSiteIdentity } from "@/lib/server-fns";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/onlyme/login")({
+  loader: async () => {
+    const site = await (getSiteIdentity as any)();
+    return { site };
+  },
   component: Login,
 });
 
@@ -17,6 +21,7 @@ function safeFrom(): string {
 }
 
 function Login() {
+  const { site } = Route.useLoaderData() as { site: any };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -66,15 +71,12 @@ function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 font-sans">
-      <div className="w-full max-w-sm space-y-8 text-center">
+    <div className="flex min-h-screen items-start justify-center bg-background px-4 font-sans pt-20">
+      <div className="w-full max-w-sm space-y-6 text-center">
         <div className="space-y-2">
-          <p className="font-serif text-sm uppercase tracking-widest text-muted-foreground">
-            {site.edition}
-          </p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Admin Access</h1>
           <p className="text-sm text-muted-foreground">
-            Sign in with your Supabase account to manage the portfolio.
+            Sign in to manage the portfolio.
           </p>
         </div>
 
@@ -148,9 +150,6 @@ function Login() {
         </div>
 
         <footer className="text-center">
-          <p className="text-[10px] uppercase tracking-tighter text-muted-foreground/60">
-            Secured by Supabase Auth
-          </p>
         </footer>
       </div>
     </div>

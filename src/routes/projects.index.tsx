@@ -32,7 +32,7 @@ export const Route = createFileRoute("/projects/")({
 function Projects() {
   const { projects, site } = Route.useLoaderData();
   return (
-    <PageShell crumbs={["Projects"]} title="Selected Projects">
+    <PageShell crumbs={["Projects"]} title="Selected Projects" site={site}>
       <ul className="border-t border-border">
         {projects.map((p: any) => (
           <li key={p.slug} className="border-b border-border py-6">

@@ -42,7 +42,7 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
-  const { posts, settings } = Route.useLoaderData();
+  const { posts, settings, site } = Route.useLoaderData();
   const page = Math.max(1, Number((Route.useSearch() as any).page ?? 1));
   const vars = blogThemeVars(settings) as CSSProperties;
 
@@ -62,7 +62,7 @@ function BlogIndex() {
 
   return (
     <div style={vars} className="blog-theme">
-      <PageShell crumbs={["Blog"]} title={settings.heading}>
+      <PageShell crumbs={["Blog"]} title={settings.heading} site={site}>
         {settings.description && (
           <p className="max-w-2xl font-serif text-lg text-muted-foreground">
             {settings.description}

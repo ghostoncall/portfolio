@@ -1,22 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
-import { site } from "@/content/site";
+import { getSiteIdentity } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: `Contact — ${site.name}` },
-      {
-        name: "description",
-        content: `Get in touch with ${site.name} about AI projects and roles.`,
-      },
-      { property: "og:title", content: `Contact ${site.name}` },
-      { property: "og:description", content: "Email, GitHub, LinkedIn and a contact form." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  loader: async () => {
+    const site = await (getSiteIdentity as any)();
+    return { site };
+  },
+  head: ({ loaderData }) => {
+    const site = loaderData?.site;
+    return {
+      meta: [
+        { title: `Contact — ${site?.name ?? "Portfolio"}` },
+        {
+          name: "description",
+          content: `Get in touch with ${site?.name ?? "the site owner"} about AI projects and roles.`,
+        },
+        { property: "og:title", content: `Contact ${site?.name ?? "Portfolio"}` },
+        { property: "og:description", content: "Email, GitHub, LinkedIn and a contact form." },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+    };
+  },
   component: Contact,
 });
 
@@ -24,9 +31,10 @@ const field =
   "w-full border border-input bg-background px-3 py-2 text-foreground outline-none focus:border-ring";
 
 function Contact() {
+  const { site } = Route.useLoaderData() as { site: any };
   const [sent, setSent] = useState(false);
   return (
-    <PageShell crumbs={["Contact"]} title="Correspondence">
+    <PageShell crumbs={["Contact"]} title="Correspondence" site={site}>
       <p className="prose-editorial">
         Write to{" "}
         <a href={`mailto:${site.email}`} className="text-link hover:underline">

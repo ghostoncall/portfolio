@@ -6,25 +6,29 @@ import type { CSSProperties } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { BlogRenderer } from "@/components/admin/BlogRenderer";
-import { getPostPreview } from "@/lib/server-fns";
+import { getPostPreview, getSiteIdentity } from "@/lib/server-fns";
 import { blogThemeVars, mergeBlogSettings } from "@/lib/blog-settings";
 
 export const Route = createFileRoute("/onlyme/preview/$slug")({
   loader: async ({ params }) => {
-    const data: any = await (getPostPreview as any)({ data: { slug: params.slug } });
+    const [data, site] = await Promise.all([
+      (getPostPreview as any)({ data: { slug: params.slug } }),
+      (getSiteIdentity as any)(),
+    ]);
     if (!data) throw notFound();
     return {
       post: data.staged,
       live: data.published,
       isPublic: data.isPublic,
       publishedAt: data.publishedAt,
+      site,
     };
   },
   component: PreviewPage,
 });
 
 function PreviewPage() {
-  const { post, live, isPublic, publishedAt } = Route.useLoaderData();
+  const { post, live, isPublic, publishedAt, site } = Route.useLoaderData();
   if (!post) throw notFound();
 
   const isPublished = Boolean(isPublic);
@@ -34,7 +38,7 @@ function PreviewPage() {
 
   return (
     <div style={vars} className="blog-theme">
-      <PageShell crumbs={["Blog", "Preview"]} title={`Preview: ${post.title}`}>
+      <PageShell crumbs={["Blog", "Preview"]} title={`Preview: ${post.title}`} site={site}>
         <div className="border-l border-amber-500 pl-4 my-6">
           <p className="text-xs text-amber-700 font-sans uppercase tracking-wide mb-1">
             Preview — not publicly visible

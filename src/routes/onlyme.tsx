@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { site } from "@/content/site";
-import { getAdminUser } from "@/lib/server-fns";
+import { getAdminUser, getSiteIdentity } from "@/lib/server-fns";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 export const Route = createFileRoute("/onlyme")({
@@ -20,11 +19,16 @@ export const Route = createFileRoute("/onlyme")({
       });
     }
   },
+  loader: async () => {
+    const site = await (getSiteIdentity as any)();
+    return { site };
+  },
   component: OnlymeLayout,
 });
 
 function OnlymeLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const { site } = Route.useLoaderData() as { site: any };
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
@@ -131,7 +135,7 @@ function OnlymeLayout() {
       <div className="flex-1 p-8">
         <header className="mb-8 flex items-center justify-between">
           <div>
-            <p className="text-sm font-serif text-foreground">{site.edition}</p>
+            <p className="text-sm font-serif text-foreground">{site?.edition}</p>
             <h1 className="text-4xl font-bold text-foreground">Admin</h1>
           </div>
         </header>

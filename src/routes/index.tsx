@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { overview, projects, site } = Route.useLoaderData();
   return (
-    <PageShell crumbs={["Overview"]} title={`${site?.name}, ${site?.title}`}>
+    <PageShell crumbs={["Overview"]} title={`${site?.name}, ${site?.title}`} site={site}>
       <Blocks blocks={(overview as any).blocks} />
       <h2 className="mt-12 mb-2 text-3xl text-foreground">Featured Work</h2>
       <ul className="border-t border-border">
