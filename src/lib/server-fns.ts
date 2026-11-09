@@ -964,7 +964,7 @@ export const getPublishedProject = createServerFn({ method: "GET", strict: false
   async ({ data }: any) => {
     const db = getDb();
     const row = await db.select().from(projects).where(eq(projects.slug, data.slug)).limit(1);
-    if (!row[0] || !row[0].isPublic) return null;
+    if (!row[0]) return null;
     return row[0].published;
   },
 );

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/projects/$slug")({
       (getPublishedSkillsBundle as any)(),
       (getSiteIdentity as any)(),
     ]);
-    if (!project || !project.isPublic) throw notFound();
+    if (!project) throw notFound();
     return { project, skills: skillsBundle.skills, site };
   },
   head: ({ loaderData }) => {
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/projects/$slug")({
 });
 
 function ProjectNotFound() {
-  const { site } = Route.useLoaderData() as { site: any };
+  const { site } = (Route.useLoaderData() as { site: any } | null) || {};
   return (
     <PageShell crumbs={["Projects"]} title="Project not found" site={site}>
       <Link to="/projects" className="text-link hover:underline">
