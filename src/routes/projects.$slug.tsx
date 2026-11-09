@@ -12,7 +12,7 @@ export const Route = createFileRoute("/projects/$slug")({
       (getSiteIdentity as any)(),
     ]);
     if (!project) throw notFound();
-    return { project, skills: skillsBundle.skills, site };
+    return { project, skills: skillsBundle.skills.skills, site };
   },
   head: ({ loaderData }) => {
     const { project, site } = loaderData || {};
