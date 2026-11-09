@@ -1,95 +1,131 @@
-import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { site } from "@/content/site";
-import { extractSessionCookie } from "@/lib/auth";
+import { getAdminUser } from "@/lib/server-fns";
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 export const Route = createFileRoute("/onlyme")({
+  // Server-enforced guard: every /onlyme page requires a Supabase session.
+  // The login page is the only exception.
+  beforeLoad: async ({ location }) => {
+    if (location.pathname === "/onlyme/login") return;
+
+    const user = await getAdminUser();
+    if (!user) {
+      throw redirect({
+        to: "/onlyme/login",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        search: { from: location.pathname } as any,
+      });
+    }
+  },
   component: OnlymeLayout,
 });
 
 function OnlymeLayout() {
-  const cookie =
-    typeof document !== "undefined"
-      ? extractSessionCookie(document.cookie)
-      : null;
-  const authed = !!cookie;
-  const currentPath =
-    typeof window !== "undefined" ? window.location.pathname : "/onlyme";
-  const isLoginPage = currentPath === "/onlyme/login";
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
 
-  if (!authed && !isLoginPage && typeof window !== "undefined") {
-    const from = new URLSearchParams(window.location.search).get("from") ?? "/onlyme";
-    window.location.href = `/onlyme/login?from=${encodeURIComponent(from)}`;
-    return null;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      setSidebarCollapsed(localStorage.getItem("onlyme:sidebarCollapsed") === "true");
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  if (pathname === "/onlyme/login") {
+    return <Outlet />;
   }
 
-  if (isLoginPage) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <Outlet />
-      </div>
-    );
+  async function handleSignOut() {
+    try {
+      await getSupabaseBrowser().auth.signOut();
+    } catch {
+      // Ignore network errors — still send the user to the login screen.
+    } finally {
+      window.location.href = "/onlyme/login";
+    }
   }
+
+  function toggleSidebar() {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("onlyme:sidebarCollapsed", String(next));
+      } catch {
+        // Ignore storage errors
+      }
+      return next;
+    });
+  }
+
+  const navItems = [
+    { to: "/onlyme", label: "Dashboard", icon: "📊" },
+    { to: "/onlyme/settings", label: "Settings", icon: "⚙️" },
+    { to: "/onlyme/pages", label: "Pages", icon: "📄" },
+    { to: "/onlyme/projects", label: "Projects", icon: "💼" },
+    { to: "/onlyme/blogs", label: "Blogs", icon: "📝" },
+    { to: "/onlyme/media", label: "Media", icon: "🖼️" },
+    { to: "/onlyme/export", label: "Backup", icon: "💾" },
+  ];
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-72 border-r border-border flex-col bg-muted/50 md:flex">
-        <nav className="flex-1 p-6 space-y-1">
-          <Link
-            to="/onlyme"
-            className="block px-4 py-3 text-sm font-medium text-foreground rounded-lg bg-primary"
+      <aside
+        className={`transition-all duration-300 ${
+          sidebarCollapsed ? "w-16 md:w-16" : "hidden w-72 md:flex"
+        } flex-col bg-muted/50 md:flex`}
+      >
+        <div className="flex-1 p-3 space-y-1">
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className="flex items-center justify-between px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+            title="Toggle sidebar"
           >
-            Dashboard
-          </Link>
-          <Link
-            to="/onlyme/settings"
-            className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent rounded-lg transition-colors"
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </button>
+          <nav className="mt-2 space-y-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {!sidebarCollapsed && (
+                    <>
+                      <span className="text-xl">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </>
+                  )}
+                  {sidebarCollapsed && <span className="text-xl">{item.icon}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+        <div className="p-3">
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-3 py-2 text-xs text-destructive underline hover:bg-destructive/10 transition-colors"
           >
-            Settings
-          </Link>
-          <Link
-            to="/onlyme/pages"
-            className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent rounded-lg transition-colors"
-          >
-            Pages
-          </Link>
-          <Link
-            to="/onlyme/projects"
-            className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent rounded-lg transition-colors"
-          >
-            Projects
-          </Link>
-          <Link
-            to="/onlyme/blogs"
-            className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent rounded-lg transition-colors"
-          >
-            Blogs
-          </Link>
-          <Link
-            to="/onlyme/media"
-            className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent rounded-lg transition-colors"
-          >
-            Media
-          </Link>
-          <Link
-            to="/onlyme/export"
-            className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent rounded-lg transition-colors"
-          >
-            Backup
-          </Link>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              document.cookie =
-                "admin_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
-              window.location.href = "/onlyme/login";
-            }}
-            className="mt-6"
-          >
-            <button type="submit" className="text-xs text-destructive underline">
-              Sign out
-            </button>
-          </form>
-        </nav>
+            Sign out
+          </button>
+        </div>
       </aside>
 
       <div className="flex-1 p-8">

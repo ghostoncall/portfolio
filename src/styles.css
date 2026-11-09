@@ -144,3 +144,166 @@
   font-size: 1.0625rem;
   line-height: 1.8;
 }
+
+/*
+ * Blog theme layer.
+ *
+ * The public blog reads its typography from CSS custom properties set by
+ * `blogThemeVars()` (inline style on the `.blog-theme` wrapper). Every rule
+ * is scoped so the rest of the portfolio is untouched.
+ */
+.blog-theme {
+  background-color: var(--blog-bg);
+  color: var(--blog-text);
+}
+
+.blog-theme h1,
+.blog-theme .font-display {
+  font-family: var(--blog-font-heading);
+}
+
+.blog-theme .kg-content {
+  max-width: var(--blog-content-width);
+  font-family: var(--blog-font-body);
+  font-size: var(--blog-font-size);
+  line-height: var(--blog-line-height);
+  color: var(--blog-text);
+}
+
+.blog-theme .kg-content p {
+  margin: 0 0 var(--blog-paragraph-spacing);
+}
+
+.blog-theme .kg-content h1,
+.blog-theme .kg-content h2,
+.blog-theme .kg-content h3,
+.blog-theme .kg-content h4,
+.blog-theme .kg-content h5 {
+  font-family: var(--blog-font-heading);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--blog-text);
+}
+
+.blog-theme .kg-content h1 {
+  font-size: calc(2.6rem * var(--blog-heading-scale));
+  margin: calc(var(--blog-paragraph-spacing) * 2) 0 var(--blog-paragraph-spacing);
+}
+.blog-theme .kg-content h2 {
+  font-size: calc(2rem * var(--blog-heading-scale));
+  margin: calc(var(--blog-paragraph-spacing) * 2) 0 var(--blog-paragraph-spacing);
+}
+.blog-theme .kg-content h3 {
+  font-size: calc(1.5rem * var(--blog-heading-scale));
+  margin: calc(var(--blog-paragraph-spacing) * 1.6) 0 var(--blog-paragraph-spacing);
+}
+.blog-theme .kg-content h4 {
+  font-size: calc(1.2rem * var(--blog-heading-scale));
+  margin: calc(var(--blog-paragraph-spacing) * 1.4) 0 var(--blog-paragraph-spacing);
+}
+
+.blog-theme .kg-content a {
+  color: var(--blog-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-theme .kg-content blockquote {
+  margin: var(--blog-image-spacing) 0;
+  border-left: 2px solid var(--blog-accent);
+  padding-left: 1.25rem;
+  font-style: italic;
+}
+
+.blog-theme .kg-content ul,
+.blog-theme .kg-content ol {
+  margin: 0 0 var(--blog-paragraph-spacing) 1.4rem;
+  padding: 0;
+}
+.blog-theme .kg-content ul {
+  list-style: disc;
+}
+.blog-theme .kg-content ol {
+  list-style: decimal;
+}
+.blog-theme .kg-content li {
+  margin-bottom: 0.45rem;
+}
+
+.blog-theme .kg-content img,
+.blog-theme .kg-content video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.blog-theme .kg-content figure {
+  margin: var(--blog-image-spacing) 0;
+}
+.blog-theme .kg-content figure img {
+  margin: 0;
+}
+.blog-theme .kg-content figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.blog-theme .kg-content pre {
+  margin: var(--blog-image-spacing) 0;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--blog-bg), var(--blog-text) 5%);
+  padding: 1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+.blog-theme .kg-content code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.blog-theme .kg-content pre code {
+  font-size: inherit;
+}
+
+.blog-theme .kg-content hr {
+  margin: var(--blog-image-spacing) 0;
+  border: 0;
+  border-top: 1px solid var(--blog-accent);
+  opacity: 0.25;
+}
+
+.blog-theme .kg-content .kg-card {
+  margin: var(--blog-image-spacing) 0;
+}
+.blog-theme .kg-content .kg-video-card video,
+.blog-theme .kg-content .kg-audio-card audio {
+  width: 100%;
+}
+.blog-theme .kg-content .kg-audio-card audio {
+  margin: 1rem 0;
+}
+.blog-theme .kg-content .kg-callout-card,
+.blog-theme .kg-content .kg-toggle-card {
+  border: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+}
+.blog-theme .kg-content .kg-bookmark-card a {
+  text-decoration: none;
+}
+.blog-theme .kg-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+}
+.blog-theme .kg-content th,
+.blog-theme .kg-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}

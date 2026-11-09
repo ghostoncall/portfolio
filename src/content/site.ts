@@ -209,17 +209,44 @@ export const certificates: Block[] = [
   },
 ];
 
+export type PostBody = {
+  /** Lexical editor state (Koenig / Ghost). Opaque to the rest of the app. */
+  lexical: Record<string, unknown>;
+  /** Rendered HTML captured from the editor; what the public site displays. */
+  html: string;
+};
+
+export type PostSEO = {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  socialImage?: string;
+};
+
+/** Who can read a published post. */
+export type PostVisibility = "public" | "unlisted" | "private";
+
 export type Post = {
   slug: string;
   title: string;
+  /** Short description / excerpt. */
   dek: string;
   /** ISO date, e.g. "2026-10-12" */
   date: string;
   readTime?: string;
   tags: string[];
   /** Optional cover — any file type. Leave src empty for a placeholder. */
-  cover?: MediaItem;
+  cover: MediaItem | undefined;
+  /** Legacy structured body. Kept for pages written before the Koenig editor. */
   blocks: Block[];
+  /** Rich body written with the Koenig editor. Takes precedence over `blocks`. */
+  body?: PostBody;
+  author: string | undefined;
+  /** Featured on the blog index when blog settings enable a featured post. */
+  featured: boolean | undefined;
+  /** public = listed and readable; unlisted = readable by URL; private = admin only. */
+  visibility?: PostVisibility;
+  seo: PostSEO | undefined;
 };
 
 export const posts: Post[] = [
@@ -230,7 +257,10 @@ export const posts: Post[] = [
     date: "2026-10-12",
     readTime: "8 min read",
     tags: ["RAG", "Evaluation"],
+    author: undefined,
     cover: {},
+    featured: undefined,
+    seo: undefined,
     blocks: [
       {
         type: "text",
@@ -260,6 +290,10 @@ export const posts: Post[] = [
     date: "2026-08-03",
     readTime: "6 min read",
     tags: ["Agents", "LLMs"],
+    author: undefined,
+    cover: {},
+    featured: undefined,
+    seo: undefined,
     blocks: [
       { type: "text", body: "Write your post here." },
       { type: "media", caption: "Attach a diagram, PDF or recording." },

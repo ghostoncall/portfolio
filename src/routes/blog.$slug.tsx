@@ -1,28 +1,51 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Public blog post page.
+import type { CSSProperties } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { Blocks } from "@/components/blocks";
-import { Media } from "@/components/media";
-import { posts, site } from "@/content/site";
+import { BlogRenderer } from "@/components/admin/BlogRenderer";
+import { getBlogSettings, getPublishedPost, getSiteIdentity } from "@/lib/server-fns";
+import { blogThemeVars } from "@/lib/blog-settings";
 import { formatDate } from "@/lib/format-date";
 
 export const Route = createFileRoute("/blog/$slug")({
-  loader: ({ params }) => {
-    const post = posts.find((p) => p.slug === params.slug);
+  loader: async ({ params }) => {
+    const [post, site, settings] = await Promise.all([
+      (getPublishedPost as any)({ data: { slug: params.slug } }),
+      (getSiteIdentity as any)(),
+      (getBlogSettings as any)(),
+    ]);
     if (!post) throw notFound();
-    return post;
+    return { post, site, settings };
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.title} — ${site.name}` },
-          { name: "description", content: loaderData.dek },
-          { property: "og:title", content: loaderData.title },
-          { property: "og:description", content: loaderData.dek },
-          { property: "og:type", content: "article" },
-          { name: "twitter:card", content: "summary_large_image" },
-        ]
-      : [{ title: "Post not found" }, { name: "robots", content: "noindex" }],
-  }),
+  head: ({ loaderData }) => {
+    const { post, site } = loaderData || {};
+    if (!post) {
+      return { meta: [{ title: "Post not found" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = post.seo?.title || post.title;
+    const description = post.seo?.description || post.dek || "";
+    const image = post.seo?.socialImage || post.cover?.src || "";
+    const canonical = post.seo?.canonical || "";
+    const unlisted = post.visibility === "unlisted";
+
+    return {
+      meta: [
+        { title: `${title} — ${site?.name ?? "Portfolio"}` },
+        { name: "description", content: description },
+        ...(unlisted ? [{ name: "robots", content: "noindex, follow" }] : []),
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "article:published_time", content: post.date },
+        ...(image ? [{ property: "og:image", content: image }] : []),
+        ...(canonical ? [{ property: "og:url", content: canonical }] : []),
+        { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+        ...(image ? [{ name: "twitter:image", content: image }] : []),
+      ],
+      links: canonical ? [{ rel: "canonical", href: canonical }] : [],
+    };
+  },
   notFoundComponent: () => (
     <PageShell crumbs={["Blog"]} title="Post not found">
       <Link to="/blog" className="text-link hover:underline">
@@ -34,20 +57,21 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function PostPage() {
-  const p = Route.useLoaderData();
+  const { post, site, settings } = Route.useLoaderData();
+  const vars = blogThemeVars(settings) as CSSProperties;
+
   return (
-    <PageShell crumbs={["Blog", p.title]} title={p.title}>
-      <p className="font-serif text-xl italic text-muted-foreground">{p.dek}</p>
-      <p className="label-caps mt-6 border-y border-border py-3 text-muted-foreground">
-        By {site.name} · {formatDate(p.date)}
-        {p.readTime ? ` · ${p.readTime}` : ""}
-        {p.tags.length ? ` · ${p.tags.join(", ")}` : ""}
-      </p>
-      {p.cover && <Media items={[p.cover]} />}
-      <Blocks blocks={p.blocks} />
-      <Link to="/blog" className="label-caps mt-12 inline-block text-link hover:underline">
-        ← All posts
-      </Link>
-    </PageShell>
+    <div style={vars} className="blog-theme">
+      <PageShell crumbs={["Blog", post.title]} title={post.title}>
+        <BlogRenderer post={post} themeVars={vars} />
+        <Link
+          to="/blog"
+          search={{ page: 1 }}
+          className="label-caps mt-12 inline-block text-link hover:underline"
+        >
+          ← All posts
+        </Link>
+      </PageShell>
+    </div>
   );
 }

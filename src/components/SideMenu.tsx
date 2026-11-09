@@ -12,7 +12,7 @@ const items = [
 ] as const;
 
 const itemClass =
-  "block py-2 font-sans text-2xl font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
+  "block py-1.5 font-sans text-xl font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
 
 export function SideMenu() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -54,20 +54,20 @@ export function SideMenu() {
                   onClick={() => setOpen((o) => !o)}
                   aria-expanded={open}
                   aria-label={open ? "Collapse projects" : "Expand projects"}
-                  className={`px-1 text-2xl font-light leading-none ${active ? "text-primary-foreground/80 hover:text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-1 text-xl font-light leading-none ${active ? "text-primary-foreground/80 hover:text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {open ? "−" : "+"}
                 </button>
               )}
             </div>
             {hasChildren && open && (
-              <ul className="space-y-1 px-3 pb-5 pt-3">
+              <ul className="space-y-1 px-3 pb-4 pt-2">
                 {projects.map((p) => (
                   <li key={p.slug}>
                     <Link
                       to="/projects/$slug"
                       params={{ slug: p.slug }}
-                      className="text-base text-muted-foreground hover:text-foreground"
+                      className="text-sm text-muted-foreground hover:text-foreground"
                       activeProps={{ className: "text-foreground underline underline-offset-4" }}
                     >
                       {p.title}

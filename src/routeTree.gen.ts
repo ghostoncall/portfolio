@@ -12,11 +12,26 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ExperienceRouteImport } from './routes/experience'
+import { Route as OnlymeRouteImport } from './routes/onlyme'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as BlogSearchRouteImport } from './routes/blog.search'
+import { Route as OnlymeIndexRouteImport } from './routes/onlyme.index'
+import { Route as OnlymeBlogSettingsRouteImport } from './routes/onlyme.blog-settings'
+import { Route as OnlymeBlogsRouteImport } from './routes/onlyme.blogs'
+import { Route as OnlymeExportRouteImport } from './routes/onlyme.export'
+import { Route as OnlymeLoginRouteImport } from './routes/onlyme.login'
+import { Route as OnlymeMediaRouteImport } from './routes/onlyme.media'
+import { Route as OnlymePagesRouteImport } from './routes/onlyme.pages'
+import { Route as OnlymeProjectsRouteImport } from './routes/onlyme.projects'
+import { Route as OnlymeSettingsRouteImport } from './routes/onlyme.settings'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as OnlymeBlogsSlugRouteImport } from './routes/onlyme.blogs.$slug'
+import { Route as OnlymePagesSlugRouteImport } from './routes/onlyme.pages.$slug'
+import { Route as OnlymePreviewSlugRouteImport } from './routes/onlyme.preview.$slug'
+import { Route as OnlymeProjectsSlugRouteImport } from './routes/onlyme.projects.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +46,11 @@ const ContactRoute = ContactRouteImport.update({
 const ExperienceRoute = ExperienceRouteImport.update({
   id: '/experience',
   path: '/experience',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnlymeRoute = OnlymeRouteImport.update({
+  id: '/onlyme',
+  path: '/onlyme',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SkillsRoute = SkillsRouteImport.update({
@@ -48,6 +68,56 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogSearchRoute = BlogSearchRouteImport.update({
+  id: '/blog/search',
+  path: '/blog/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnlymeIndexRoute = OnlymeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeBlogSettingsRoute = OnlymeBlogSettingsRouteImport.update({
+  id: '/blog-settings',
+  path: '/blog-settings',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeBlogsRoute = OnlymeBlogsRouteImport.update({
+  id: '/blogs',
+  path: '/blogs',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeExportRoute = OnlymeExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeLoginRoute = OnlymeLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeMediaRoute = OnlymeMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymePagesRoute = OnlymePagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeProjectsRoute = OnlymeProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeSettingsRoute = OnlymeSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => OnlymeRoute,
+} as any)
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
@@ -58,16 +128,51 @@ const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   path: '/projects/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnlymeBlogsSlugRoute = OnlymeBlogsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => OnlymeBlogsRoute,
+} as any)
+const OnlymePagesSlugRoute = OnlymePagesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => OnlymePagesRoute,
+} as any)
+const OnlymePreviewSlugRoute = OnlymePreviewSlugRouteImport.update({
+  id: '/preview/$slug',
+  path: '/preview/$slug',
+  getParentRoute: () => OnlymeRoute,
+} as any)
+const OnlymeProjectsSlugRoute = OnlymeProjectsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => OnlymeProjectsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/experience': typeof ExperienceRoute
+  '/onlyme': typeof OnlymeRouteWithChildren
   '/skills': typeof SkillsRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/search': typeof BlogSearchRoute
+  '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
+  '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
+  '/onlyme/export': typeof OnlymeExportRoute
+  '/onlyme/login': typeof OnlymeLoginRoute
+  '/onlyme/media': typeof OnlymeMediaRoute
+  '/onlyme/pages': typeof OnlymePagesRouteWithChildren
+  '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
+  '/onlyme/settings': typeof OnlymeSettingsRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog/': typeof BlogIndexRoute
+  '/onlyme/': typeof OnlymeIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/onlyme/blogs/$slug': typeof OnlymeBlogsSlugRoute
+  '/onlyme/pages/$slug': typeof OnlymePagesSlugRoute
+  '/onlyme/preview/$slug': typeof OnlymePreviewSlugRoute
+  '/onlyme/projects/$slug': typeof OnlymeProjectsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,20 +180,49 @@ export interface FileRoutesByTo {
   '/experience': typeof ExperienceRoute
   '/skills': typeof SkillsRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/search': typeof BlogSearchRoute
+  '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
+  '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
+  '/onlyme/export': typeof OnlymeExportRoute
+  '/onlyme/login': typeof OnlymeLoginRoute
+  '/onlyme/media': typeof OnlymeMediaRoute
+  '/onlyme/pages': typeof OnlymePagesRouteWithChildren
+  '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
+  '/onlyme/settings': typeof OnlymeSettingsRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog': typeof BlogIndexRoute
+  '/onlyme': typeof OnlymeIndexRoute
   '/projects': typeof ProjectsIndexRoute
+  '/onlyme/blogs/$slug': typeof OnlymeBlogsSlugRoute
+  '/onlyme/pages/$slug': typeof OnlymePagesSlugRoute
+  '/onlyme/preview/$slug': typeof OnlymePreviewSlugRoute
+  '/onlyme/projects/$slug': typeof OnlymeProjectsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/experience': typeof ExperienceRoute
+  '/onlyme': typeof OnlymeRouteWithChildren
   '/skills': typeof SkillsRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/search': typeof BlogSearchRoute
+  '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
+  '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
+  '/onlyme/export': typeof OnlymeExportRoute
+  '/onlyme/login': typeof OnlymeLoginRoute
+  '/onlyme/media': typeof OnlymeMediaRoute
+  '/onlyme/pages': typeof OnlymePagesRouteWithChildren
+  '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
+  '/onlyme/settings': typeof OnlymeSettingsRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog/': typeof BlogIndexRoute
+  '/onlyme/': typeof OnlymeIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/onlyme/blogs/$slug': typeof OnlymeBlogsSlugRoute
+  '/onlyme/pages/$slug': typeof OnlymePagesSlugRoute
+  '/onlyme/preview/$slug': typeof OnlymePreviewSlugRoute
+  '/onlyme/projects/$slug': typeof OnlymeProjectsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,11 +230,26 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/experience'
+    | '/onlyme'
     | '/skills'
     | '/blog/$slug'
+    | '/blog/search'
+    | '/onlyme/blog-settings'
+    | '/onlyme/blogs'
+    | '/onlyme/export'
+    | '/onlyme/login'
+    | '/onlyme/media'
+    | '/onlyme/pages'
+    | '/onlyme/projects'
+    | '/onlyme/settings'
     | '/projects/$slug'
     | '/blog/'
+    | '/onlyme/'
     | '/projects/'
+    | '/onlyme/blogs/$slug'
+    | '/onlyme/pages/$slug'
+    | '/onlyme/preview/$slug'
+    | '/onlyme/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -108,27 +257,58 @@ export interface FileRouteTypes {
     | '/experience'
     | '/skills'
     | '/blog/$slug'
+    | '/blog/search'
+    | '/onlyme/blog-settings'
+    | '/onlyme/blogs'
+    | '/onlyme/export'
+    | '/onlyme/login'
+    | '/onlyme/media'
+    | '/onlyme/pages'
+    | '/onlyme/projects'
+    | '/onlyme/settings'
     | '/projects/$slug'
     | '/blog'
+    | '/onlyme'
     | '/projects'
+    | '/onlyme/blogs/$slug'
+    | '/onlyme/pages/$slug'
+    | '/onlyme/preview/$slug'
+    | '/onlyme/projects/$slug'
   id:
     | '__root__'
     | '/'
     | '/contact'
     | '/experience'
+    | '/onlyme'
     | '/skills'
     | '/blog/$slug'
+    | '/blog/search'
+    | '/onlyme/blog-settings'
+    | '/onlyme/blogs'
+    | '/onlyme/export'
+    | '/onlyme/login'
+    | '/onlyme/media'
+    | '/onlyme/pages'
+    | '/onlyme/projects'
+    | '/onlyme/settings'
     | '/projects/$slug'
     | '/blog/'
+    | '/onlyme/'
     | '/projects/'
+    | '/onlyme/blogs/$slug'
+    | '/onlyme/pages/$slug'
+    | '/onlyme/preview/$slug'
+    | '/onlyme/projects/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   ExperienceRoute: typeof ExperienceRoute
+  OnlymeRoute: typeof OnlymeRouteWithChildren
   SkillsRoute: typeof SkillsRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  BlogSearchRoute: typeof BlogSearchRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
@@ -157,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExperienceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onlyme': {
+      id: '/onlyme'
+      path: '/onlyme'
+      fullPath: '/onlyme'
+      preLoaderRoute: typeof OnlymeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/skills': {
       id: '/skills'
       path: '/skills'
@@ -178,6 +365,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/search': {
+      id: '/blog/search'
+      path: '/blog/search'
+      fullPath: '/blog/search'
+      preLoaderRoute: typeof BlogSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onlyme/': {
+      id: '/onlyme/'
+      path: '/'
+      fullPath: '/onlyme/'
+      preLoaderRoute: typeof OnlymeIndexRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/blog-settings': {
+      id: '/onlyme/blog-settings'
+      path: '/blog-settings'
+      fullPath: '/onlyme/blog-settings'
+      preLoaderRoute: typeof OnlymeBlogSettingsRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/blogs': {
+      id: '/onlyme/blogs'
+      path: '/blogs'
+      fullPath: '/onlyme/blogs'
+      preLoaderRoute: typeof OnlymeBlogsRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/export': {
+      id: '/onlyme/export'
+      path: '/export'
+      fullPath: '/onlyme/export'
+      preLoaderRoute: typeof OnlymeExportRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/login': {
+      id: '/onlyme/login'
+      path: '/login'
+      fullPath: '/onlyme/login'
+      preLoaderRoute: typeof OnlymeLoginRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/media': {
+      id: '/onlyme/media'
+      path: '/media'
+      fullPath: '/onlyme/media'
+      preLoaderRoute: typeof OnlymeMediaRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/pages': {
+      id: '/onlyme/pages'
+      path: '/pages'
+      fullPath: '/onlyme/pages'
+      preLoaderRoute: typeof OnlymePagesRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/projects': {
+      id: '/onlyme/projects'
+      path: '/projects'
+      fullPath: '/onlyme/projects'
+      preLoaderRoute: typeof OnlymeProjectsRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/settings': {
+      id: '/onlyme/settings'
+      path: '/settings'
+      fullPath: '/onlyme/settings'
+      preLoaderRoute: typeof OnlymeSettingsRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
     '/projects/': {
       id: '/projects/'
       path: '/projects'
@@ -192,15 +449,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onlyme/blogs/$slug': {
+      id: '/onlyme/blogs/$slug'
+      path: '/$slug'
+      fullPath: '/onlyme/blogs/$slug'
+      preLoaderRoute: typeof OnlymeBlogsSlugRouteImport
+      parentRoute: typeof OnlymeBlogsRoute
+    }
+    '/onlyme/pages/$slug': {
+      id: '/onlyme/pages/$slug'
+      path: '/$slug'
+      fullPath: '/onlyme/pages/$slug'
+      preLoaderRoute: typeof OnlymePagesSlugRouteImport
+      parentRoute: typeof OnlymePagesRoute
+    }
+    '/onlyme/preview/$slug': {
+      id: '/onlyme/preview/$slug'
+      path: '/preview/$slug'
+      fullPath: '/onlyme/preview/$slug'
+      preLoaderRoute: typeof OnlymePreviewSlugRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/projects/$slug': {
+      id: '/onlyme/projects/$slug'
+      path: '/$slug'
+      fullPath: '/onlyme/projects/$slug'
+      preLoaderRoute: typeof OnlymeProjectsSlugRouteImport
+      parentRoute: typeof OnlymeProjectsRoute
+    }
   }
 }
+
+interface OnlymeBlogsRouteChildren {
+  OnlymeBlogsSlugRoute: typeof OnlymeBlogsSlugRoute
+}
+
+const OnlymeBlogsRouteChildren: OnlymeBlogsRouteChildren = {
+  OnlymeBlogsSlugRoute: OnlymeBlogsSlugRoute,
+}
+
+const OnlymeBlogsRouteWithChildren = OnlymeBlogsRoute._addFileChildren(
+  OnlymeBlogsRouteChildren,
+)
+
+interface OnlymePagesRouteChildren {
+  OnlymePagesSlugRoute: typeof OnlymePagesSlugRoute
+}
+
+const OnlymePagesRouteChildren: OnlymePagesRouteChildren = {
+  OnlymePagesSlugRoute: OnlymePagesSlugRoute,
+}
+
+const OnlymePagesRouteWithChildren = OnlymePagesRoute._addFileChildren(
+  OnlymePagesRouteChildren,
+)
+
+interface OnlymeProjectsRouteChildren {
+  OnlymeProjectsSlugRoute: typeof OnlymeProjectsSlugRoute
+}
+
+const OnlymeProjectsRouteChildren: OnlymeProjectsRouteChildren = {
+  OnlymeProjectsSlugRoute: OnlymeProjectsSlugRoute,
+}
+
+const OnlymeProjectsRouteWithChildren = OnlymeProjectsRoute._addFileChildren(
+  OnlymeProjectsRouteChildren,
+)
+
+interface OnlymeRouteChildren {
+  OnlymeBlogSettingsRoute: typeof OnlymeBlogSettingsRoute
+  OnlymeBlogsRoute: typeof OnlymeBlogsRouteWithChildren
+  OnlymeExportRoute: typeof OnlymeExportRoute
+  OnlymeLoginRoute: typeof OnlymeLoginRoute
+  OnlymeMediaRoute: typeof OnlymeMediaRoute
+  OnlymePagesRoute: typeof OnlymePagesRouteWithChildren
+  OnlymeProjectsRoute: typeof OnlymeProjectsRouteWithChildren
+  OnlymeSettingsRoute: typeof OnlymeSettingsRoute
+  OnlymeIndexRoute: typeof OnlymeIndexRoute
+  OnlymePreviewSlugRoute: typeof OnlymePreviewSlugRoute
+}
+
+const OnlymeRouteChildren: OnlymeRouteChildren = {
+  OnlymeBlogSettingsRoute: OnlymeBlogSettingsRoute,
+  OnlymeBlogsRoute: OnlymeBlogsRouteWithChildren,
+  OnlymeExportRoute: OnlymeExportRoute,
+  OnlymeLoginRoute: OnlymeLoginRoute,
+  OnlymeMediaRoute: OnlymeMediaRoute,
+  OnlymePagesRoute: OnlymePagesRouteWithChildren,
+  OnlymeProjectsRoute: OnlymeProjectsRouteWithChildren,
+  OnlymeSettingsRoute: OnlymeSettingsRoute,
+  OnlymeIndexRoute: OnlymeIndexRoute,
+  OnlymePreviewSlugRoute: OnlymePreviewSlugRoute,
+}
+
+const OnlymeRouteWithChildren =
+  OnlymeRoute._addFileChildren(OnlymeRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   ExperienceRoute: ExperienceRoute,
+  OnlymeRoute: OnlymeRouteWithChildren,
   SkillsRoute: SkillsRoute,
   BlogSlugRoute: BlogSlugRoute,
+  BlogSearchRoute: BlogSearchRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
