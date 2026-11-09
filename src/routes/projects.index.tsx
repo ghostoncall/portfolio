@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
+import { ProjectSummary } from "@/components/public/ProjectSummary";
 
 export const Route = createFileRoute("/projects/")({
   loader: async () => {
@@ -31,28 +33,20 @@ export const Route = createFileRoute("/projects/")({
 
 function Projects() {
   const { projects, site } = Route.useLoaderData();
+  const visible = (projects as any[]).filter((p) => p.status !== "archived");
   return (
     <PageShell crumbs={["Projects"]} title="Selected Projects" site={site}>
       <ul className="border-t border-border">
-        {projects.map((p: any) => (
+        {visible.map((p) => (
           <li key={p.slug} className="border-b border-border py-6">
-            <Link
-              to="/projects/$slug"
-              params={{ slug: p.slug }}
-              className="group grid gap-2 md:grid-cols-[6rem_1fr]"
-            >
-              <span className="label-caps pt-1 text-muted-foreground">{p.year}</span>
-              <span>
-                <span className="label-caps text-muted-foreground">{p.category}</span>
-                <span className="block font-display text-3xl text-foreground group-hover:underline">
-                  {p.title}
-                </span>
-                <span className="mt-1 block font-serif text-muted-foreground">{p.dek}</span>
-                <span className="mt-3 block text-sm text-link">{p.stack.join(" · ")}</span>
-              </span>
-            </Link>
+            <ProjectSummary project={p} />
           </li>
         ))}
+        {visible.length === 0 && (
+          <li className="border-b border-border py-6 text-center text-muted-foreground">
+            No projects to display.
+          </li>
+        )}
       </ul>
     </PageShell>
   );

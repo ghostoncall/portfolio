@@ -1,16 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { Blocks } from "@/components/blocks";
-import { getPublishedProject, getSiteIdentity } from "@/lib/server-fns";
+import { getPublishedProject, getPublishedSkillsBundle, getSiteIdentity } from "@/lib/server-fns";
+import { ProjectView } from "@/components/public/ProjectView";
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: async ({ params }) => {
-    const [project, site] = await Promise.all([
+    const [project, skillsBundle, site] = await Promise.all([
       (getPublishedProject as any)({ data: { slug: params.slug } }),
+      (getPublishedSkillsBundle as any)(),
       (getSiteIdentity as any)(),
     ]);
-    if (!project) throw notFound();
-    return { project, site };
+    if (!project || !project.isPublic) throw notFound();
+    return { project, skills: skillsBundle.skills, site };
   },
   head: ({ loaderData }) => {
     const { project, site } = loaderData || {};
@@ -27,39 +29,30 @@ export const Route = createFileRoute("/projects/$slug")({
         : [{ title: "Project not found" }, { name: "robots", content: "noindex" }],
     };
   },
-  notFoundComponent: () => {
-    const { site } = Route.useLoaderData() as { site: any };
-    return (
-      <PageShell crumbs={["Projects"]} title="Project not found" site={site}>
-        <Link to="/projects" className="text-link hover:underline">
-          Back to projects
-        </Link>
-      </PageShell>
-    );
-  },
+  notFoundComponent: ProjectNotFound,
   component: ProjectPage,
 });
 
+function ProjectNotFound() {
+  const { site } = Route.useLoaderData() as { site: any };
+  return (
+    <PageShell crumbs={["Projects"]} title="Project not found" site={site}>
+      <Link to="/projects" className="text-link hover:underline">
+        Back to projects
+      </Link>
+    </PageShell>
+  );
+}
+
 function ProjectPage() {
-  const { project, site } = Route.useLoaderData();
+  const { project, skills, site } = Route.useLoaderData() as {
+    project: any;
+    skills: any[];
+    site: any;
+  };
   return (
     <PageShell crumbs={["Projects", project.title]} title={project.title} site={site}>
-      <p className="font-serif text-xl italic text-muted-foreground">{project.dek}</p>
-      <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-border py-4 text-sm md:grid-cols-3">
-        <div>
-          <dt className="label-caps text-muted-foreground">Year</dt>
-          <dd>{project.year}</dd>
-        </div>
-        <div>
-          <dt className="label-caps text-muted-foreground">Category</dt>
-          <dd>{project.category}</dd>
-        </div>
-        <div className="col-span-2 md:col-span-1">
-          <dt className="label-caps text-muted-foreground">Stack</dt>
-          <dd>{project.stack.join(", ")}</dd>
-        </div>
-      </dl>
-      <Blocks blocks={project.blocks} />
+      <ProjectView project={project} skills={skills} />
     </PageShell>
   );
 }

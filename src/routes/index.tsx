@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Blocks } from "@/components/blocks";
+import { ProjectSummary } from "@/components/public/ProjectSummary";
 import { getPublishedPage, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/")({
@@ -12,7 +14,15 @@ export const Route = createFileRoute("/")({
     ]);
     return {
       overview: overviewPage ?? { kind: "blocks", blocks: [] },
-      projects,
+      featured: (projects as any[])
+        .filter((p) => p.status !== "archived")
+        .sort(
+          (a, b) =>
+            Number(b.featured ?? 0) - Number(a.featured ?? 0) ||
+            Number(b.priority ?? 0) - Number(a.priority ?? 0) ||
+            Number(a.sort ?? 0) - Number(b.sort ?? 0),
+        )
+        .slice(0, 3),
       site,
     };
   },
@@ -26,7 +36,10 @@ export const Route = createFileRoute("/")({
           content:
             "Portfolio of an AI engineer: LLM applications, retrieval, computer vision and MLOps.",
         },
-        { property: "og:title", content: `${site?.name ?? "Portfolio"} — ${site?.title ?? "AI Engineer"}` },
+        {
+          property: "og:title",
+          content: `${site?.name ?? "Portfolio"} — ${site?.title ?? "AI Engineer"}`,
+        },
         { property: "og:description", content: "Selected AI projects, skills and experience." },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -37,23 +50,15 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { overview, projects, site } = Route.useLoaderData();
+  const { overview, featured, site } = Route.useLoaderData();
   return (
     <PageShell crumbs={["Overview"]} title={`${site?.name}, ${site?.title}`} site={site}>
       <Blocks blocks={(overview as any).blocks} />
       <h2 className="mt-12 mb-2 text-3xl text-foreground">Featured Work</h2>
       <ul className="border-t border-border">
-        {projects.slice(0, 3).map((p: any) => (
+        {featured.map((p) => (
           <li key={p.slug} className="border-b border-border py-5">
-            <Link to="/projects/$slug" params={{ slug: p.slug }} className="group block">
-              <span className="label-caps text-muted-foreground">
-                {p.category} · {p.year}
-              </span>
-              <span className="block font-serif text-xl text-foreground group-hover:underline">
-                {p.title}
-              </span>
-              <span className="text-muted-foreground">{p.dek}</span>
-            </Link>
+            <ProjectSummary project={p} />
           </li>
         ))}
       </ul>

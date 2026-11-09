@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/onlyme")({
     if (!user) {
       throw redirect({
         to: "/onlyme/login",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         search: { from: location.pathname } as any,
       });
     }
@@ -71,6 +72,9 @@ function OnlymeLayout() {
     { to: "/onlyme/settings", label: "Settings", icon: "⚙️" },
     { to: "/onlyme/pages", label: "Pages", icon: "📄" },
     { to: "/onlyme/projects", label: "Projects", icon: "💼" },
+    { to: "/onlyme/skills", label: "Skills", icon: "🧩" },
+    { to: "/onlyme/certificates", label: "Certificates", icon: "🎓" },
+    { to: "/onlyme/experience", label: "Experience", icon: "🛠️" },
     { to: "/onlyme/blogs", label: "Blogs", icon: "📝" },
     { to: "/onlyme/media", label: "Media", icon: "🖼️" },
     { to: "/onlyme/export", label: "Backup", icon: "💾" },

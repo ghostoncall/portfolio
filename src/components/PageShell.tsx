@@ -40,7 +40,7 @@ export function SiteHeader({ site }: { site: SiteIdentity }) {
         <Link to="/" className="flex-1 text-center font-serif text-2xl text-foreground">
           {site.name}
         </Link>
-        <span className="hidden text-base font-medium text-muted-foreground sm:block tracking-tight">{site.edition}</span>
+        <span className="text-base font-medium text-white tracking-tight bg-black">{site.edition}</span>
       </div>
     </header>
   );

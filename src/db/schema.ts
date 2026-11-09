@@ -24,7 +24,16 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import type { Block, Post, Project } from "@/content/site";
+import type {
+  Block,
+  CertificatesPageContent,
+  ExperiencePageContent,
+  PageContent,
+  PageKind,
+  Post,
+  Project,
+  SkillsPageContent,
+} from "@/content/site";
 import type { BlogSettings } from "@/lib/blog-settings";
 
 /** Postgres tsvector. Maintained by a database trigger, never written by the app. */
@@ -44,30 +53,24 @@ export type SiteIdentity = {
   socials: { label: string; href: string }[];
 };
 
+/** Legacy skill group shape (pre-CMS). Kept so old documents still typecheck. */
 export type SkillGroup = {
   group: string;
   items: { name: string; detail: string }[];
 };
 
-export type ExperienceEntry = {
+/** Legacy experience entry shape (pre-CMS). Kept so old documents still typecheck. */
+export type LegacyExperienceEntry = {
   role: string;
   org: string;
   period: string;
   blocks: Block[];
 };
 
-/** A page body. `kind` tells the admin editor which form shape to render. */
-export type PageContent =
-  | { kind: "blocks"; blocks: Block[] }
-  | { kind: "skills"; skills: SkillGroup[]; certificates: Block[] }
-  | { kind: "experience"; entries: ExperienceEntry[] };
-
-export type PageKind = PageContent["kind"];
-
 export const pages = pgTable("pages", {
-  slug: text("slug").primaryKey(), // "overview" | "skills" | "experience"
+  slug: text("slug").primaryKey(), // "overview" | "skills" | "experience" | "certificates"
   title: text("title").notNull(),
-  kind: text("kind", { enum: ["blocks", "skills", "experience"] })
+  kind: text("kind", { enum: ["blocks", "skills", "experience", "certificates"] })
     .$type<PageKind>()
     .notNull(),
   published: jsonb("published").$type<PageContent>().notNull(),
@@ -187,3 +190,22 @@ export type PageRow = typeof pages.$inferSelect;
 export type ProjectRow = typeof projects.$inferSelect;
 export type PostRow = typeof posts.$inferSelect;
 export type SettingsRow = typeof settings.$inferSelect;
+
+// Re-export CMS content types so consumers import from one place.
+export type {
+  Project,
+  ProjectStatus,
+  ProjectLink,
+  Skill,
+  SkillCategory,
+  SkillLevel,
+  Certificate,
+  ExperienceEntry,
+  ExperienceEmploymentType,
+  ExperienceWorkMode,
+  SkillsPageContent,
+  CertificatesPageContent,
+  ExperiencePageContent,
+  PageContent,
+  PageKind,
+} from "@/content/site";

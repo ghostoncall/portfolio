@@ -19,7 +19,25 @@ import {
   projects,
   settings,
 } from "@/db/schema";
-import type { PageContent, SiteIdentity } from "@/db/schema";
+import type {
+  CertificatesPageContent,
+  PageContent,
+  PageKind,
+  PageRow,
+  Project,
+  SiteIdentity,
+  SkillsPageContent,
+} from "@/db/schema";
+import { assertValidContent } from "@/lib/cms-validation";
+import {
+  normalizeCertificatesPage,
+  normalizeExperiencePage,
+  normalizePageContent,
+  normalizeProject,
+  normalizeSkillsPage,
+  nextSort,
+} from "@/lib/cms-normalize";
+import { planPageReferenceCleanup, planProjectDelete, planProjectRename } from "@/lib/cms-server";
 import { mergeBlogSettings } from "@/lib/blog-settings";
 
 /** Verify the Supabase session on a Request. Throws 401 if invalid. */
@@ -84,7 +102,7 @@ export const listStaged = createServerFn({ method: "GET", strict: false }).handl
 // Read staged content for a single item
 // ---------------------------------------------------------------------------
 
-export const getStaged = createServerFn({ method: "GET", strict: false }).handler(
+export const getStaged = createServerFn({ method: "POST", strict: false }).handler(
   async ({ data, context }: any) => {
     const { request } = context;
     await requireAdmin(request);
@@ -131,6 +149,23 @@ export const updateStaged = createServerFn({ method: "POST", strict: false }).ha
       throw err;
     }
     const now = new Date();
+    try {
+      assertValidContent(data.table, data.content);
+    } catch (err: any) {
+      if (!err.statusCode) {
+        const wrapped: any = new Error(err?.message ?? "Validation failed");
+        wrapped.statusCode = 400;
+        throw wrapped;
+      }
+      throw err;
+    }
+    if (data.table === "pages") {
+      await db
+        .update(pages)
+        .set({ staged: data.content, updatedAt: now })
+        .where(eq(pages.slug, data.slug));
+      return { ok: true };
+    }
     await db
       .update(table)
       .set({ staged: data.content, updatedAt: now })
@@ -383,6 +418,188 @@ export const revertItem = createServerFn({ method: "POST", strict: false }).hand
       .set({ staged: row[0]["published"], updatedAt: new Date() })
       .where(eq(keyColumn(table), data.slug));
     return { ok: true };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Project-specific operations (slug rename, duplicate, reorder, delete)
+// ---------------------------------------------------------------------------
+
+export const updateProjectSlug = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const db = getDb();
+    const oldSlug = String(data?.oldSlug ?? "").trim();
+    const newSlug = String(data?.newSlug ?? "").trim();
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
+      throw httpError("Slug must be lowercase letters, numbers, and dashes.", 400);
+    }
+    if (newSlug === oldSlug) return { ok: true, slug: newSlug };
+    const existing = await db.select().from(projects).where(eq(projects.slug, newSlug)).limit(1);
+    if (existing[0]) throw httpError(`"${newSlug}" already exists — pick another slug.`, 409);
+    const row = await db.select().from(projects).where(eq(projects.slug, oldSlug)).limit(1);
+    if (!row[0]) throw httpError("Project not found", 404);
+    const allPages = await db.select().from(pages);
+    const plan = planProjectRename({
+      project: row[0].staged as Project,
+      pages: allPages as PageRow[],
+      oldSlug,
+      newSlug,
+    });
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      await tx
+        .update(projects)
+        .set({
+          slug: newSlug,
+          published: { ...plan.project, slug: newSlug } as Project,
+          staged: plan.project,
+          updatedAt: now,
+        })
+        .where(eq(projects.slug, oldSlug));
+      for (const p of plan.pages) {
+        await tx
+          .update(pages)
+          .set({ published: p.published, staged: p.staged, updatedAt: now })
+          .where(eq(pages.slug, p.slug));
+      }
+    });
+    return { ok: true, slug: newSlug };
+  },
+);
+
+export const duplicateProject = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const db = getDb();
+    const slug = String(data?.slug ?? "").trim();
+    const newSlug = String(data?.newSlug ?? "").trim();
+    const newTitle = String(data?.title ?? "").trim() || "Copy";
+    if (!newSlug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
+      throw httpError("Invalid slug", 400);
+    }
+    const existing = await db.select().from(projects).where(eq(projects.slug, newSlug)).limit(1);
+    if (existing[0]) throw httpError(`"${newSlug}" already exists — pick another slug.`, 409);
+    const row = await db.select().from(projects).where(eq(projects.slug, slug)).limit(1);
+    if (!row[0]) throw httpError("Project not found", 404);
+    const all = await db.select().from(projects);
+    const maxSort = all.reduce((m, p) => Math.max(m, p.sort ?? 0), 0);
+    const now = new Date();
+    const staged = normalizeProject({
+      ...row[0].staged,
+      slug: newSlug,
+      title: newTitle,
+      featured: false,
+      updatedAt: now.toISOString(),
+    });
+    await db.insert(projects).values({
+      slug: newSlug,
+      published: staged,
+      staged,
+      sort: maxSort + 1,
+      isPublic: false,
+      updatedAt: now,
+    });
+    return { ok: true, slug: newSlug };
+  },
+);
+
+export const reorderProjects = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const db = getDb();
+    const slugs: string[] = Array.isArray(data?.slugs) ? data.slugs.map(String) : [];
+    if (!slugs.length) return { ok: true, count: 0 };
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      for (let i = 0; i < slugs.length; i++) {
+        await tx
+          .update(projects)
+          .set({ sort: i, updatedAt: now })
+          .where(eq(projects.slug, slugs[i]!));
+      }
+    });
+    return { ok: true, count: slugs.length };
+  },
+);
+
+export const deleteProject = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const db = getDb();
+    const slug = String(data?.slug ?? "").trim();
+    const row = await db.select().from(projects).where(eq(projects.slug, slug)).limit(1);
+    if (!row[0]) throw httpError("Project not found", 404);
+    const allPages = await db.select().from(pages);
+    const plan = planProjectDelete({ pages: allPages as PageRow[], slug });
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      await tx.delete(projects).where(eq(projects.slug, slug));
+      for (const p of plan) {
+        await tx
+          .update(pages)
+          .set({ published: p.published, staged: p.staged, updatedAt: now })
+          .where(eq(pages.slug, p.slug));
+      }
+    });
+    return { ok: true };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Content-page helpers
+// ---------------------------------------------------------------------------
+
+export const ensureContentPage = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const db = getDb();
+    const slug = String(data?.slug ?? "").trim();
+    const title = String(data?.title ?? slug).trim();
+    const kind = (data?.kind ?? "blocks") as PageKind;
+    if (!slug) throw httpError("slug is required", 400);
+    const existing = await db.select().from(pages).where(eq(pages.slug, slug)).limit(1);
+    if (existing[0]) return { ok: true, created: false, slug };
+    const now = new Date();
+    const empty: PageContent =
+      kind === "skills"
+        ? { kind: "skills", categories: [], skills: [] }
+        : kind === "certificates"
+          ? { kind: "certificates", certificates: [] }
+          : { kind: "experience", entries: [] };
+    await db.insert(pages).values({
+      slug,
+      title,
+      kind,
+      published: empty,
+      staged: empty,
+      sort: 99,
+      updatedAt: now,
+    });
+    return { ok: true, created: true, slug };
+  },
+);
+
+export const getPublishedSkillsBundle = createServerFn({ method: "GET", strict: false }).handler(
+  async () => {
+    const db = getDb();
+    const skillsRow = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
+    const certsRow = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
+    const skills = skillsRow[0]
+      ? normalizePageContent(skillsRow[0].published.kind, skillsRow[0].published)
+      : { kind: "skills", categories: [], skills: [] };
+    const certificates = certsRow[0]
+      ? normalizePageContent(certsRow[0].published.kind, certsRow[0].published)
+      : { kind: "certificates", certificates: [] };
+    return {
+      skills: skills as SkillsPageContent,
+      certificates: certificates as CertificatesPageContent,
+    };
   },
 );
 

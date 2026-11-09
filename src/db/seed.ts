@@ -52,15 +52,30 @@ export async function seedContent(): Promise<SeedCounts> {
           kind: "skills" as PageKind,
           published: {
             kind: "skills",
-            skills,
-            certificates,
+            categories: skills.categories,
+            skills: skills.skills,
           } satisfies PageContent,
           staged: {
             kind: "skills",
-            skills,
-            certificates,
+            categories: skills.categories,
+            skills: skills.skills,
           } satisfies PageContent,
           sort: 1,
+          publishedAt: new Date(),
+        },
+        {
+          slug: "certificates",
+          title: "Certificates",
+          kind: "certificates" as PageKind,
+          published: {
+            kind: "certificates",
+            certificates: certificates.certificates,
+          } satisfies PageContent,
+          staged: {
+            kind: "certificates",
+            certificates: certificates.certificates,
+          } satisfies PageContent,
+          sort: 3,
           publishedAt: new Date(),
         },
         {
@@ -69,11 +84,11 @@ export async function seedContent(): Promise<SeedCounts> {
           kind: "experience" as PageKind,
           published: {
             kind: "experience",
-            entries: experience,
+            entries: experience.entries,
           } satisfies PageContent,
           staged: {
             kind: "experience",
-            entries: experience,
+            entries: experience.entries,
           } satisfies PageContent,
           sort: 2,
           publishedAt: new Date(),

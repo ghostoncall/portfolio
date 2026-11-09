@@ -70,50 +70,71 @@ function Pages() {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.slug} className="border-b border-border hover:bg-muted/30">
-                <td className="px-4 py-3 text-sm font-mono text-muted-foreground">{item.slug}</td>
-                <td className="px-4 py-3 text-sm text-foreground">
-                  {item.published.title || item.staged.title}
-                </td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {item.published.kind || item.staged.kind}
-                </td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <Link
-                    to="/onlyme/pages/$slug"
-                    params={{ slug: item.slug }}
-                    className="text-sm text-primary underline"
-                  >
-                    Edit
-                  </Link>{" "}
-                  <button
-                    onClick={() => handlePublish(item.slug)}
-                    disabled={status?.slug === item.slug}
-                    className="ml-2 text-xs text-success hover:underline"
-                  >
-                    Publish
-                  </button>{" "}
-                  <button
-                    onClick={() => handleRevert(item.slug)}
-                    disabled={status?.slug === item.slug}
-                    className="ml-2 text-xs text-destructive hover:underline"
-                  >
-                    Revert
-                  </button>
-                  {status && status.slug === item.slug && status.kind === "ok" && (
-                    <span className="ml-2 text-xs text-success">✓</span>
-                  )}
-                  {status && status.slug === item.slug && status.kind === "error" && (
-                    <span className="ml-2 text-xs text-destructive">✗</span>
-                  )}
-                </td>
-              </tr>
-            ))}
+          <tbody data-testid="pages-table">
+            {items.map((item) => {
+              const dedicatedAdmins: Record<string, string> = {
+                skills: "/onlyme/skills",
+                certificates: "/onlyme/certificates",
+                experience: "/onlyme/experience",
+              };
+              const isAdminLink = Boolean(dedicatedAdmins[item.published.kind ?? ""]);
+              return (
+                <tr key={item.slug} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 text-sm font-mono text-muted-foreground">{item.slug}</td>
+                  <td className="px-4 py-3 text-sm text-foreground">
+                    {item.published.title || item.staged.title}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {item.published.kind || item.staged.kind}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {isAdminLink ? (
+                      <Link
+                        to={(dedicatedAdmins[item.published.kind] ?? "/onlyme/pages") as never}
+                        className="text-sm text-primary underline"
+                        data-testid="page-edit-link"
+                      >
+                        Edit
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/onlyme/pages/$slug"
+                        params={{ slug: item.slug }}
+                        className="text-sm text-primary underline"
+                        data-testid="page-edit-link"
+                      >
+                        Edit
+                      </Link>
+                    )}{" "}
+                    <button
+                      onClick={() => handlePublish(item.slug)}
+                      disabled={status?.slug === item.slug}
+                      className="ml-2 text-xs text-success hover:underline"
+                      data-testid="page-publish-button"
+                    >
+                      Publish
+                    </button>{" "}
+                    <button
+                      onClick={() => handleRevert(item.slug)}
+                      disabled={status?.slug === item.slug}
+                      className="ml-2 text-xs text-destructive hover:underline"
+                      data-testid="page-revert-button"
+                    >
+                      Revert
+                    </button>
+                    {status && status.slug === item.slug && status.kind === "ok" && (
+                      <span className="ml-2 text-xs text-success">✓</span>
+                    )}
+                    {status && status.slug === item.slug && status.kind === "error" && (
+                      <span className="ml-2 text-xs text-destructive">✗</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
             {items.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-4 text-center text-muted-foreground">

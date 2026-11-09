@@ -78,6 +78,15 @@ export const overview: Block[] = [
   },
 ];
 
+export type ProjectStatus = "completed" | "in-progress" | "upcoming" | "archived";
+
+export type ProjectLink = {
+  id: string;
+  label: string;
+  href: string;
+  kind: "live" | "github" | "docs" | "demo" | "other";
+};
+
 export type Project = {
   slug: string;
   title: string;
@@ -86,7 +95,125 @@ export type Project = {
   category: string;
   stack: string[];
   blocks: Block[];
+  summary?: string;
+  status?: ProjectStatus;
+  featured?: boolean;
+  priority?: number;
+  duration?: string;
+  role?: string;
+  achievements?: string[];
+  challenges?: string;
+  thumbnail?: MediaItem;
+  cover?: MediaItem;
+  gallery?: MediaItem[];
+  video?: MediaItem;
+  links?: ProjectLink[];
+  skillIds?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 };
+
+export type SkillLevel = "beginner" | "intermediate" | "advanced" | "expert";
+
+export type SkillCategory = {
+  id: string;
+  name: string;
+  sort: number;
+  visible?: boolean;
+};
+
+export type Skill = {
+  id: string;
+  name: string;
+  categoryId: string;
+  detail?: string;
+  description?: string;
+  level?: SkillLevel;
+  years?: number;
+  icon?: MediaItem;
+  featured?: boolean;
+  visible?: boolean;
+  projectSlugs?: string[];
+  sort: number;
+};
+
+export type Certificate = {
+  id: string;
+  title: string;
+  issuer: string;
+  issueDate?: string;
+  expiryDate?: string;
+  credentialId?: string;
+  credentialUrl?: string;
+  description?: string;
+  category?: string;
+  featured?: boolean;
+  visible?: boolean;
+  sort: number;
+  image?: MediaItem;
+  file?: MediaItem;
+  skillIds?: string[];
+};
+
+export type ExperienceEmploymentType =
+  | "full-time"
+  | "part-time"
+  | "contract"
+  | "freelance"
+  | "internship";
+
+export type ExperienceWorkMode = "on-site" | "remote" | "hybrid";
+
+export type ExperienceEntry = {
+  id: string;
+  role: string;
+  org: string;
+  employmentType?: ExperienceEmploymentType;
+  location?: string;
+  workMode?: ExperienceWorkMode;
+  startDate?: string;
+  endDate?: string;
+  current?: boolean;
+  period?: string;
+  overview?: string;
+  responsibilities?: string[];
+  achievements?: string[];
+  tech?: string[];
+  skillIds?: string[];
+  projectSlugs?: string[];
+  logo?: MediaItem;
+  website?: string;
+  links?: ProjectLink[];
+  media?: MediaItem[];
+  visible?: boolean;
+  sort: number;
+  blocks?: Block[];
+};
+
+export type SkillsPageContent = {
+  kind: "skills";
+  categories: SkillCategory[];
+  skills: Skill[];
+};
+
+export type CertificatesPageContent = {
+  kind: "certificates";
+  certificates: Certificate[];
+};
+
+export type ExperiencePageContent = {
+  kind: "experience";
+  entries: ExperienceEntry[];
+};
+
+/** A page body. `kind` tells the admin editor which form shape to render. */
+export type PageContent =
+  | { kind: "blocks"; blocks: Block[] }
+  | SkillsPageContent
+  | CertificatesPageContent
+  | ExperiencePageContent;
+
+export type PageKind = PageContent["kind"];
 
 export const projects: Project[] = [
   {
@@ -162,52 +289,137 @@ export const projects: Project[] = [
   },
 ];
 
-export const skills: { group: string; items: { name: string; detail: string }[] }[] = [
-  {
-    group: "LLMs & Agents",
-    items: [
-      { name: "Prompt & tool design", detail: "Function calling, structured output" },
-      { name: "Agents", detail: "Planning, memory, multi-step workflows" },
-      { name: "Evaluation", detail: "Golden sets, LLM-as-judge, regression tests" },
-    ],
-  },
-  {
-    group: "Retrieval",
-    items: [
-      { name: "RAG", detail: "Chunking, hybrid search, reranking" },
-      { name: "Vector databases", detail: "pgvector, Pinecone, FAISS" },
-    ],
-  },
-  {
-    group: "Machine Learning",
-    items: [
-      { name: "Deep learning", detail: "PyTorch, fine-tuning, LoRA" },
-      { name: "Computer vision", detail: "Detection, segmentation" },
-    ],
-  },
-  {
-    group: "Engineering",
-    items: [
-      { name: "Languages", detail: "Python, TypeScript, SQL" },
-      { name: "MLOps", detail: "Docker, CI/CD, monitoring" },
-    ],
-  },
-];
+export const skills: SkillsPageContent = {
+  kind: "skills",
+  categories: [
+    { id: "cat-llms-agents", name: "LLMs & Agents", sort: 0 },
+    { id: "cat-retrieval", name: "Retrieval", sort: 1 },
+    { id: "cat-machine-learning", name: "Machine Learning", sort: 2 },
+    { id: "cat-engineering", name: "Engineering", sort: 3 },
+  ],
+  skills: [
+    {
+      id: "skill-prompt-tool-design",
+      name: "Prompt & tool design",
+      categoryId: "cat-llms-agents",
+      detail: "Function calling, structured output",
+      level: "advanced",
+      years: 3,
+      featured: true,
+      visible: true,
+      sort: 0,
+    },
+    {
+      id: "skill-agents",
+      name: "Agents",
+      categoryId: "cat-llms-agents",
+      detail: "Planning, memory, multi-step workflows",
+      level: "advanced",
+      years: 2,
+      visible: true,
+      sort: 1,
+    },
+    {
+      id: "skill-evaluation",
+      name: "Evaluation",
+      categoryId: "cat-llms-agents",
+      detail: "Golden sets, LLM-as-judge, regression tests",
+      level: "intermediate",
+      years: 2,
+      visible: true,
+      sort: 2,
+    },
+    {
+      id: "skill-rag",
+      name: "RAG",
+      categoryId: "cat-retrieval",
+      detail: "Chunking, hybrid search, reranking",
+      level: "advanced",
+      years: 3,
+      visible: true,
+      sort: 0,
+    },
+    {
+      id: "skill-vector-databases",
+      name: "Vector databases",
+      categoryId: "cat-retrieval",
+      detail: "pgvector, Pinecone, FAISS",
+      level: "intermediate",
+      years: 2,
+      visible: true,
+      sort: 1,
+    },
+    {
+      id: "skill-deep-learning",
+      name: "Deep learning",
+      categoryId: "cat-machine-learning",
+      detail: "PyTorch, fine-tuning, LoRA",
+      level: "intermediate",
+      years: 2,
+      visible: true,
+      sort: 0,
+    },
+    {
+      id: "skill-computer-vision",
+      name: "Computer vision",
+      categoryId: "cat-machine-learning",
+      detail: "Detection, segmentation",
+      level: "intermediate",
+      years: 2,
+      visible: true,
+      sort: 1,
+    },
+    {
+      id: "skill-languages",
+      name: "Languages",
+      categoryId: "cat-engineering",
+      detail: "Python, TypeScript, SQL",
+      level: "expert",
+      years: 5,
+      visible: true,
+      sort: 0,
+    },
+    {
+      id: "skill-mlops",
+      name: "MLOps",
+      categoryId: "cat-engineering",
+      detail: "Docker, CI/CD, monitoring",
+      level: "advanced",
+      years: 3,
+      visible: true,
+      sort: 1,
+    },
+  ],
+};
 
-export const certificates: Block[] = [
-  {
-    type: "file",
-    name: "Machine Learning Specialization",
-    kind: "PDF",
-    description: "Certificate placeholder — attach your file.",
-  },
-  {
-    type: "file",
-    name: "Cloud AI Practitioner",
-    kind: "PDF",
-    description: "Certificate placeholder.",
-  },
-];
+export const certificates: CertificatesPageContent = {
+  kind: "certificates",
+  certificates: [
+    {
+      id: "cert-ml-specialization",
+      title: "Machine Learning Specialization",
+      issuer: "Coursera / Stanford University",
+      issueDate: "2024-01-01",
+      credentialId: "ML-SPEC-2024-0001",
+      credentialUrl: "https://coursera.org/verify/ML-SPEC-2024-0001",
+      description: "Foundations of machine learning and supervised/unsupervised algorithms.",
+      category: "Machine Learning",
+      featured: true,
+      visible: true,
+      sort: 0,
+    },
+    {
+      id: "cert-cloud-ai-practitioner",
+      title: "Cloud AI Practitioner",
+      issuer: "Cloud Provider Academy",
+      issueDate: "2024-06-01",
+      description: "Certificate placeholder — attach your file.",
+      category: "Cloud",
+      visible: true,
+      sort: 1,
+    },
+  ],
+};
 
 export type PostBody = {
   /** Lexical editor state (Koenig / Ghost). Opaque to the rest of the app. */
@@ -301,22 +513,52 @@ export const posts: Post[] = [
   },
 ];
 
-export const experience: { role: string; org: string; period: string; blocks: Block[] }[] = [
-  {
-    role: "AI Engineer",
-    org: "Company Name",
-    period: "2024 — Present",
-    blocks: [
-      {
-        type: "list",
-        items: ["Shipped an LLM assistant used by 10k people.", "Built the evaluation pipeline."],
-      },
-    ],
-  },
-  {
-    role: "Software Engineer",
-    org: "Previous Company",
-    period: "2021 — 2024",
-    blocks: [{ type: "text", body: "Short description of responsibilities and impact." }],
-  },
-];
+export const experience: ExperiencePageContent = {
+  kind: "experience",
+  entries: [
+    {
+      id: "exp-ai-engineer",
+      role: "AI Engineer",
+      org: "Company Name",
+      employmentType: "full-time",
+      location: "Remote",
+      workMode: "remote",
+      startDate: "2024-01-01",
+      current: true,
+      period: "2024 — Present",
+      overview: "Designing and building applied AI systems.",
+      responsibilities: [
+        "Shipped an LLM assistant used by 10k people.",
+        "Built the evaluation pipeline.",
+      ],
+      achievements: ["Reduced hallucination rate by 40%", "Cut median latency to under 1.2s"],
+      tech: ["Python", "LangChain", "pgvector", "OpenAI", "FastAPI"],
+      skillIds: ["skill-prompt-tool-design", "skill-agents", "skill-rag"],
+      visible: true,
+      sort: 0,
+      blocks: [
+        {
+          type: "list",
+          items: ["Shipped an LLM assistant used by 10k people.", "Built the evaluation pipeline."],
+        },
+      ],
+    },
+    {
+      id: "exp-software-engineer",
+      role: "Software Engineer",
+      org: "Previous Company",
+      employmentType: "full-time",
+      location: "City, Country",
+      workMode: "on-site",
+      startDate: "2021-01-01",
+      endDate: "2023-12-31",
+      period: "2021 — 2024",
+      overview: "Short description of responsibilities and impact.",
+      responsibilities: ["Built internal tooling and APIs."],
+      tech: ["TypeScript", "Postgres", "Docker"],
+      visible: true,
+      sort: 1,
+      blocks: [{ type: "text", body: "Short description of responsibilities and impact." }],
+    },
+  ],
+};

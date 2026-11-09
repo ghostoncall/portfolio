@@ -1,13 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { Blocks } from "@/components/blocks";
-import { certificates, skills } from "@/content/site";
 import { getSiteIdentity } from "@/lib/server-fns";
+import { getPublishedSkillsBundle } from "@/lib/server-fns";
+import { SkillsView } from "@/components/public/SkillsView";
+import { CertificatesView } from "@/components/public/CertificatesView";
 
 export const Route = createFileRoute("/skills")({
   loader: async () => {
-    const site = await (getSiteIdentity as any)();
-    return { site };
+    const [site, bundle] = await Promise.all([
+      (getSiteIdentity as any)(),
+      (getPublishedSkillsBundle as any)(),
+    ]);
+    return { site, bundle };
   },
   head: ({ loaderData }) => {
     const site = loaderData?.site;
@@ -29,30 +34,18 @@ export const Route = createFileRoute("/skills")({
       ],
     };
   },
-  component: Skills,
+  component: SkillsPage,
 });
 
-function Skills() {
-  const { site } = Route.useLoaderData() as { site: any };
+function SkillsPage() {
+  const { site, bundle } = Route.useLoaderData() as {
+    site: any;
+    bundle: { skills: any; certificates: any };
+  };
   return (
-    <PageShell crumbs={["Skills & Certificates"]} title="Skills & Requirements" site={site}>
-      {skills.map((g) => (
-        <section key={g.group} className="mb-10">
-          <h2 className="mb-3 text-3xl text-foreground">{g.group}</h2>
-          <table className="w-full border-t border-border text-left">
-            <tbody>
-              {g.items.map((i) => (
-                <tr key={i.name} className="border-b border-border">
-                  <td className="w-1/3 py-3 pr-4 font-serif text-foreground">{i.name}</td>
-                  <td className="py-3 text-muted-foreground">{i.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
-      <h2 className="mt-12 mb-3 text-3xl text-foreground">Certificates</h2>
-      <Blocks blocks={certificates} />
+    <PageShell crumbs={["Skills & Certificates"]} title="Skills & Certificates" site={site}>
+      <SkillsView content={bundle.skills} />
+      <CertificatesView content={bundle.certificates} />
     </PageShell>
   );
 }
