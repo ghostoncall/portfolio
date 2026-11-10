@@ -7,7 +7,7 @@
 import React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { getStaged, publishItem, revertItem } from "@/lib/server-fns";
+import { getStaged } from "@/lib/server-fns";
 import { normalizeCertificatesPage, nextSort, stableId } from "@/lib/cms-normalize";
 import type { Certificate, CertificatesPageContent } from "@/content/site";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +75,49 @@ function CertificatesAdmin() {
   if (!draft.data) return null;
 
   const certs = draft.doc.certificates ?? [];
+
+  // Published copy, keyed by id — used for per-row Publish/Revert state.
+  const publishedCerts = (draft.data.published as CertificatesPageContent).certificates ?? [];
+  const publishedById = new Map<string, Certificate>(publishedCerts.map((c) => [c.id, c]));
+
+  const fingerprint = (c: Certificate) =>
+    JSON.stringify([
+      c.title,
+      c.issuer,
+      c.category ?? "",
+      c.issueDate ?? "",
+      c.expiryDate ?? "",
+      c.credentialId ?? "",
+      c.credentialUrl ?? "",
+      c.description ?? "",
+      c.visible !== false,
+      Boolean(c.featured),
+      c.skillIds ?? [],
+      c.image?.src ?? "",
+      c.file?.src ?? "",
+    ]);
+
+  const rowHasDraftChanges = (c: Certificate) => {
+    const published = publishedById.get(c.id);
+    if (!published) return true; // new, never published
+    return fingerprint(published) !== fingerprint(c);
+  };
+
+  const revertCertificate = (cert: Certificate) => {
+    const published = publishedById.get(cert.id);
+    if (!published) {
+      setCerts(certs.filter((c) => c.id !== cert.id));
+      toast.success("Removed unpublished certificate from the draft");
+      return;
+    }
+    setCerts(certs.map((c) => (c.id === cert.id ? { ...published, sort: c.sort } : c)));
+    toast.success(`Reverted "${published.title}" to its published version`);
+  };
+
+  const publishNow = async () => {
+    const ok = await draft.publish();
+    if (ok) toast.success("Certificates published — changes are live");
+  };
 
   const patchDoc = (partial: Record<string, unknown>) =>
     draft.patch((d) => ({ ...d, ...partial }) as CertificatesPageContent);
@@ -308,43 +351,74 @@ function CertificatesAdmin() {
     </FormSection>
   );
 
-  const actionButtons = (c: Certificate) => (
-    <div className="flex flex-wrap gap-1">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 px-2 text-xs"
-        onClick={() => {
-          const next = { ...c };
-          setEditingId(c.id);
-          setEditingDraft(next);
-        }}
-      >
-        Edit
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 px-2 text-xs"
-        onClick={() =>
-          setCerts(certs.map((x) => (x.id === c.id ? { ...x, visible: x.visible === false } : x)))
-        }
-      >
-        {c.visible === false ? "Show" : "Hide"}
-      </Button>
-      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => duplicate(c)}>
-        Dup.
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 px-2 text-xs text-destructive"
-        onClick={() => setDeleteTarget(c)}
-      >
-        Del.
-      </Button>
-    </div>
-  );
+  const actionButtons = (c: Certificate) => {
+    const hasDraftChanges = rowHasDraftChanges(c);
+    return (
+      <div className="flex flex-wrap gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs"
+          onClick={() => {
+            const next = { ...c };
+            setEditingId(c.id);
+            setEditingDraft(next);
+          }}
+        >
+          Edit
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs"
+          disabled={draft.saving}
+          title={
+            hasDraftChanges
+              ? "Publish the current draft — certificates go live as one collection"
+              : "Already live — publish to re-send the published set"
+          }
+          onClick={publishNow}
+        >
+          Publish
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs"
+          disabled={!hasDraftChanges}
+          title={
+            hasDraftChanges
+              ? "Discard this certificate's unpublished changes"
+              : "No unpublished changes for this certificate"
+          }
+          onClick={() => revertCertificate(c)}
+        >
+          Revert
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs"
+          onClick={() =>
+            setCerts(certs.map((x) => (x.id === c.id ? { ...x, visible: x.visible === false } : x)))
+          }
+        >
+          {c.visible === false ? "Show" : "Hide"}
+        </Button>
+        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => duplicate(c)}>
+          Dup.
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs text-destructive"
+          onClick={() => setDeleteTarget(c)}
+        >
+          Del.
+        </Button>
+      </div>
+    );
+  };
 
   const certBadges = (c: Certificate) => {
     const status = certStatus(c);
@@ -363,6 +437,11 @@ function CertificatesAdmin() {
         {c.visible === false && (
           <Badge variant="outline" className="text-[0.65rem] text-muted-foreground">
             hidden
+          </Badge>
+        )}
+        {rowHasDraftChanges(c) && (
+          <Badge variant="secondary" className="text-[0.65rem]">
+            {publishedById.has(c.id) ? "unpublished changes" : "not published"}
           </Badge>
         )}
         {status.tone === "expired" && (
@@ -429,6 +508,9 @@ function CertificatesAdmin() {
     <div className="border border-border" data-testid="certificate-list">
       <div className="border-b border-border bg-muted/50 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase">
         Drag to reorder — /certificates follows this order
+      </div>
+      <div className="border-b border-border px-4 py-2 text-xs text-muted-foreground">
+        Certificates publish as one collection — “Publish” on any row makes the current draft live.
       </div>
       <SortableList
         items={certs}

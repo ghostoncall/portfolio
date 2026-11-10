@@ -75,6 +75,21 @@ Certificate thumbnails on `/skills` are clickable — they open an expanded dark
 
 User media (any file type, any count) goes through the `Media` component, which detects kind from the URL and keeps a fixed-ratio frame. Uploads go to Supabase Storage (public bucket — files are unlisted, not access-controlled).
 
+## Contact form
+
+`/contact` stores submissions in `contact_messages` and emails the owner over SMTP.
+
+Layers on every submission:
+
+1. **Honeypot** — hidden `company_website` field; filled = rejected.
+2. **Turnstile** (optional) — server-verified via `siteverify`; rejected/expired tokens never store a row.
+3. **Rate limit** — per-IP, rolling: 3 / 10 min, 5 / 1 h, 10 / 24 h (survives refresh; row-based).
+4. **Duplicate detection** — same email + subject + text within 30 min is rejected.
+5. **Validation** — strict format/length caps, control characters stripped, HTML escaped in the email.
+6. **Delivery tracking** — the row is written before emailing; `email_delivery_status` records `sent` / `failed` / `skipped`, so a mail outage never loses a message.
+
+The table has RLS on with **no** anon/authenticated policies: visitors can't read or modify it. The admin panel reads it server-side through the pooled connection.
+
 ## Database
 
 Content rows live in Supabase tables keyed by `slug`:
@@ -117,6 +132,9 @@ TanStack Start is Nitro-based and deploys to Vercel/Cloudflare/Node hosting. The
 | `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anon/public key |
 | `ADMIN_EMAIL` | No | When set, only this email may access `/onlyme` |
 | `ADMIN_PASSWORD` | Yes | Password typed at `/onlyme` login (not a DB credential) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | No | Outbound mail server (Gmail: use an App Password) |
+| `SMTP_FROM`, `SMTP_TO` | No | Verified sender + inbox that receives contact submissions |
+| `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | No | Cloudflare Turnstile keys; leave blank to run without the challenge |
 
 ---
 

@@ -6,9 +6,10 @@
 // context along with the Request for session verification.
 
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq, isNull, lte, or, sql } from "drizzle-orm";
+import { and, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { getAuthUser, getSupabaseServer } from "@/lib/supabase.server";
+import { createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import {
   blogSettings,
@@ -925,7 +926,14 @@ export const submitContact = createServerFn({ method: "POST", strict: false }).h
       return { ok: true, duplicate: true };
     }
     const id = crypto.randomUUID();
-    await db.insert(contactMessages).values({ id, name, email, message, isRead: false });
+    await db.insert(contactMessages).values({
+      id,
+      name,
+      email,
+      subject_category: "other",
+      custom_subject: null,
+      message,
+    });
     return { ok: true, id };
   },
 );
@@ -1228,54 +1236,342 @@ export const getAdminUser = createServerFn({ method: "GET", strict: false }).han
 );
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Contact form submission
 // ---------------------------------------------------------------------------
 
-export const sendContactEmail = createServerFn({ method: "POST", strict: false }).handler(
-  async ({ data }: any) => {
-    const { name, email, message } = data;
+const CONTACT_LIMITS = {
+  name: 100,
+  email: 254,
+  subject: 120,
+  message: 5000,
+  honeypot: 200,
+} as const;
 
-    if (!name || !email || !message) {
-      throw new Error("Name, email, and message are required.");
+/** Accepted submissions allowed per client IP, per rolling window. */
+const RATE_WINDOWS = [
+  { ms: 10 * 60 * 1000, max: 3 },
+  { ms: 60 * 60 * 1000, max: 5 },
+  { ms: 24 * 60 * 60 * 1000, max: 10 },
+] as const;
+
+/** Same person, same text, within this window = duplicate. */
+const DUPLICATE_WINDOW_MS = 30 * 60 * 1000;
+
+const ALLOWED_SUBJECTS = new Set([
+  "general",
+  "project",
+  "freelance",
+  "job",
+  "tech",
+  "business",
+  "feedback",
+  "issue",
+  "other",
+]);
+
+/** Strip control characters, trim, and hard-cap the length. */
+function cleanText(value: unknown, max: number): string {
+  return (
+    String(value ?? "")
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+      .replace(/\r\n/g, "\n")
+      .trim()
+      .slice(0, max)
+  );
+}
+
+/** Escape user text before it goes into the notification email HTML. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function sha256(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function getClientIp(request?: Request): string {
+  if (!request?.headers) return "unknown";
+  const headers = request.headers;
+  const forwarded = headers.get("x-forwarded-for") ?? "";
+  const candidate =
+    headers.get("cf-connecting-ip") ||
+    headers.get("x-real-ip") ||
+    forwarded.split(",")[0] ||
+    "unknown";
+  return candidate.trim().slice(0, 100) || "unknown";
+}
+
+/** Server-side Cloudflare Turnstile check. Skipped when no secret is configured. */
+async function verifyTurnstile(token: string, ip: string): Promise<void> {
+  const secret = process.env["TURNSTILE_SECRET_KEY"];
+  if (!secret) return; // not configured yet — don't block real visitors
+  if (!token) throw new Error("Please complete the verification challenge.");
+
+  const body = new URLSearchParams({ secret, response: token });
+  if (ip && ip !== "unknown") body.set("remoteip", ip);
+
+  let payload: any = null;
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body,
+    });
+    payload = await res.json();
+  } catch {
+    throw new Error("Could not verify the challenge. Please try again.");
+  }
+
+  if (!payload?.success) {
+    const codes: string[] = Array.isArray(payload?.["error-codes"]) ? payload["error-codes"] : [];
+    console.log("[sendContactEmail] Turnstile rejected:", codes.join(",") || "invalid");
+    if (codes.includes("timeout-or-duplicate")) {
+      throw new Error("That verification has expired. Please refresh and try again.");
+    }
+    throw new Error("Verification failed. Please refresh the page and try again.");
+  }
+}
+
+export const sendContactEmail = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const request: Request | undefined = context?.request;
+
+    // 1. Honeypot — bots fill hidden fields, humans never see them.
+    const honeypot = cleanText(data?.honeypot, CONTACT_LIMITS.honeypot);
+    if (honeypot) {
+      console.log("[sendContactEmail] Honeypot triggered, rejecting submission");
+      throw new Error("Invalid submission");
     }
 
-    // Save to database
+    // 2. Normalise + length-cap every field.
+    const name = cleanText(data?.name, CONTACT_LIMITS.name);
+    const email = cleanText(data?.email, CONTACT_LIMITS.email).toLowerCase();
+    const message = cleanText(data?.message, CONTACT_LIMITS.message);
+    const subjectCategory = cleanText(data?.subject_category, 32);
+    let customSubject = cleanText(data?.custom_subject, CONTACT_LIMITS.subject);
+
+    if (!name || !email || !message || !subjectCategory) {
+      throw new Error("Please fill in your name, email, subject and message.");
+    }
+    if (!ALLOWED_SUBJECTS.has(subjectCategory)) {
+      throw new Error("Please choose a valid subject.");
+    }
+
+    // 3. Strict format checks.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) {
+      throw new Error("Please enter a valid email address.");
+    }
+    if (message.length < 10) {
+      throw new Error("Please write a slightly longer message (at least 10 characters).");
+    }
+    if (subjectCategory === "other" && !customSubject) {
+      throw new Error("Please specify your subject.");
+    }
+
+    let subjectText = subjectCategory;
+    if (subjectCategory === "other") {
+      subjectText = customSubject;
+    } else {
+      customSubject = "";
+    }
+    if (!subjectText) throw new Error("Please choose a subject.");
+
+    // 4. Turnstile (no-op until keys are configured).
+    await verifyTurnstile(cleanText(data?.turnstile_token, 4096), getClientIp(request));
+
     const db = getDb();
+    const ipHash = sha256(`contact:${getClientIp(request)}`);
+    const contentHash = sha256(
+      `${email}|${subjectCategory}|${message.toLowerCase().replace(/\s+/g, " ")}`,
+    );
+
+    // 5. Rate limit per IP (rolling windows, survives page refresh).
+    const widest = RATE_WINDOWS[RATE_WINDOWS.length - 1] ?? { ms: 86_400_000, max: 10 };
+    const recent = await db
+      .select({ createdAt: contactMessages.createdAt })
+      .from(contactMessages)
+      .where(
+        and(
+          eq(contactMessages.ipHash, ipHash),
+          gte(contactMessages.createdAt, new Date(Date.now() - widest.ms)),
+        ),
+      );
+
+    const now = Date.now();
+    for (const window of RATE_WINDOWS) {
+      const used = recent.filter(
+        (row) => now - new Date(row.createdAt).getTime() < window.ms,
+      ).length;
+      if (used >= window.max) {
+        console.log("[sendContactEmail] Rate limit hit:", ipHash.slice(0, 12), window.ms);
+        throw new Error(
+          "You've sent several messages recently. Please wait a little before sending another.",
+        );
+      }
+    }
+
+    // 6. Duplicate detection (same email + same content, short cooldown).
+    const duplicates = await db
+      .select({ id: contactMessages.id })
+      .from(contactMessages)
+      .where(
+        and(
+          eq(contactMessages.contentHash, contentHash),
+          gte(contactMessages.createdAt, new Date(now - DUPLICATE_WINDOW_MS)),
+        ),
+      )
+      .limit(1);
+    if (duplicates.length > 0) {
+      console.log("[sendContactEmail] Duplicate submission blocked");
+      throw new Error("This message was already sent. Please wait before sending it again.");
+    }
+
+    // 7. Persist first — a failed email must never lose the submission.
+    const id = crypto.randomUUID();
     await db.insert(contactMessages).values({
-      id: crypto.randomUUID(),
+      id,
       name,
       email,
+      subject_category: subjectCategory,
+      custom_subject: customSubject || null,
       message,
+      ipHash,
+      contentHash,
+      emailDeliveryStatus: "pending",
     });
 
-    // Send email via SMTP
-    const smtpHost = import.meta.env["SMTP_HOST"];
-    const smtpPort = Number(import.meta.env["SMTP_PORT"] || 587);
-    const smtpUser = import.meta.env["SMTP_USER"];
-    const smtpPass = import.meta.env["SMTP_PASS"];
-    const smtpFrom = import.meta.env["SMTP_FROM"];
-    const smtpTo = import.meta.env["SMTP_TO"];
+    // 8. Notify the owner. Failures are recorded, not thrown.
+    const smtpHost = process.env["SMTP_HOST"];
+    const smtpPort = Number(process.env["SMTP_PORT"] || 587);
+    const smtpUser = process.env["SMTP_USER"];
+    const smtpPass = process.env["SMTP_PASS"];
+    const smtpFrom = process.env["SMTP_FROM"];
+    const smtpTo = process.env["SMTP_TO"];
 
+    let deliveryStatus = "skipped";
     if (smtpHost && smtpUser && smtpPass && smtpFrom && smtpTo) {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
-        auth: { user: smtpUser, pass: smtpPass },
-      });
+      try {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465,
+          auth: { user: smtpUser, pass: smtpPass },
+        });
 
-      await transporter.sendMail({
-        from: `Portfolio Contact <${smtpFrom}>`,
-        to: smtpTo,
-        subject: `New contact form submission from ${name}`,
-        text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-        html: `
-          <h2>New contact form submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong><br>${message.replace(/\n/g, "<br>")}</p>
-        `,
-      });
+        const safeName = escapeHtml(name);
+        const safeEmail = escapeHtml(email);
+        const safeSubject = escapeHtml(subjectText);
+        const safeCustom = customSubject ? escapeHtml(customSubject) : "";
+        const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+
+        await transporter.sendMail({
+          from: `Portfolio Contact <${smtpFrom}>`,
+          to: smtpTo,
+          // Replies go to the visitor, never "From" (protects the verified sender).
+          replyTo: `${name.replace(/[\r\n"]/g, " ")} <${email}>`,
+          subject: `[Portfolio Contact] ${subjectText.slice(0, 150)} — ${name.slice(0, 60)}`,
+          text: [
+            "New contact form submission",
+            "",
+            `Name: ${name}`,
+            `Email: ${email}`,
+            `Subject: ${subjectText}`,
+            ...(customSubject ? [`Custom subject: ${customSubject}`] : []),
+            "",
+            "Message:",
+            message,
+          ].join("\n"),
+          html: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>New Contact Form Submission</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background-color: #f1f5f9; padding: 24px 12px;">
+                <tr>
+                  <td align="center">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 28px;">
+                      <tr>
+                        <td align="center" style="padding-bottom: 20px;">
+                          <h1 style="color: #111827; font-size: 22px; font-weight: 600; margin: 0;">New contact form submission</h1>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                            <tr>
+                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Name</td>
+                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">${safeName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Email</td>
+                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">
+                                <a href="mailto:${safeEmail}" style="color: #2563eb; text-decoration: none;">${safeEmail}</a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Subject</td>
+                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">${safeSubject}</td>
+                            </tr>
+                            ${
+                              safeCustom
+                                ? `<tr>
+                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Custom subject</td>
+                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">${safeCustom}</td>
+                            </tr>`
+                                : ""
+                            }
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top: 20px;">
+                          <div style="color: #64748b; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Message</div>
+                          <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; font-size: 15px; line-height: 1.7; color: #1e293b;">
+                            ${safeMessage}
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top: 22px; text-align: center;">
+                          <p style="color: #94a3b8; font-size: 12px; margin: 0;">Sent from your portfolio contact form — reply to this email to answer ${safeName}.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
+          `,
+        });
+
+        deliveryStatus = "sent";
+      } catch (err: any) {
+        deliveryStatus = "failed";
+        console.log("[sendContactEmail] Email failed:", err?.message ?? err);
+      }
+    } else {
+      console.log("[sendContactEmail] SMTP not configured, skipping email send");
+    }
+
+    try {
+      await db
+        .update(contactMessages)
+        .set({ emailDeliveryStatus: deliveryStatus })
+        .where(eq(contactMessages.id, id));
+    } catch (err: any) {
+      console.log("[sendContactEmail] Could not record delivery status:", err?.message ?? err);
     }
 
     return { ok: true };

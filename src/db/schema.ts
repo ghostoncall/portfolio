@@ -133,18 +133,29 @@ export const postViews = pgTable("post_views", {
   lastViewedAt: timestamp("last_viewed_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-/** Contact form submissions (honeypot-protected). Email delivery not configured. */
+/** Contact form submissions (honeypot + Turnstile + rate limited). */
 export const contactMessages = pgTable(
   "contact_messages",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     email: text("email").notNull(),
+    subject_category: text("subject_category").notNull(),
+    custom_subject: text("custom_subject"),
     message: text("message").notNull(),
+    attachment_url: text("attachment_url"),
+    is_spam: boolean("is_spam").notNull().default(false),
     isRead: boolean("is_read").notNull().default(false),
+    emailDeliveryStatus: text("email_delivery_status").notNull().default("pending"),
+    ipHash: text("ip_hash"),
+    contentHash: text("content_hash"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index("contact_messages_created_idx").on(table.createdAt)],
+  (table) => [
+    index("contact_messages_created_idx").on(table.createdAt),
+    index("contact_messages_ip_idx").on(table.ipHash, table.createdAt),
+    index("contact_messages_content_idx").on(table.contentHash),
+  ],
 );
 
 export const settings = pgTable("settings", {
