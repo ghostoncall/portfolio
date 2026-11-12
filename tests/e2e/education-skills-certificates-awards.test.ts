@@ -39,13 +39,13 @@ async function goto(page: Page, path: string) {
 
 async function loginAsAdmin(page: Page) {
   await goto(page, "/onlyme/login");
-  await page.locator('input[type=email]').waitFor({ state: "visible", timeout: 15_000 });
+  await page.locator("input[type=email]").waitFor({ state: "visible", timeout: 15_000 });
   const adminEmail = process.env.ADMIN_EMAIL ?? "abc@gmail.com";
   const adminPassword = process.env.ADMIN_PASSWORD ?? "hello@123abc";
-  await page.locator('input[type=email]').click();
-  await page.locator('input[type=email]').pressSequentially(adminEmail, { delay: 50 });
-  await page.locator('input[type=password]').click();
-  await page.locator('input[type=password]').pressSequentially(adminPassword, { delay: 50 });
+  await page.locator("input[type=email]").click();
+  await page.locator("input[type=email]").pressSequentially(adminEmail, { delay: 50 });
+  await page.locator("input[type=password]").click();
+  await page.locator("input[type=password]").pressSequentially(adminPassword, { delay: 50 });
   await page.evaluate(() => {
     const button = document.querySelector<HTMLButtonElement>("form button[type=submit]");
     button?.click();
@@ -80,7 +80,6 @@ async function waitForEl(page: Page, selector: string, timeout = 15_000) {
 test.describe.configure({ mode: "serial" });
 
 test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
-
   // ------------------------------------------------------------------
   // Education — full lifecycle
   // ------------------------------------------------------------------
@@ -149,7 +148,7 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
     await page.waitForTimeout(1500);
     await goto(page, "/");
     await expect(page.locator("section h2:has-text('Education')")).toBeVisible();
-    expect(await page.locator('span').filter({ hasText: deg }).count()).toBeGreaterThan(0);
+    expect(await page.locator("span").filter({ hasText: deg }).count()).toBeGreaterThan(0);
 
     // delete → removed from admin list
     await goto(page, "/onlyme/education");
@@ -179,9 +178,9 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
     await page.locator('input[data-testid="skill-name"]').fill(name);
     await page.locator('input[data-testid="skill-detail"]').fill("A test skill detail.");
     await page.locator('button[data-testid="skills-save"]').click();
-    await expect(
-      page.locator('article[data-testid="skills-row"]').first(),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('article[data-testid="skills-row"]').first()).toBeVisible({
+      timeout: 10_000,
+    });
 
     await page.locator('button[data-testid="cms-publish"]').click();
     await page.waitForTimeout(1500);
@@ -217,20 +216,20 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
     });
     await page.locator('input[data-testid="certificate-title"]').fill(title);
     await page.locator('button[data-testid="certificates-save"]').click();
-    await expect(
-      page.locator('article[data-testid="certificates-row"]').first(),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('article[data-testid="certificates-row"]').first()).toBeVisible({
+      timeout: 10_000,
+    });
 
     await page.locator('button[data-testid="cms-publish"]').click();
     await page.waitForTimeout(1500);
 
-    await goto(page, "/skills");
+    await goto(page, "/certificates");
     await expect(page.getByText(title, { exact: false })).toBeVisible();
 
     await goto(page, "/onlyme/skills-certificates-awards");
     await page.locator('button[data-testid="cms-unpublish"]').click();
     await page.waitForTimeout(1500);
-    await goto(page, "/skills");
+    await goto(page, "/certificates");
     await expect(page.getByText(title, { exact: false })).toBeHidden();
 
     await goto(page, "/onlyme/skills-certificates-awards");
@@ -262,13 +261,13 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
     await page.locator('button[data-testid="cms-publish"]').click();
     await page.waitForTimeout(1500);
 
-    await goto(page, "/skills");
+    await goto(page, "/awards");
     await expect(page.getByText(title, { exact: false })).toBeVisible();
 
     await goto(page, "/onlyme/skills-certificates-awards");
     await page.locator('button[data-testid="cms-unpublish"]').click();
     await page.waitForTimeout(1500);
-    await goto(page, "/skills");
+    await goto(page, "/awards");
     await expect(page.getByText(title, { exact: false })).toBeHidden();
 
     await goto(page, "/onlyme/skills-certificates-awards");

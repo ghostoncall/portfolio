@@ -569,7 +569,7 @@ function CertificatesAdmin() {
 
   const preview = (
     <div className="max-w-3xl mx-auto py-6">
-      <CertificatesView content={draft.doc} />
+      <CertificatesView certificates={draft.doc.certificates ?? []} />
     </div>
   );
 

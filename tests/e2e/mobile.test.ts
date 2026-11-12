@@ -105,7 +105,7 @@ test.describe("Mobile friendliness — headed", () => {
         "Overview",
         "Projects",
         "Blog",
-        "Skills & Certificates",
+        "Skills, Certificates & Awards",
         "Experience",
         "Volunteering",
         "Contact",
@@ -371,7 +371,7 @@ test.describe("Mobile friendliness — headed", () => {
     await expect(firstCard.locator("a")).toBeVisible();
 
     // Certificates dialog fits viewport on mobile.
-    await goto(page, "/skills");
+    await goto(page, "/certificates");
     const certs = page.locator('article[data-testid="public-certificate"]');
     if ((await certs.count()) > 0) {
       const media = certs.first().locator('[role="button"][tabindex="0"]');

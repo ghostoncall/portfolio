@@ -1,41 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// Public skills view — categories in sort order, visible skills grouped.
+// Public Skills section — rendered on the /skills page.
+// All fields optional; empty entries render nothing.
+import type { Skill } from "@/content/site";
+import { SkillTile } from "@/components/public/SkillTile";
 
-import * as React from "react";
-
-export function SkillsView({ content }: { content: any }) {
-  const categories = content.categories ?? [];
-  const skills = (content.skills ?? []).filter((s: any) => s.visible !== false);
+export function SkillsView({ skills }: { skills: Skill[] }) {
+  const visibleSkills = skills.filter((s) => s.visible !== false);
+  if (!visibleSkills.length) return null;
 
   return (
-    <div className="space-y-10">
-      {categories.map((cat: any) => {
-        const catSkills = skills.filter((s: any) => s.categoryId === cat.id);
-        if (!catSkills.length) return null;
-        return (
-          <section key={cat.id} className="mb-10">
-            <h2 className="mb-3 text-heading-2 sm:text-3xl text-foreground">{cat.name}</h2>
-            <table className="w-full border-t border-border text-left">
-              <tbody>
-                {catSkills.map((s: any) => (
-                  <tr key={s.id} className="border-b border-border">
-                    <td className="min-w-0 py-3 pr-4 font-serif text-foreground">{s.name}</td>
-                    <td className="py-3 text-muted-foreground">
-                      {s.detail ?? s.description ?? ""}
-                    </td>
-                    {s.level && <td className="py-3 text-xs text-muted-foreground">{s.level}</td>}
-                    {s.years != null && (
-                      <td className="py-3 text-xs text-muted-foreground text-right">
-                        {s.years} yrs
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        );
-      })}
-    </div>
+    <section id="skills" className="space-y-6">
+      <h2 className="text-heading-2 sm:text-3xl text-foreground">Skills</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {visibleSkills.map((s) => (
+          <SkillTile key={s.id} skill={s} />
+        ))}
+      </div>
+    </section>
   );
 }

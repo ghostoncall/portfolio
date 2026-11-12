@@ -19,12 +19,12 @@ const MOBILE_NAV_ITEMS: Array<{
   { label: "Projects", href: "/projects", children: [] },
   { label: "Blog", href: "/blog" },
   {
-    label: "Skills & Certificates",
+    label: "Skills, Certificates & Awards",
     href: "/skills",
     children: [
-      { label: "Skills", href: "/skills#skills" },
-      { label: "Certificates", href: "/skills#certificates" },
-      { label: "Awards & Recognitions", href: "/skills#awards" },
+      { label: "Skills", href: "/skills" },
+      { label: "Certificates", href: "/certificates" },
+      { label: "Awards & Recognitions", href: "/awards" },
     ],
   },
   { label: "Experience", href: "/experience" },

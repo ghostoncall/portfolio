@@ -639,15 +639,18 @@ export const getPublishedSkillsBundle = createServerFn({ method: "GET", strict: 
     const skillsRow = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
     const certsRow = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
     const awardsRow = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
-    const skills = skillsRow[0] && skillsRow[0].isPublic
-      ? normalizePageContent(skillsRow[0].published.kind, skillsRow[0].published)
-      : { kind: "skills", categories: [], skills: [] };
-    const certificates = certsRow[0] && certsRow[0].isPublic
-      ? normalizePageContent(certsRow[0].published.kind, certsRow[0].published)
-      : { kind: "certificates", certificates: [] };
-    const awards = awardsRow[0] && awardsRow[0].isPublic
-      ? normalizePageContent(awardsRow[0].published.kind, awardsRow[0].published)
-      : { kind: "awards", entries: [] };
+    const skills =
+      skillsRow[0] && skillsRow[0].isPublic
+        ? normalizePageContent(skillsRow[0].published.kind, skillsRow[0].published)
+        : { kind: "skills", categories: [], skills: [] };
+    const certificates =
+      certsRow[0] && certsRow[0].isPublic
+        ? normalizePageContent(certsRow[0].published.kind, certsRow[0].published)
+        : { kind: "certificates", certificates: [] };
+    const awards =
+      awardsRow[0] && awardsRow[0].isPublic
+        ? normalizePageContent(awardsRow[0].published.kind, awardsRow[0].published)
+        : { kind: "awards", entries: [] };
     return {
       skills: skills as SkillsPageContent,
       certificates: certificates as CertificatesPageContent,
@@ -669,10 +672,29 @@ export const getPublishedAwards = createServerFn({ method: "GET", strict: false 
   async () => {
     const db = getDb();
     const row = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
-    if (!row[0]) return { kind: "awards", entries: [] };
+    if (!row[0] || !row[0].isPublic) return { kind: "awards", entries: [] };
     return normalizePageContent(row[0].published.kind, row[0].published);
   },
 );
+
+export const getPublishedSkills = createServerFn({ method: "GET", strict: false }).handler(
+  async () => {
+    const db = getDb();
+    const row = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
+    if (!row[0] || !row[0].isPublic) return { kind: "skills", categories: [], skills: [] };
+    return normalizePageContent(row[0].published.kind, row[0].published);
+  },
+);
+
+export const getPublishedCertificates = createServerFn({
+  method: "GET",
+  strict: false,
+}).handler(async () => {
+  const db = getDb();
+  const row = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
+  if (!row[0] || !row[0].isPublic) return { kind: "certificates", certificates: [] };
+  return normalizePageContent(row[0].published.kind, row[0].published);
+});
 
 export const publishAll = createServerFn({ method: "POST", strict: false }).handler(
   async ({ context }) => {

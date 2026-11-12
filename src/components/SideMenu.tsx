@@ -12,7 +12,7 @@ const items = [
   { to: "/", label: "Overview" },
   { to: "/projects", label: "Projects", children: true },
   { to: "/blog", label: "Blog" },
-  { to: "/skills", label: "Skills & Certificates", children: true },
+  { to: "/skills", label: "Skills, Certificates & Awards", children: true },
   { to: "/experience", label: "Experience" },
   { to: "/volunteering", label: "Volunteering" },
   { to: "/contact", label: "Contact" },
@@ -22,9 +22,9 @@ const itemClass =
   "block py-1.5 font-sans text-xl font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
 
 const skillCategoryItems = [
-  { label: "Skills", href: "/skills#skills" },
-  { label: "Certificates", href: "/skills#certificates" },
-  { label: "Awards & Recognitions", href: "/skills#awards" },
+  { label: "Skills", href: "/skills" },
+  { label: "Certificates", href: "/certificates" },
+  { label: "Awards & Recognitions", href: "/awards" },
 ] as const;
 
 export function SideMenu() {
@@ -32,10 +32,7 @@ export function SideMenu() {
   const navigate = useNavigate();
   const [projectsOpen, setProjectsOpen] = useState(pathname.startsWith("/projects"));
   const [skillsOpen, setSkillsOpen] = useState(
-    pathname.startsWith("/skills#skills") ||
-      pathname.startsWith("/skills#certificates") ||
-      pathname.startsWith("/skills#awards") ||
-      pathname === "/skills",
+    pathname === "/skills" || pathname === "/certificates" || pathname === "/awards",
   );
   const liveProjects = useContext(NavProjectsContext);
   const projectList: NavProject[] =
@@ -50,7 +47,7 @@ export function SideMenu() {
       {items.map((item) => {
         const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
         const hasChildren = "children" in item;
-        const isSkillsSection = item.label === "Skills & Certificates";
+        const isSkillsSection = item.label === "Skills, Certificates & Awards";
         const isOpen = isSkillsSection ? skillsOpen : projectsOpen;
         const toggleOpen = () => {
           if (isSkillsSection) setSkillsOpen((o) => !o);
@@ -78,7 +75,11 @@ export function SideMenu() {
                 <span>{item.label}</span>
                 {hasChildren && (
                   <sup className="ml-1 align-super text-xs font-normal">
-                    (+{item.label === "Skills & Certificates" ? skillsCount : projectList.length})
+                    (+
+                    {item.label === "Skills, Certificates & Awards"
+                      ? skillsCount
+                      : projectList.length}
+                    )
                   </sup>
                 )}
               </Link>
@@ -98,13 +99,7 @@ export function SideMenu() {
               <ul className="space-y-1 px-3 pb-4 pt-2">
                 {isSkillsSection
                   ? skillCategoryItems.map((sc) => {
-                      const base = sc.href.split("#")[0];
-                      const scActive =
-                        pathname === base ||
-                        (base === "/skills" &&
-                          sc.href.includes("#") &&
-                          pathname.startsWith(base)) ||
-                        (pathname === "/skills" && sc.label === "Skills");
+                      const scActive = pathname === sc.href;
                       return (
                         <li key={sc.label} className="px-3 pb-1 pt-1">
                           <a
