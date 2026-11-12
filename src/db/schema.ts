@@ -80,6 +80,7 @@ export const pages = pgTable("pages", {
   published: jsonb("published").$type<PageContent>().notNull(),
   staged: jsonb("staged").$type<PageContent>().notNull(),
   sort: integer("sort").notNull().default(0),
+  navOrder: integer("nav_order").notNull().default(0),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   isPublic: boolean("is_public").notNull().default(false),
