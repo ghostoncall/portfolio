@@ -401,7 +401,7 @@ export const publishItem = createServerFn({ method: "POST", strict: false }).han
       publishedAt: when,
       updatedAt: now,
     };
-    if (data.table === "posts" || data.table === "projects") {
+    if (data.table === "posts" || data.table === "projects" || data.table === "pages") {
       setValues.isPublic = true; // publishing makes the item live
     }
     if (data.table === "posts" && data.publishAt) {
@@ -614,7 +614,11 @@ export const ensureContentPage = createServerFn({ method: "POST", strict: false 
         ? { kind: "skills", categories: [], skills: [] }
         : kind === "certificates"
           ? { kind: "certificates", certificates: [] }
-          : { kind: "experience", entries: [] };
+          : kind === "education"
+            ? { kind: "education", entries: [] }
+            : kind === "awards"
+              ? { kind: "awards", entries: [] }
+              : { kind: "experience", entries: [] };
     await db.insert(pages).values({
       slug,
       title,
@@ -623,6 +627,7 @@ export const ensureContentPage = createServerFn({ method: "POST", strict: false 
       staged: empty,
       sort: 99,
       updatedAt: now,
+      isPublic: false,
     });
     return { ok: true, created: true, slug };
   },
@@ -634,13 +639,13 @@ export const getPublishedSkillsBundle = createServerFn({ method: "GET", strict: 
     const skillsRow = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
     const certsRow = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
     const awardsRow = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
-    const skills = skillsRow[0]
+    const skills = skillsRow[0] && skillsRow[0].isPublic
       ? normalizePageContent(skillsRow[0].published.kind, skillsRow[0].published)
       : { kind: "skills", categories: [], skills: [] };
-    const certificates = certsRow[0]
+    const certificates = certsRow[0] && certsRow[0].isPublic
       ? normalizePageContent(certsRow[0].published.kind, certsRow[0].published)
       : { kind: "certificates", certificates: [] };
-    const awards = awardsRow[0]
+    const awards = awardsRow[0] && awardsRow[0].isPublic
       ? normalizePageContent(awardsRow[0].published.kind, awardsRow[0].published)
       : { kind: "awards", entries: [] };
     return {
@@ -655,7 +660,7 @@ export const getPublishedEducation = createServerFn({ method: "GET", strict: fal
   async () => {
     const db = getDb();
     const row = await db.select().from(pages).where(eq(pages.slug, "education")).limit(1);
-    if (!row[0]) return { kind: "education", entries: [] };
+    if (!row[0] || !row[0].isPublic) return { kind: "education", entries: [] };
     return normalizePageContent(row[0].published.kind, row[0].published);
   },
 );
@@ -1046,7 +1051,7 @@ export const getPublishedPage = createServerFn({ method: "GET", strict: false })
   async ({ data }: any) => {
     const db = getDb();
     const row = await db.select().from(pages).where(eq(pages.slug, data.slug)).limit(1);
-    if (!row[0]) return null;
+    if (!row[0] || !row[0].isPublic) return null;
     return row[0].published;
   },
 );

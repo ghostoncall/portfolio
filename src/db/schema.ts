@@ -82,6 +82,7 @@ export const pages = pgTable("pages", {
   sort: integer("sort").notNull().default(0),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  isPublic: boolean("is_public").notNull().default(false),
 });
 
 export const projects = pgTable("projects", {

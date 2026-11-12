@@ -1,4 +1,4 @@
-// Save bar: Save, Publish (or Publish updates), Revert, dirty dot, status.
+// Save bar: Save, Publish/Unpublish, Revert, dirty dot, status.
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ export function SaveBar({
   error,
   onSave,
   onPublish,
+  onUnpublish,
   onRevert,
 }: {
   dirty: boolean;
@@ -22,6 +23,7 @@ export function SaveBar({
   error: string | null;
   onSave: () => void;
   onPublish: () => void;
+  onUnpublish?: () => void;
   onRevert: () => void;
 }) {
   const statusText = React.useMemo(() => {
@@ -57,14 +59,38 @@ export function SaveBar({
         >
           Revert
         </Button>
-        <Button
-          data-testid="cms-publish"
-          onClick={onPublish}
-          disabled={saving || loading}
-          className="px-4"
-        >
-          {hasPublished ? "Publish updates" : "Publish"}
-        </Button>
+        {hasPublished ? (
+          <>
+            <Button
+              data-testid="cms-publish"
+              onClick={onPublish}
+              disabled={saving || loading}
+              className="px-4"
+            >
+              Publish updates
+            </Button>
+            {onUnpublish ? (
+              <Button
+                data-testid="cms-unpublish"
+                onClick={onUnpublish}
+                disabled={saving || loading}
+                variant="destructive"
+                className="px-4"
+              >
+                Unpublish
+              </Button>
+            ) : null}
+          </>
+        ) : (
+          <Button
+            data-testid="cms-publish"
+            onClick={onPublish}
+            disabled={saving || loading}
+            className="px-4"
+          >
+            Publish
+          </Button>
+        )}
         <Button data-testid="cms-save" onClick={onSave} disabled={saving || loading || !dirty}>
           {saving && !loading ? "Saving…" : "Save staged"}
         </Button>

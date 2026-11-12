@@ -747,6 +747,11 @@ function SkillsCertificatesAwardsAdmin() {
           certsDraft.publish();
           awardsDraft.publish();
         }}
+        onUnpublish={() => {
+          skillsDraft.unpublish();
+          certsDraft.unpublish();
+          awardsDraft.unpublish();
+        }}
         onRevert={() =>
           window.confirm("Discard all staged changes and restore published versions?") &&
           (skillsDraft.revert(), certsDraft.revert(), awardsDraft.revert())

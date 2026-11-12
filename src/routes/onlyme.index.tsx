@@ -59,6 +59,12 @@ function Dashboard() {
         {[
           { label: "Pages", to: "/onlyme/pages", icon: "📄" },
           { label: "Projects", to: "/onlyme/projects", icon: "💼" },
+          {
+            label: "Skills / Certs / Awards",
+            to: "/onlyme/skills-certificates-awards",
+            icon: "🏆",
+          },
+          { label: "Education", to: "/onlyme/education", icon: "🎓" },
           { label: "Blogs", to: "/onlyme/blogs", icon: "📝" },
           { label: "Settings", to: "/onlyme/settings", icon: "⚙️" },
         ].map((card) => (

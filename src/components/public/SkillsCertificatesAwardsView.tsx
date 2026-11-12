@@ -21,7 +21,7 @@ export function SkillsCertificatesAwardsView({
   return (
     <section className="space-y-10">
       {visibleSkills.length > 0 && (
-        <div>
+        <div id="skills">
           <h2 className="text-heading-2 sm:text-3xl text-foreground">Skills</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {visibleSkills.map((s) => (
@@ -32,7 +32,7 @@ export function SkillsCertificatesAwardsView({
       )}
 
       {visibleCerts.length > 0 && (
-        <div className="mt-8">
+        <div id="certificates" className="mt-8">
           <h2 className="text-heading-2 sm:text-3xl text-foreground">Certificates</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {visibleCerts.map((c) => (
@@ -43,7 +43,7 @@ export function SkillsCertificatesAwardsView({
       )}
 
       {visibleAwards.length > 0 && (
-        <div className="mt-8">
+        <div id="awards" className="mt-8">
           <h2 className="text-heading-2 sm:text-3xl text-foreground">Awards</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {visibleAwards.map((a) => (

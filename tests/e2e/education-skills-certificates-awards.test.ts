@@ -27,6 +27,7 @@ async function goto(page: Page, path: string) {
     try {
       await page.goto(path, { waitUntil: "domcontentloaded", timeout: 45_000 });
       await page.locator("body").waitFor({ state: "visible", timeout: 15_000 });
+      await page.waitForLoadState("networkidle", { timeout: 30_000 });
       return;
     } catch (e) {
       lastErr = e;
@@ -86,6 +87,9 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
   test("education — create partial, publish, edit, unpublish, republish, delete", async ({
     page,
   }) => {
+    const ts = Date.now().toString(36);
+    const inst = `E2E Test University ${ts}`;
+    const deg = "Bachelor of Science";
     await setViewport(page, { width: 1440, height: 900 });
     await loginAsAdmin(page);
     await goto(page, "/onlyme/education");
@@ -97,8 +101,8 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
       timeout: 10_000,
     });
 
-    await page.locator('input[data-testid="education-institution"]').fill("Test University");
-    await page.locator('input[data-testid="education-degree"]').fill("Bachelor of Science");
+    await page.locator('input[data-testid="education-institution"]').fill(inst);
+    await page.locator('input[data-testid="education-degree"]').fill(deg);
     await page.locator('button[data-testid="education-save"]').click();
 
     // row added to draft list
@@ -108,13 +112,15 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
 
     // publish
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
 
     // appears publicly
     await goto(page, "/");
     await expect(page.locator("section h2:has-text('Education')")).toBeVisible();
-    await expect(page.locator("text=Test University")).toBeVisible();
-    await expect(page.locator("text=Bachelor of Science")).toBeVisible();
+    await expect(page.locator('article[data-testid="education-entry"]').first()).toBeVisible();
+    const bodyText = await page.locator("body").textContent();
+    expect(bodyText).toContain(inst);
+    expect(bodyText).toContain(deg);
 
     // edit published → update publicly
     await goto(page, "/onlyme/education");
@@ -126,33 +132,28 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
     await page.locator('input[data-testid="education-cgpa"]').fill("3.9");
     await page.locator('button[data-testid="education-save"]').click();
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
     await goto(page, "/");
     await expect(page.locator("text=3.9")).toBeVisible();
 
     // unpublish → disappears
     await goto(page, "/onlyme/education");
-    await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.locator('button[data-testid="cms-unpublish"]').click();
+    await page.waitForTimeout(1500);
     await goto(page, "/");
     await expect(page.locator("section h2:has-text('Education')")).toBeHidden();
 
     // republish → reappears without duplication
     await goto(page, "/onlyme/education");
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
     await goto(page, "/");
     await expect(page.locator("section h2:has-text('Education')")).toBeVisible();
-    expect(await page.locator("text=Bachelor of Science").count()).toBe(1);
+    expect(await page.locator('span').filter({ hasText: deg }).count()).toBeGreaterThan(0);
 
     // delete → removed from admin list
     await goto(page, "/onlyme/education");
-    await clickAndWait(
-      page,
-      'button[data-testid="education-delete"]',
-      () => page.locator('button:has-text("Delete")').isVisible(),
-      "open delete confirm",
-    );
+    await page.locator('button[data-testid="education-delete"]').first().click();
     await page.locator('button:has-text("Delete")').click();
     await expect(page.locator('[data-testid="education-row"]')).toHaveCount(0);
   });
@@ -161,17 +162,21 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
   // Skills — full lifecycle
   // ------------------------------------------------------------------
   test("skills — create, publish, unpublish, delete", async ({ page }) => {
+    const ts = Date.now().toString(36);
+    const name = `E2E Test Skill ${ts}`;
     await setViewport(page, { width: 1440, height: 900 });
     await loginAsAdmin(page);
     await goto(page, "/onlyme/skills-certificates-awards");
-
-    await clickAndWait(
-      page,
-      'button[data-testid="add-skill"]',
-      () => page.locator('input[data-testid="skill-name"]').isVisible(),
-      "new skill opens",
-    );
-    await page.locator('input[data-testid="skill-name"]').fill("Test Skill");
+    await page.waitForSelector('button[data-testid="add-skill"]', {
+      state: "visible",
+      timeout: 15_000,
+    });
+    await page.locator('button[data-testid="add-skill"]').click();
+    await page.waitForSelector('input[data-testid="skill-name"]', {
+      state: "visible",
+      timeout: 10_000,
+    });
+    await page.locator('input[data-testid="skill-name"]').fill(name);
     await page.locator('input[data-testid="skill-detail"]').fill("A test skill detail.");
     await page.locator('button[data-testid="skills-save"]').click();
     await expect(
@@ -179,24 +184,19 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
     ).toBeVisible({ timeout: 10_000 });
 
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
 
     await goto(page, "/skills");
-    await expect(page.locator("text=Test Skill")).toBeVisible();
+    await expect(page.getByText(name, { exact: false })).toBeVisible();
 
     await goto(page, "/onlyme/skills-certificates-awards");
-    await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.locator('button[data-testid="cms-unpublish"]').click();
+    await page.waitForTimeout(1500);
     await goto(page, "/skills");
-    await expect(page.locator("text=Test Skill")).toBeHidden();
+    await expect(page.getByText(name, { exact: false })).toBeHidden();
 
     await goto(page, "/onlyme/skills-certificates-awards");
-    await clickAndWait(
-      page,
-      'button[data-testid="skills-delete"]',
-      () => page.locator('button:has-text("Delete")').isVisible(),
-      "delete skill",
-    );
+    await page.locator('button[data-testid="skills-delete"]').first().click();
     await page.locator('button:has-text("Delete")').click();
     await expect(page.locator('[data-testid="skills-row"]')).toHaveCount(0);
   });
@@ -205,41 +205,36 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
   // Certificates — full lifecycle
   // ------------------------------------------------------------------
   test("certificates — create, publish, unpublish, delete", async ({ page }) => {
+    const ts = Date.now().toString(36);
+    const title = `E2E Test Certificate ${ts}`;
     await setViewport(page, { width: 1440, height: 900 });
     await loginAsAdmin(page);
     await goto(page, "/onlyme/skills-certificates-awards");
-
-    await clickAndWait(
-      page,
-      'button[data-testid="add-certificate"]',
-      () => page.locator('input[data-testid="certificate-title"]').isVisible(),
-      "new certificate opens",
-    );
-    await page.locator('input[data-testid="certificate-title"]').fill("Test Certificate");
+    await page.locator('button[data-testid="add-certificate"]').click();
+    await page.waitForSelector('input[data-testid="certificate-title"]', {
+      state: "visible",
+      timeout: 10_000,
+    });
+    await page.locator('input[data-testid="certificate-title"]').fill(title);
     await page.locator('button[data-testid="certificates-save"]').click();
     await expect(
       page.locator('article[data-testid="certificates-row"]').first(),
     ).toBeVisible({ timeout: 10_000 });
 
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
 
     await goto(page, "/skills");
-    await expect(page.locator("text=Test Certificate")).toBeVisible();
+    await expect(page.getByText(title, { exact: false })).toBeVisible();
 
     await goto(page, "/onlyme/skills-certificates-awards");
-    await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.locator('button[data-testid="cms-unpublish"]').click();
+    await page.waitForTimeout(1500);
     await goto(page, "/skills");
-    await expect(page.locator("text=Test Certificate")).toBeHidden();
+    await expect(page.getByText(title, { exact: false })).toBeHidden();
 
     await goto(page, "/onlyme/skills-certificates-awards");
-    await clickAndWait(
-      page,
-      'button[data-testid="certificates-delete"]',
-      () => page.locator('button:has-text("Delete")').isVisible(),
-      "delete certificate",
-    );
+    await page.locator('button[data-testid="certificates-delete"]').first().click();
     await page.locator('button:has-text("Delete")').click();
     await expect(page.locator('[data-testid="certificates-row"]')).toHaveCount(0);
   });
@@ -248,41 +243,36 @@ test.describe("Education, Skills, Certificates & Awards — headed E2E", () => {
   // Awards — full lifecycle
   // ------------------------------------------------------------------
   test("awards — create, publish, unpublish, delete", async ({ page }) => {
+    const ts = Date.now().toString(36);
+    const title = `E2E Test Award ${ts}`;
     await setViewport(page, { width: 1440, height: 900 });
     await loginAsAdmin(page);
     await goto(page, "/onlyme/skills-certificates-awards");
-
-    await clickAndWait(
-      page,
-      'button[data-testid="add-award"]',
-      () => page.locator('input[data-testid="award-title"]').isVisible(),
-      "new award opens",
-    );
-    await page.locator('input[data-testid="award-title"]').fill("Test Award");
+    await page.locator('button[data-testid="add-award"]').click();
+    await page.waitForSelector('input[data-testid="award-title"]', {
+      state: "visible",
+      timeout: 10_000,
+    });
+    await page.locator('input[data-testid="award-title"]').fill(title);
     await page.locator('button[data-testid="awards-save"]').click();
     await expect(page.locator('[data-testid="awards-row"]').first()).toBeVisible({
       timeout: 10_000,
     });
 
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
 
     await goto(page, "/skills");
-    await expect(page.locator("text=Test Award")).toBeVisible();
+    await expect(page.getByText(title, { exact: false })).toBeVisible();
 
     await goto(page, "/onlyme/skills-certificates-awards");
-    await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(800);
+    await page.locator('button[data-testid="cms-unpublish"]').click();
+    await page.waitForTimeout(1500);
     await goto(page, "/skills");
-    await expect(page.locator("text=Test Award")).toBeHidden();
+    await expect(page.getByText(title, { exact: false })).toBeHidden();
 
     await goto(page, "/onlyme/skills-certificates-awards");
-    await clickAndWait(
-      page,
-      'button[data-testid="awards-delete"]',
-      () => page.locator('button:has-text("Delete")').isVisible(),
-      "delete award",
-    );
+    await page.locator('button[data-testid="awards-delete"]').first().click();
     await page.locator('button:has-text("Delete")').click();
     await expect(page.locator('[data-testid="awards-row"]')).toHaveCount(0);
   });

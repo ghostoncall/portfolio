@@ -293,6 +293,7 @@ function EducationAdmin() {
           <InputField
             value={editingDraft?.cgpa ?? ""}
             placeholder="3.8 / 4.0…"
+            data-testid="education-cgpa"
             onChange={(e) => setEditingDraft((d) => (d ? withKey(d, "cgpa", e.target.value) : d))}
           />
         </Field>
@@ -507,6 +508,7 @@ function EducationAdmin() {
         error={draft.error}
         onSave={() => draft.save()}
         onPublish={() => draft.publish()}
+        onUnpublish={() => draft.unpublish()}
         onRevert={() =>
           window.confirm("Discard staged changes and restore the published version?") &&
           draft.revert()

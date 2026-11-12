@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { X, Rss, FileText } from "lucide-react";
+import { X, Rss, FileText, ChevronDown } from "lucide-react";
 import type { SiteIdentity } from "@/db/schema";
 import { SideMenu } from "@/components/SideMenu";
 
@@ -12,12 +12,21 @@ const NAV_BRAND_HOME = "engineerthisaryan";
 const MOBILE_NAV_ITEMS: Array<{
   label: string;
   href: string;
+  children?: Array<{ label: string; href: string }>;
   activeWhen?: (pathname: string) => boolean;
 }> = [
   { label: "Overview", href: "/" },
-  { label: "Projects", href: "/projects" },
+  { label: "Projects", href: "/projects", children: [] },
   { label: "Blog", href: "/blog" },
-  { label: "Skills & Certificates", href: "/skills" },
+  {
+    label: "Skills & Certificates",
+    href: "/skills",
+    children: [
+      { label: "Skills", href: "/skills#skills" },
+      { label: "Certificates", href: "/skills#certificates" },
+      { label: "Awards & Recognitions", href: "/skills#awards" },
+    ],
+  },
   { label: "Experience", href: "/experience" },
   { label: "Volunteering", href: "/volunteering" },
   { label: "Contact", href: "/contact" },
@@ -140,20 +149,67 @@ export function SiteHeader({ site }: { site: SiteIdentity }) {
               aria-label="Mobile navigation"
             >
               {MOBILE_NAV_ITEMS.map((item) => {
-                const active = item.activeWhen ? item.activeWhen(pathname) : pathname === item.href;
+                const baseHref = item.href.split("#")[0]!;
+                const active = item.activeWhen
+                  ? item.activeWhen(pathname)
+                  : pathname === baseHref || pathname.startsWith(baseHref + "#");
+                const hasChildren = item.children && item.children.length > 0;
                 return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={closeMenu}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                      active
-                        ? "bg-accent text-accent-foreground"
-                        : "text-foreground hover:bg-accent hover:text-accent-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
+                  <div key={item.label} className="border-b border-border/50">
+                    <div
+                      onClick={
+                        hasChildren
+                          ? () => {}
+                          : () => {
+                              closeMenu();
+                            }
+                      }
+                      className={`flex cursor-pointer items-center justify-between gap-2 px-3 py-2.5 rounded-md transition-colors ${
+                        active ? "bg-accent text-accent-foreground" : ""
+                      }`}
+                    >
+                      <Link
+                        to={baseHref}
+                        onClick={closeMenu}
+                        className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
+                          active
+                            ? "text-accent-foreground"
+                            : "text-foreground hover:text-accent-foreground"
+                        }`}
+                      >
+                        {item.label}
+                        {hasChildren && (
+                          <ChevronDown
+                            className={`ml-auto h-3 w-3 shrink-0 transition-transform duration-200 ${
+                              active ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </Link>
+                    </div>
+                    {hasChildren && active && item.children && (
+                      <ul className="space-y-1 px-3 pb-2 pt-1 ml-2">
+                        {item.children.map((child) => {
+                          const childActive = pathname === child.href;
+                          return (
+                            <li key={child.label}>
+                              <Link
+                                to={child.href.split("#")[0]!}
+                                onClick={closeMenu}
+                                className={`flex items-center gap-3 px-3 py-2 text-sm transition-colors ${
+                                  childActive
+                                    ? "text-accent-foreground underline underline-offset-4"
+                                    : "text-muted-foreground hover:text-foreground"
+                                }`}
+                              >
+                                {child.label}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
                 );
               })}
             </nav>

@@ -11,8 +11,10 @@ import { resolve } from "node:path";
 
 import {
   certificates,
+  education,
   experience,
   overview,
+  awards as awardsContent,
   posts as seedPosts,
   projects as seedProjects,
   site as siteIdentity,
@@ -45,6 +47,7 @@ export async function seedContent(): Promise<SeedCounts> {
           staged: { kind: "blocks", blocks: overview } satisfies PageContent,
           sort: 0,
           publishedAt: new Date(),
+          isPublic: true,
         },
         {
           slug: "skills",
@@ -62,6 +65,7 @@ export async function seedContent(): Promise<SeedCounts> {
           } satisfies PageContent,
           sort: 1,
           publishedAt: new Date(),
+          isPublic: true,
         },
         {
           slug: "certificates",
@@ -77,6 +81,7 @@ export async function seedContent(): Promise<SeedCounts> {
           } satisfies PageContent,
           sort: 3,
           publishedAt: new Date(),
+          isPublic: true,
         },
         {
           slug: "experience",
@@ -92,6 +97,27 @@ export async function seedContent(): Promise<SeedCounts> {
           } satisfies PageContent,
           sort: 2,
           publishedAt: new Date(),
+          isPublic: true,
+        },
+        {
+          slug: "education",
+          title: "Education",
+          kind: "education" as PageKind,
+          published: education,
+          staged: education,
+          sort: 4,
+          publishedAt: new Date(),
+          isPublic: true,
+        },
+        {
+          slug: "awards",
+          title: "Awards",
+          kind: "awards" as PageKind,
+          published: awardsContent,
+          staged: awardsContent,
+          sort: 5,
+          publishedAt: new Date(),
+          isPublic: true,
         },
       ])
       .onConflictDoNothing()

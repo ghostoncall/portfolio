@@ -523,6 +523,16 @@ export const certificates: CertificatesPageContent = {
   ],
 };
 
+export const education: EducationPageContent = {
+  kind: "education",
+  entries: [],
+};
+
+export const awards: AwardPageContent = {
+  kind: "awards",
+  entries: [],
+};
+
 export type PostBody = {
   /** Lexical editor state (Koenig / Ghost). Opaque to the rest of the app. */
   lexical: Record<string, unknown>;

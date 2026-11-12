@@ -14,7 +14,7 @@
 // functions without re-triggering the load effect on every render.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { listStaged, publishItem, revertItem, updateStaged } from "@/lib/server-fns";
+import { listStaged, publishItem, unpublishItem, revertItem, updateStaged } from "@/lib/server-fns";
 import { toast } from "sonner";
 
 export interface UseCmsDraftOptions<T> {
@@ -41,6 +41,7 @@ export interface UseCmsDraftReturn<T> {
   patch: (updater: (doc: T) => T) => void;
   save: (options?: { silent?: boolean }) => Promise<boolean>;
   publish: () => Promise<boolean>;
+  unpublish: () => Promise<boolean>;
   revert: () => Promise<boolean>;
   reload: () => Promise<void>;
 }
@@ -78,7 +79,7 @@ export function useCmsDraft<T>({
   const saveRef = useRef<{ id: number }>({ id: 0 });
   const mountedRef = useRef(false);
 
-  const doc = data ? data.staged : normalizeRef.current({});
+  const doc = data ? (data.staged ?? normalizeRef.current({})) : normalizeRef.current({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -219,6 +220,37 @@ export function useCmsDraft<T>({
     }
   }, [data, table, slug, save]);
 
+  const unpublish = useCallback(async (): Promise<boolean> => {
+    if (!data) return false;
+    try {
+      setSaving(true);
+      await (unpublishItem as any)({ data: { table, slug } });
+      if (data) {
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                isPublic: false,
+              }
+            : null,
+        );
+      }
+      setDirty(false);
+      setLastSaved(new Date());
+      setNotice({ kind: "ok", text: "Unpublished" });
+      notify("Unpublished");
+      setTimeout(() => setNotice(null), 2000);
+      return true;
+    } catch (err: any) {
+      setError(err?.message ?? "Unpublish failed");
+      setNotice({ kind: "error", text: "Unpublish failed" });
+      notify(err?.message ?? "Unpublish failed", "error");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }, [data, table, slug]);
+
   const revert = useCallback(async (): Promise<boolean> => {
     if (!data) return false;
     try {
@@ -271,6 +303,7 @@ export function useCmsDraft<T>({
     patch,
     save,
     publish,
+    unpublish,
     revert,
     reload,
   };
