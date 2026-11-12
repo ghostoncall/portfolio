@@ -569,6 +569,26 @@ export const reorderProjects = createServerFn({ method: "POST", strict: false })
   },
 );
 
+export const reorderNav = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const db = getDb();
+    const slugs: string[] = Array.isArray(data?.slugs) ? data.slugs.map(String) : [];
+    if (!slugs.length) return { ok: true, count: 0 };
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      for (let i = 0; i < slugs.length; i++) {
+        await tx
+          .update(pages)
+          .set({ navOrder: i, updatedAt: now })
+          .where(eq(pages.slug, slugs[i]!));
+      }
+    });
+    return { ok: true, count: slugs.length };
+  },
+);
+
 export const deleteProject = createServerFn({ method: "POST", strict: false }).handler(
   async ({ data, context }: any) => {
     const { request } = context;
