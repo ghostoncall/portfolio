@@ -10,7 +10,7 @@ export function SkillsView({ skills }: { skills: Skill[] }) {
   return (
     <section id="skills" className="space-y-6">
       <h2 className="text-heading-2 sm:text-3xl text-foreground">Skills</h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visibleSkills.map((s) => (
           <SkillTile key={s.id} skill={s} />
         ))}
