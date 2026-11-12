@@ -301,6 +301,96 @@ export function normalizeExperiencePage(raw: unknown): {
 // Generic entry point
 // ---------------------------------------------------------------------------
 
+export function normalizeVolunteeringPage(raw: unknown): {
+  kind: "volunteering";
+  introduction: { heading?: string; body?: string; image?: any };
+  entries: any[];
+  whyVolunteering: { heading?: string; body?: string };
+  lookingAhead: { heading?: string; body?: string };
+  interests: string[];
+  cta: { heading?: string; body?: string; buttonText?: string };
+} {
+  const r = (raw as any) ?? {};
+
+  if (r.kind === "volunteering" || Array.isArray(r.entries)) {
+    return {
+      kind: "volunteering",
+      introduction: {
+        ...(r.introduction?.heading ? { heading: r.introduction.heading } : {}),
+        ...(r.introduction?.body ? { body: r.introduction.body } : {}),
+        ...(r.introduction?.image ? { image: r.introduction.image } : {}),
+      },
+      entries: Array.isArray(r.entries)
+        ? r.entries.map((e: any, i: number) => ({
+            id: e.id ?? stableId("vol", `${String(e.title ?? e.organisation ?? "")} ${i}`),
+            title: String(e.title ?? ""),
+            organisation: String(e.organisation ?? ""),
+            ...(e.date ? { date: e.date } : {}),
+            ...(e.location ? { location: e.location } : {}),
+            ...(e.category ? { category: e.category } : {}),
+            ...(e.shortDescription ? { shortDescription: e.shortDescription } : {}),
+            ...(e.narrative ? { narrative: e.narrative } : {}),
+            ...(e.contribution ? { contribution: e.contribution } : {}),
+            ...(e.reflections ? { reflections: e.reflections } : {}),
+            ...(e.takeaways && e.takeaways.length
+              ? { takeaways: e.takeaways.filter(Boolean) }
+              : {}),
+            media: Array.isArray(e.media) ? e.media : [],
+            ...(e.featuredImage ? { featuredImage: e.featuredImage } : {}),
+            featured: Boolean(e.featured),
+            visible: e.visible !== false,
+            sort: Number(e.sort ?? i),
+            ...(e.links && e.links.length ? { links: e.links } : {}),
+          }))
+        : [],
+      whyVolunteering: {
+        ...(r.whyVolunteering?.heading ? { heading: r.whyVolunteering.heading } : {}),
+        ...(r.whyVolunteering?.body ? { body: r.whyVolunteering.body } : {}),
+      },
+      lookingAhead: {
+        ...(r.lookingAhead?.heading ? { heading: r.lookingAhead.heading } : {}),
+        ...(r.lookingAhead?.body ? { body: r.lookingAhead.body } : {}),
+      },
+      interests: Array.isArray(r.interests) ? r.interests.filter(Boolean) : [],
+      cta: {
+        ...(r.cta?.heading ? { heading: r.cta.heading } : {}),
+        ...(r.cta?.body ? { body: r.cta.body } : {}),
+        ...(r.cta?.buttonText ? { buttonText: r.cta.buttonText } : {}),
+      },
+    };
+  }
+
+  // Legacy top-level: { entries: [...] } without kind.
+  const entries = Array.isArray(r.entries) ? r.entries : [];
+  return {
+    kind: "volunteering",
+    introduction: {},
+    entries: entries.map((e: any, i: number) => ({
+      id: e.id ?? stableId("vol", `${String(e.title ?? e.organisation ?? "")} ${i}`),
+      title: String(e.title ?? ""),
+      organisation: String(e.organisation ?? ""),
+      ...(e.date ? { date: e.date } : {}),
+      ...(e.location ? { location: e.location } : {}),
+      ...(e.category ? { category: e.category } : {}),
+      ...(e.shortDescription ? { shortDescription: e.shortDescription } : {}),
+      ...(e.narrative ? { narrative: e.narrative } : {}),
+      ...(e.contribution ? { contribution: e.contribution } : {}),
+      ...(e.reflections ? { reflections: e.reflections } : {}),
+      ...(e.takeaways && e.takeaways.length ? { takeaways: e.takeaways.filter(Boolean) } : {}),
+      media: Array.isArray(e.media) ? e.media : [],
+      ...(e.featuredImage ? { featuredImage: e.featuredImage } : {}),
+      featured: Boolean(e.featured),
+      visible: e.visible !== false,
+      sort: Number(e.sort ?? i),
+      ...(e.links && e.links.length ? { links: e.links } : {}),
+    })),
+    whyVolunteering: {},
+    lookingAhead: {},
+    interests: [],
+    cta: {},
+  };
+}
+
 export function normalizePageContent(kind: any, raw: unknown): any {
   switch (kind) {
     case "skills":
@@ -309,6 +399,8 @@ export function normalizePageContent(kind: any, raw: unknown): any {
       return normalizeCertificatesPage(raw);
     case "experience":
       return normalizeExperiencePage(raw);
+    case "volunteering":
+      return normalizeVolunteeringPage(raw);
     case "blocks":
     default:
       return {

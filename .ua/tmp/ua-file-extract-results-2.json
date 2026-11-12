@@ -1,0 +1,4888 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 32,
+  "filesSkipped": [],
+  "filesUnreadable": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 32,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 32,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "src/components/PageShell.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 109,
+      "nonEmptyLines": 105,
+      "functions": [
+        {
+          "name": "SiteHeader",
+          "startLine": 6,
+          "endLine": 47,
+          "params": [
+            "{ site }"
+          ]
+        },
+        {
+          "name": "PageShell",
+          "startLine": 49,
+          "endLine": 84,
+          "params": [
+            "{\n  crumbs,\n  title,\n  children,\n  site,\n}"
+          ]
+        },
+        {
+          "name": "SiteFooter",
+          "startLine": 86,
+          "endLine": 109,
+          "params": [
+            "{ site }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SiteHeader",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "PageShell",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "SiteFooter",
+          "line": 86,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SiteHeader",
+          "callee": "site.socials.map",
+          "lineNumber": 11
+        },
+        {
+          "caller": "PageShell",
+          "callee": "crumbs.map",
+          "lineNumber": 66
+        },
+        {
+          "caller": "SiteFooter",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 91
+        },
+        {
+          "caller": "SiteFooter",
+          "callee": "site.socials.map",
+          "lineNumber": 94
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/admin/BlogRenderer.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 84,
+      "nonEmptyLines": 80,
+      "functions": [
+        {
+          "name": "BlogRenderer",
+          "startLine": 61,
+          "endLine": 84,
+          "params": [
+            "{ post, themeVars, className }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "BlogRenderer",
+          "line": 61,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "BlogRenderer",
+          "callee": "blogThemeVars",
+          "lineNumber": 62
+        },
+        {
+          "caller": "BlogRenderer",
+          "callee": "new Date(post.date).toLocaleDateString",
+          "lineNumber": 69
+        },
+        {
+          "caller": "BlogRenderer",
+          "callee": "post.tags.join",
+          "lineNumber": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/public/ProjectSummary.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 52,
+      "functions": [
+        {
+          "name": "ProjectSummary",
+          "startLine": 8,
+          "endLine": 54,
+          "params": [
+            "{ project }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ProjectSummary",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ProjectSummary",
+          "callee": "project.stack.join",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/public/SkillsView.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 38,
+      "functions": [
+        {
+          "name": "SkillsView",
+          "startLine": 6,
+          "endLine": 41,
+          "params": [
+            "{ content }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SkillsView",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SkillsView",
+          "callee": "(content.skills ?? []).filter",
+          "lineNumber": 8
+        },
+        {
+          "caller": "SkillsView",
+          "callee": "categories.map",
+          "lineNumber": 12
+        },
+        {
+          "caller": "SkillsView",
+          "callee": "skills.filter",
+          "lineNumber": 13
+        },
+        {
+          "caller": "SkillsView",
+          "callee": "catSkills.map",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/ui/sonner.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "Toaster",
+          "startLine": 5,
+          "endLine": 21,
+          "params": [
+            "{ ...props }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Toaster",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/blog-settings.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 143,
+      "nonEmptyLines": 135,
+      "functions": [
+        {
+          "name": "isObject",
+          "startLine": 106,
+          "endLine": 108,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "mergeBlogSettings",
+          "startLine": 111,
+          "endLine": 124,
+          "params": [
+            "stored"
+          ]
+        },
+        {
+          "name": "blogThemeVars",
+          "startLine": 127,
+          "endLine": 143,
+          "params": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "FONT_OPTIONS",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "IMAGE_RATIOS",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_BLOG_SETTINGS",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "mergeBlogSettings",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "blogThemeVars",
+          "line": 127,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isObject",
+          "callee": "Array.isArray",
+          "lineNumber": 107
+        },
+        {
+          "caller": "merge",
+          "callee": "isObject",
+          "lineNumber": 113
+        },
+        {
+          "caller": "merge",
+          "callee": "isObject",
+          "lineNumber": 115
+        },
+        {
+          "caller": "merge",
+          "callee": "Object.keys",
+          "lineNumber": 116
+        },
+        {
+          "caller": "merge",
+          "callee": "merge",
+          "lineNumber": 118
+        },
+        {
+          "caller": "mergeBlogSettings",
+          "callee": "merge",
+          "lineNumber": 123
+        },
+        {
+          "caller": "blogThemeVars",
+          "callee": "String",
+          "lineNumber": 137
+        },
+        {
+          "caller": "blogThemeVars",
+          "callee": "String",
+          "lineNumber": 138
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/format-date.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 9,
+      "functions": [
+        {
+          "name": "formatDate",
+          "startLine": 2,
+          "endLine": 9,
+          "params": [
+            "iso"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "formatDate",
+          "line": 2,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "formatDate",
+          "callee": "new Date(`${iso}T00:00:00Z`).toLocaleDateString",
+          "lineNumber": 3
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/server-fns.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1579,
+      "nonEmptyLines": 1468,
+      "functions": [
+        {
+          "name": "requireAdmin",
+          "startLine": 46,
+          "endLine": 53,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "keyColumn",
+          "startLine": 56,
+          "endLine": 58,
+          "params": [
+            "table"
+          ]
+        },
+        {
+          "name": "mediaMaxBytes",
+          "startLine": 61,
+          "endLine": 64,
+          "params": []
+        },
+        {
+          "name": "httpError",
+          "startLine": 1055,
+          "endLine": 1059,
+          "params": [
+            "message",
+            "statusCode"
+          ]
+        },
+        {
+          "name": "findMediaReferences",
+          "startLine": 1062,
+          "endLine": 1083,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "cleanText",
+          "startLine": 1274,
+          "endLine": 1283,
+          "params": [
+            "value",
+            "max"
+          ]
+        },
+        {
+          "name": "escapeHtml",
+          "startLine": 1286,
+          "endLine": 1293,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "sha256",
+          "startLine": 1295,
+          "endLine": 1297,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "getClientIp",
+          "startLine": 1299,
+          "endLine": 1309,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "verifyTurnstile",
+          "startLine": 1312,
+          "endLine": 1339,
+          "params": [
+            "token",
+            "ip"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "mediaMaxBytes",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "listStaged",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "getStaged",
+          "line": 107,
+          "isDefault": false
+        },
+        {
+          "name": "updateStaged",
+          "line": 142,
+          "isDefault": false
+        },
+        {
+          "name": "createItem",
+          "line": 183,
+          "isDefault": false
+        },
+        {
+          "name": "deleteItem",
+          "line": 245,
+          "isDefault": false
+        },
+        {
+          "name": "updatePostSlug",
+          "line": 262,
+          "isDefault": false
+        },
+        {
+          "name": "bulkUpdatePosts",
+          "line": 292,
+          "isDefault": false
+        },
+        {
+          "name": "publishItem",
+          "line": 326,
+          "isDefault": false
+        },
+        {
+          "name": "unpublishItem",
+          "line": 378,
+          "isDefault": false
+        },
+        {
+          "name": "revertItem",
+          "line": 397,
+          "isDefault": false
+        },
+        {
+          "name": "updateProjectSlug",
+          "line": 430,
+          "isDefault": false
+        },
+        {
+          "name": "duplicateProject",
+          "line": 474,
+          "isDefault": false
+        },
+        {
+          "name": "reorderProjects",
+          "line": 511,
+          "isDefault": false
+        },
+        {
+          "name": "deleteProject",
+          "line": 531,
+          "isDefault": false
+        },
+        {
+          "name": "ensureContentPage",
+          "line": 559,
+          "isDefault": false
+        },
+        {
+          "name": "getPublishedSkillsBundle",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "publishAll",
+          "line": 608,
+          "isDefault": false
+        },
+        {
+          "name": "getSiteIdentity",
+          "line": 626,
+          "isDefault": false
+        },
+        {
+          "name": "getBlogSettings",
+          "line": 646,
+          "isDefault": false
+        },
+        {
+          "name": "saveBlogSettings",
+          "line": 654,
+          "isDefault": false
+        },
+        {
+          "name": "getPublishedPosts",
+          "line": 671,
+          "isDefault": false
+        },
+        {
+          "name": "getPublishedPost",
+          "line": 686,
+          "isDefault": false
+        },
+        {
+          "name": "getPostPreview",
+          "line": 703,
+          "isDefault": false
+        },
+        {
+          "name": "searchPosts",
+          "line": 723,
+          "isDefault": false
+        },
+        {
+          "name": "searchSuggest",
+          "line": 757,
+          "isDefault": false
+        },
+        {
+          "name": "getBlogTags",
+          "line": 767,
+          "isDefault": false
+        },
+        {
+          "name": "getRelatedPosts",
+          "line": 772,
+          "isDefault": false
+        },
+        {
+          "name": "recordPostView",
+          "line": 797,
+          "isDefault": false
+        },
+        {
+          "name": "getBlogOverview",
+          "line": 809,
+          "isDefault": false
+        },
+        {
+          "name": "listPostRevisions",
+          "line": 821,
+          "isDefault": false
+        },
+        {
+          "name": "createPostRevision",
+          "line": 834,
+          "isDefault": false
+        },
+        {
+          "name": "restorePostRevision",
+          "line": 864,
+          "isDefault": false
+        },
+        {
+          "name": "submitContact",
+          "line": 892,
+          "isDefault": false
+        },
+        {
+          "name": "listContactMessages",
+          "line": 941,
+          "isDefault": false
+        },
+        {
+          "name": "markContactRead",
+          "line": 950,
+          "isDefault": false
+        },
+        {
+          "name": "getPublishedProjects",
+          "line": 960,
+          "isDefault": false
+        },
+        {
+          "name": "getPublishedProject",
+          "line": 972,
+          "isDefault": false
+        },
+        {
+          "name": "getPublishedPage",
+          "line": 981,
+          "isDefault": false
+        },
+        {
+          "name": "exportBackup",
+          "line": 990,
+          "isDefault": false
+        },
+        {
+          "name": "createMediaUpload",
+          "line": 1085,
+          "isDefault": false
+        },
+        {
+          "name": "listMedia",
+          "line": 1152,
+          "isDefault": false
+        },
+        {
+          "name": "updateMedia",
+          "line": 1161,
+          "isDefault": false
+        },
+        {
+          "name": "getMediaUsage",
+          "line": 1178,
+          "isDefault": false
+        },
+        {
+          "name": "deleteMedia",
+          "line": 1190,
+          "isDefault": false
+        },
+        {
+          "name": "getAdminUser",
+          "line": 1229,
+          "isDefault": false
+        },
+        {
+          "name": "sendContactEmail",
+          "line": 1341,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "requireAdmin",
+          "callee": "getAuthUser",
+          "lineNumber": 47
+        },
+        {
+          "caller": "mediaMaxBytes",
+          "callee": "Number",
+          "lineNumber": 62
+        },
+        {
+          "caller": "mediaMaxBytes",
+          "callee": "Number.isFinite",
+          "lineNumber": 63
+        },
+        {
+          "caller": "findMediaReferences",
+          "callee": "getDb",
+          "lineNumber": 1063
+        },
+        {
+          "caller": "findMediaReferences",
+          "callee": "db.execute",
+          "lineNumber": 1065
+        },
+        {
+          "caller": "findMediaReferences",
+          "callee": "sql",
+          "lineNumber": 1065
+        },
+        {
+          "caller": "findMediaReferences",
+          "callee": "Array.isArray",
+          "lineNumber": 1081
+        },
+        {
+          "caller": "cleanText",
+          "callee": "String(value ?? \"\")\n      // eslint-disable-next-line no-control-regex\n      .replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, \"\")\n      .replace(/\\r\\n/g, \"\\n\")\n      .trim()\n      .slice",
+          "lineNumber": 1276
+        },
+        {
+          "caller": "cleanText",
+          "callee": "String(value ?? \"\")\n      // eslint-disable-next-line no-control-regex\n      .replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, \"\")\n      .replace(/\\r\\n/g, \"\\n\")\n      .trim",
+          "lineNumber": 1276
+        },
+        {
+          "caller": "cleanText",
+          "callee": "String(value ?? \"\")\n      // eslint-disable-next-line no-control-regex\n      .replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, \"\")\n      .replace",
+          "lineNumber": 1276
+        },
+        {
+          "caller": "cleanText",
+          "callee": "String(value ?? \"\")\n      // eslint-disable-next-line no-control-regex\n      .replace",
+          "lineNumber": 1276
+        },
+        {
+          "caller": "cleanText",
+          "callee": "String",
+          "lineNumber": 1276
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace(/\"/g, \"&quot;\")\n    .replace",
+          "lineNumber": 1287
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace",
+          "lineNumber": 1287
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace",
+          "lineNumber": 1287
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace",
+          "lineNumber": 1287
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace",
+          "lineNumber": 1287
+        },
+        {
+          "caller": "sha256",
+          "callee": "createHash(\"sha256\").update(value).digest",
+          "lineNumber": 1296
+        },
+        {
+          "caller": "sha256",
+          "callee": "createHash(\"sha256\").update",
+          "lineNumber": 1296
+        },
+        {
+          "caller": "sha256",
+          "callee": "createHash",
+          "lineNumber": 1296
+        },
+        {
+          "caller": "getClientIp",
+          "callee": "headers.get",
+          "lineNumber": 1302
+        },
+        {
+          "caller": "getClientIp",
+          "callee": "headers.get",
+          "lineNumber": 1304
+        },
+        {
+          "caller": "getClientIp",
+          "callee": "headers.get",
+          "lineNumber": 1305
+        },
+        {
+          "caller": "getClientIp",
+          "callee": "forwarded.split",
+          "lineNumber": 1306
+        },
+        {
+          "caller": "getClientIp",
+          "callee": "candidate.trim().slice",
+          "lineNumber": 1308
+        },
+        {
+          "caller": "getClientIp",
+          "callee": "candidate.trim",
+          "lineNumber": 1308
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "body.set",
+          "lineNumber": 1318
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "fetch",
+          "lineNumber": 1322
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "res.json",
+          "lineNumber": 1326
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "Array.isArray",
+          "lineNumber": 1332
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "console.log",
+          "lineNumber": 1333
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "codes.join",
+          "lineNumber": 1333
+        },
+        {
+          "caller": "verifyTurnstile",
+          "callee": "codes.includes",
+          "lineNumber": 1334
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 47,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/supabase-browser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 17,
+      "functions": [
+        {
+          "name": "getSupabaseBrowser",
+          "startLine": 10,
+          "endLine": 23,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "getSupabaseBrowser",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getSupabaseBrowser",
+          "callee": "createBrowserClient",
+          "lineNumber": 21
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/supabase.server.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 68,
+      "nonEmptyLines": 61,
+      "functions": [
+        {
+          "name": "parseCookieHeader",
+          "startLine": 7,
+          "endLine": 28,
+          "params": [
+            "header"
+          ]
+        },
+        {
+          "name": "getSupabaseServer",
+          "startLine": 30,
+          "endLine": 46,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "getAuthUser",
+          "startLine": 49,
+          "endLine": 68,
+          "params": [
+            "request"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getSupabaseServer",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "getAuthUser",
+          "line": 49,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCookieHeader",
+          "callee": "header\n    .split(\";\")\n    .map((part) => {\n      const index = part.indexOf(\"=\");\n      if (index === -1) {\n        const name = part.trim();\n        return name ? { name, value: \"\" } : null;\n      }\n      const name = part.slice(0, index).trim();\n      const raw = part.slice(index + 1).trim();\n      let value = raw;\n      try {\n        value = decodeURIComponent(raw);\n      } catch {\n        // Keep the raw value when it is not percent-encoded.\n      }\n      return name ? { name, value } : null;\n    })\n    .filter",
+          "lineNumber": 9
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "header\n    .split(\";\")\n    .map",
+          "lineNumber": 9
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "header\n    .split",
+          "lineNumber": 9
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "part.indexOf",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "part.trim",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "part.slice(0, index).trim",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "part.slice",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "part.slice(index + 1).trim",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "part.slice",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseCookieHeader",
+          "callee": "decodeURIComponent",
+          "lineNumber": 21
+        },
+        {
+          "caller": "getSupabaseServer",
+          "callee": "createServerClient",
+          "lineNumber": 39
+        },
+        {
+          "caller": "getSupabaseServer",
+          "callee": "parseCookieHeader",
+          "lineNumber": 41
+        },
+        {
+          "caller": "getSupabaseServer",
+          "callee": "request.headers.get",
+          "lineNumber": 41
+        },
+        {
+          "caller": "getAuthUser",
+          "callee": "getSupabaseServer",
+          "lineNumber": 51
+        },
+        {
+          "caller": "getAuthUser",
+          "callee": "supabase.auth.getUser",
+          "lineNumber": 52
+        },
+        {
+          "caller": "getAuthUser",
+          "callee": "(user.email ?? \"\").toLowerCase",
+          "lineNumber": 60
+        },
+        {
+          "caller": "getAuthUser",
+          "callee": "allowed.toLowerCase",
+          "lineNumber": 60
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routeTree.gen.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 635,
+      "nonEmptyLines": 614,
+      "exports": [
+        {
+          "name": "routeTree",
+          "line": 623,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 29,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/router.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 16,
+      "nonEmptyLines": 13,
+      "functions": [
+        {
+          "name": "getRouter",
+          "startLine": 5,
+          "endLine": 16,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "getRouter",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getRouter",
+          "callee": "createRouter",
+          "lineNumber": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/__root.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 167,
+      "nonEmptyLines": 156,
+      "functions": [
+        {
+          "name": "NotFoundComponent",
+          "startLine": 22,
+          "endLine": 42,
+          "params": []
+        },
+        {
+          "name": "ErrorComponent",
+          "startLine": 44,
+          "endLine": 77,
+          "params": [
+            "{ error, reset }"
+          ]
+        },
+        {
+          "name": "RootShell",
+          "startLine": 118,
+          "endLine": 130,
+          "params": [
+            "{ children }"
+          ]
+        },
+        {
+          "name": "SmoothScroll",
+          "startLine": 132,
+          "endLine": 145,
+          "params": [
+            "{ children }"
+          ]
+        },
+        {
+          "name": "RootComponent",
+          "startLine": 147,
+          "endLine": 167,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 79,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ErrorComponent",
+          "callee": "console.error",
+          "lineNumber": 45
+        },
+        {
+          "caller": "ErrorComponent",
+          "callee": "useRouter",
+          "lineNumber": 46
+        },
+        {
+          "caller": "ErrorComponent",
+          "callee": "router.invalidate",
+          "lineNumber": 60
+        },
+        {
+          "caller": "ErrorComponent",
+          "callee": "reset",
+          "lineNumber": 61
+        },
+        {
+          "caller": "SmoothScroll",
+          "callee": "useState",
+          "lineNumber": 133
+        },
+        {
+          "caller": "SmoothScroll",
+          "callee": "useEffect",
+          "lineNumber": 136
+        },
+        {
+          "caller": "SmoothScroll",
+          "callee": "window.matchMedia",
+          "lineNumber": 137
+        },
+        {
+          "caller": "sync",
+          "callee": "setSmooth",
+          "lineNumber": 138
+        },
+        {
+          "caller": "SmoothScroll",
+          "callee": "sync",
+          "lineNumber": 139
+        },
+        {
+          "caller": "SmoothScroll",
+          "callee": "mq.addEventListener",
+          "lineNumber": 140
+        },
+        {
+          "caller": "SmoothScroll",
+          "callee": "mq.removeEventListener",
+          "lineNumber": 141
+        },
+        {
+          "caller": "RootComponent",
+          "callee": "Route.useRouteContext",
+          "lineNumber": 148
+        },
+        {
+          "caller": "RootComponent",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 149
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/blog.$slug.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 80,
+      "nonEmptyLines": 76,
+      "functions": [
+        {
+          "name": "PostPage",
+          "startLine": 62,
+          "endLine": 80,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "PostPage",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 63
+        },
+        {
+          "caller": "PostPage",
+          "callee": "blogThemeVars",
+          "lineNumber": 64
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/blog.index.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 275,
+      "nonEmptyLines": 259,
+      "functions": [
+        {
+          "name": "BlogIndex",
+          "startLine": 44,
+          "endLine": 115,
+          "params": []
+        },
+        {
+          "name": "EmptyState",
+          "startLine": 117,
+          "endLine": 132,
+          "params": [
+            "{ settings }"
+          ]
+        },
+        {
+          "name": "PageLink",
+          "startLine": 134,
+          "endLine": 151,
+          "params": [
+            "{\n  page,\n  disabled,\n  children,\n}"
+          ]
+        },
+        {
+          "name": "CardImage",
+          "startLine": 153,
+          "endLine": 168,
+          "params": [
+            "{ post, settings }"
+          ]
+        },
+        {
+          "name": "CardMeta",
+          "startLine": 170,
+          "endLine": 177,
+          "params": [
+            "{ post, settings }"
+          ]
+        },
+        {
+          "name": "excerpt",
+          "startLine": 179,
+          "endLine": 184,
+          "params": [
+            "post",
+            "settings"
+          ]
+        },
+        {
+          "name": "PostCard",
+          "startLine": 186,
+          "endLine": 235,
+          "params": [
+            "{\n  post,\n  settings,\n  variant,\n}"
+          ]
+        },
+        {
+          "name": "FeaturedCard",
+          "startLine": 237,
+          "endLine": 275,
+          "params": [
+            "{ post, settings }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "BlogIndex",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 45
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Math.max",
+          "lineNumber": 46
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Number",
+          "lineNumber": 46
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Route.useSearch",
+          "lineNumber": 46
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "blogThemeVars",
+          "lineNumber": 47
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "[...posts].sort",
+          "lineNumber": 49
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "b.date.localeCompare",
+          "lineNumber": 49
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "sorted.find",
+          "lineNumber": 52
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "sorted.filter",
+          "lineNumber": 54
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Math.max",
+          "lineNumber": 56
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Math.max",
+          "lineNumber": 57
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Math.ceil",
+          "lineNumber": 57
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "Math.min",
+          "lineNumber": 58
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "listable.slice",
+          "lineNumber": 60
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "pagePosts.map",
+          "lineNumber": 80
+        },
+        {
+          "caller": "BlogIndex",
+          "callee": "pagePosts.map",
+          "lineNumber": 86
+        },
+        {
+          "caller": "CardMeta",
+          "callee": "parts.push",
+          "lineNumber": 172
+        },
+        {
+          "caller": "CardMeta",
+          "callee": "formatDate",
+          "lineNumber": 172
+        },
+        {
+          "caller": "CardMeta",
+          "callee": "parts.push",
+          "lineNumber": 173
+        },
+        {
+          "caller": "CardMeta",
+          "callee": "parts.push",
+          "lineNumber": 174
+        },
+        {
+          "caller": "CardMeta",
+          "callee": "post.tags.join",
+          "lineNumber": 174
+        },
+        {
+          "caller": "CardMeta",
+          "callee": "parts.join",
+          "lineNumber": 176
+        },
+        {
+          "caller": "excerpt",
+          "callee": "Math.max",
+          "lineNumber": 181
+        },
+        {
+          "caller": "excerpt",
+          "callee": "post.dek.slice(0, limit).trimEnd",
+          "lineNumber": 183
+        },
+        {
+          "caller": "excerpt",
+          "callee": "post.dek.slice",
+          "lineNumber": 183
+        },
+        {
+          "caller": "PostCard",
+          "callee": "excerpt",
+          "lineNumber": 208
+        },
+        {
+          "caller": "PostCard",
+          "callee": "excerpt",
+          "lineNumber": 210
+        },
+        {
+          "caller": "PostCard",
+          "callee": "formatDate",
+          "lineNumber": 227
+        },
+        {
+          "caller": "FeaturedCard",
+          "callee": "excerpt",
+          "lineNumber": 250
+        },
+        {
+          "caller": "FeaturedCard",
+          "callee": "excerpt",
+          "lineNumber": 252
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/blog.search.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 353,
+      "nonEmptyLines": 332,
+      "functions": [
+        {
+          "name": "SearchPage",
+          "startLine": 17,
+          "endLine": 345,
+          "params": []
+        },
+        {
+          "name": "escapeHtml",
+          "startLine": 347,
+          "endLine": 353,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SearchPage",
+          "callee": "Route.useSearch",
+          "lineNumber": 18
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 19
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 20
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "String",
+          "lineNumber": 20
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 21
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 22
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 25
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "Math.max",
+          "lineNumber": 28
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "Number",
+          "lineNumber": 28
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 32
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 35
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 36
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 37
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 38
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useState",
+          "lineNumber": 39
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useRef",
+          "lineNumber": 40
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useMemo",
+          "lineNumber": 42
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "String",
+          "lineNumber": 46
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "String",
+          "lineNumber": 49
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "String",
+          "lineNumber": 50
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useEffect",
+          "lineNumber": 54
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "query.trim",
+          "lineNumber": 55
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "runSearch",
+          "lineNumber": 56
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setResults",
+          "lineNumber": 58
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setTotal",
+          "lineNumber": 59
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setError",
+          "lineNumber": 60
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useEffect",
+          "lineNumber": 64
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "(getBlogTags as any)()\n      .then((rows: any) => setTags(rows))\n      .catch",
+          "lineNumber": 65
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "(getBlogTags as any)()\n      .then",
+          "lineNumber": 65
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "(getBlogTags as any)",
+          "lineNumber": 65
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setTags",
+          "lineNumber": 66
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setError",
+          "lineNumber": 71
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setLoading",
+          "lineNumber": 72
+        },
+        {
+          "caller": "runSearch",
+          "callee": "(searchPosts as any)",
+          "lineNumber": 74
+        },
+        {
+          "caller": "runSearch",
+          "callee": "query.trim",
+          "lineNumber": 76
+        },
+        {
+          "caller": "runSearch",
+          "callee": "Number",
+          "lineNumber": 78
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setResults",
+          "lineNumber": 85
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setTotal",
+          "lineNumber": 86
+        },
+        {
+          "caller": "runSearch",
+          "callee": "Number",
+          "lineNumber": 86
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setError",
+          "lineNumber": 88
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setResults",
+          "lineNumber": 89
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setTotal",
+          "lineNumber": 90
+        },
+        {
+          "caller": "runSearch",
+          "callee": "setLoading",
+          "lineNumber": 92
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "query.trim",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "setSuggestions",
+          "lineNumber": 99
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "setShowSuggestions",
+          "lineNumber": 100
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "window.clearTimeout",
+          "lineNumber": 103
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "window.setTimeout",
+          "lineNumber": 104
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "(searchSuggest as any)",
+          "lineNumber": 106
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "setSuggestions",
+          "lineNumber": 107
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "setShowSuggestions",
+          "lineNumber": 108
+        },
+        {
+          "caller": "onSuggest",
+          "callee": "setSuggestions",
+          "lineNumber": 110
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "useEffect",
+          "lineNumber": 115
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "query.trim",
+          "lineNumber": 116
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "onSuggest",
+          "lineNumber": 116
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setSuggestions",
+          "lineNumber": 118
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setShowSuggestions",
+          "lineNumber": 119
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "window.clearTimeout",
+          "lineNumber": 122
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "Math.max",
+          "lineNumber": 126
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "Math.ceil",
+          "lineNumber": 126
+        },
+        {
+          "caller": "handleSelect",
+          "callee": "setShowSuggestions",
+          "lineNumber": 129
+        },
+        {
+          "caller": "handleSelect",
+          "callee": "setTag",
+          "lineNumber": 133
+        },
+        {
+          "caller": "handleSelect",
+          "callee": "setPage",
+          "lineNumber": 134
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "query.trim",
+          "lineNumber": 147
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "escapeHtml",
+          "lineNumber": 154
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setQuery",
+          "lineNumber": 170
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "window.setTimeout",
+          "lineNumber": 171
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setShowSuggestions",
+          "lineNumber": 171
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setQuery",
+          "lineNumber": 177
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "query.trim",
+          "lineNumber": 178
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "query.trim",
+          "lineNumber": 179
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setQuery",
+          "lineNumber": 187
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "suggestions.map",
+          "lineNumber": 200
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "handleSelect",
+          "lineNumber": 204
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "escapeHtml",
+          "lineNumber": 208
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "escapeHtml",
+          "lineNumber": 210
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setTag",
+          "lineNumber": 222
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setPage",
+          "lineNumber": 223
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "tags.map",
+          "lineNumber": 228
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "String",
+          "lineNumber": 235
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setYear",
+          "lineNumber": 237
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setPage",
+          "lineNumber": 238
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "[2024, 2025, 2026].map",
+          "lineNumber": 243
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setFeatured",
+          "lineNumber": 254
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setPage",
+          "lineNumber": 255
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setSort",
+          "lineNumber": 263
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setPage",
+          "lineNumber": 264
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "results.map",
+          "lineNumber": 287
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "(post.tags as string[]).slice(0, 4).map",
+          "lineNumber": 294
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "(post.tags as string[]).slice",
+          "lineNumber": 294
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setPage",
+          "lineNumber": 318
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "Math.max",
+          "lineNumber": 318
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "setPage",
+          "lineNumber": 328
+        },
+        {
+          "caller": "SearchPage",
+          "callee": "Math.min",
+          "lineNumber": 328
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace",
+          "lineNumber": 348
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace",
+          "lineNumber": 348
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace(/&/g, \"&amp;\")\n    .replace",
+          "lineNumber": 348
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "value\n    .replace",
+          "lineNumber": 348
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/contact.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 376,
+      "nonEmptyLines": 343,
+      "functions": [
+        {
+          "name": "validate",
+          "startLine": 68,
+          "endLine": 94,
+          "params": [
+            "values"
+          ]
+        },
+        {
+          "name": "Contact",
+          "startLine": 96,
+          "endLine": 376,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "validate",
+          "callee": "values.name.trim",
+          "lineNumber": 71
+        },
+        {
+          "caller": "validate",
+          "callee": "values.name.trim",
+          "lineNumber": 72
+        },
+        {
+          "caller": "validate",
+          "callee": "values.email.trim",
+          "lineNumber": 75
+        },
+        {
+          "caller": "validate",
+          "callee": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test",
+          "lineNumber": 76
+        },
+        {
+          "caller": "validate",
+          "callee": "values.email.trim",
+          "lineNumber": 76
+        },
+        {
+          "caller": "validate",
+          "callee": "values.custom_subject.trim",
+          "lineNumber": 82
+        },
+        {
+          "caller": "validate",
+          "callee": "values.custom_subject.trim",
+          "lineNumber": 83
+        },
+        {
+          "caller": "validate",
+          "callee": "values.message.trim",
+          "lineNumber": 87
+        },
+        {
+          "caller": "validate",
+          "callee": "values.message.trim",
+          "lineNumber": 88
+        },
+        {
+          "caller": "Contact",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 97
+        },
+        {
+          "caller": "Contact",
+          "callee": "useState",
+          "lineNumber": 98
+        },
+        {
+          "caller": "Contact",
+          "callee": "useState",
+          "lineNumber": 99
+        },
+        {
+          "caller": "Contact",
+          "callee": "useState",
+          "lineNumber": 100
+        },
+        {
+          "caller": "Contact",
+          "callee": "useState",
+          "lineNumber": 101
+        },
+        {
+          "caller": "Contact",
+          "callee": "useRef",
+          "lineNumber": 110
+        },
+        {
+          "caller": "Contact",
+          "callee": "useRef",
+          "lineNumber": 111
+        },
+        {
+          "caller": "Contact",
+          "callee": "useState",
+          "lineNumber": 112
+        },
+        {
+          "caller": "Contact",
+          "callee": "useEffect",
+          "lineNumber": 114
+        },
+        {
+          "caller": "render",
+          "callee": "turnstile.render",
+          "lineNumber": 120
+        },
+        {
+          "caller": "render",
+          "callee": "setTurnstileToken",
+          "lineNumber": 123
+        },
+        {
+          "caller": "render",
+          "callee": "setTurnstileToken",
+          "lineNumber": 124
+        },
+        {
+          "caller": "render",
+          "callee": "setTurnstileToken",
+          "lineNumber": 125
+        },
+        {
+          "caller": "Contact",
+          "callee": "document.querySelector",
+          "lineNumber": 129
+        },
+        {
+          "caller": "Contact",
+          "callee": "render",
+          "lineNumber": 131
+        },
+        {
+          "caller": "Contact",
+          "callee": "existing.addEventListener",
+          "lineNumber": 132
+        },
+        {
+          "caller": "Contact",
+          "callee": "document.createElement",
+          "lineNumber": 136
+        },
+        {
+          "caller": "Contact",
+          "callee": "script.addEventListener",
+          "lineNumber": 141
+        },
+        {
+          "caller": "Contact",
+          "callee": "document.head.appendChild",
+          "lineNumber": 142
+        },
+        {
+          "caller": "update",
+          "callee": "setValues",
+          "lineNumber": 146
+        },
+        {
+          "caller": "update",
+          "callee": "setErrors",
+          "lineNumber": 147
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "event.preventDefault",
+          "lineNumber": 151
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "String",
+          "lineNumber": 156
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "formData.get",
+          "lineNumber": 156
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "validate",
+          "lineNumber": 158
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "honeypot.trim",
+          "lineNumber": 159
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "Object.keys",
+          "lineNumber": 160
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrors",
+          "lineNumber": 161
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "Object.keys",
+          "lineNumber": 162
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "form.querySelector",
+          "lineNumber": 163
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "target?.focus",
+          "lineNumber": 164
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrors",
+          "lineNumber": 168
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setSending",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "(sendContactEmail as any)",
+          "lineNumber": 171
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "values.name.trim",
+          "lineNumber": 174
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "values.email.trim",
+          "lineNumber": 175
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "values.custom_subject.trim",
+          "lineNumber": 176
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "values.message.trim",
+          "lineNumber": 177
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setSent",
+          "lineNumber": 185
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrors",
+          "lineNumber": 191
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "(window as any).turnstile.reset",
+          "lineNumber": 193
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setTurnstileToken",
+          "lineNumber": 194
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setSending",
+          "lineNumber": 197
+        },
+        {
+          "caller": "Contact",
+          "callee": "update",
+          "lineNumber": 236
+        },
+        {
+          "caller": "Contact",
+          "callee": "Boolean",
+          "lineNumber": 237
+        },
+        {
+          "caller": "Contact",
+          "callee": "update",
+          "lineNumber": 259
+        },
+        {
+          "caller": "Contact",
+          "callee": "Boolean",
+          "lineNumber": 260
+        },
+        {
+          "caller": "Contact",
+          "callee": "update",
+          "lineNumber": 279
+        },
+        {
+          "caller": "Contact",
+          "callee": "Boolean",
+          "lineNumber": 280
+        },
+        {
+          "caller": "Contact",
+          "callee": "SUBJECT_OPTIONS.map",
+          "lineNumber": 284
+        },
+        {
+          "caller": "Contact",
+          "callee": "update",
+          "lineNumber": 310
+        },
+        {
+          "caller": "Contact",
+          "callee": "Boolean",
+          "lineNumber": 311
+        },
+        {
+          "caller": "Contact",
+          "callee": "update",
+          "lineNumber": 339
+        },
+        {
+          "caller": "Contact",
+          "callee": "Boolean",
+          "lineNumber": 340
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/experience.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 50,
+      "nonEmptyLines": 48,
+      "functions": [
+        {
+          "name": "ExperiencePage",
+          "startLine": 40,
+          "endLine": 50,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ExperiencePage",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/index.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 67,
+      "nonEmptyLines": 65,
+      "functions": [
+        {
+          "name": "Index",
+          "startLine": 52,
+          "endLine": 67,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Index",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 53
+        },
+        {
+          "caller": "Index",
+          "callee": "featured.map",
+          "lineNumber": 59
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.blog-settings.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 735,
+      "nonEmptyLines": 701,
+      "functions": [
+        {
+          "name": "BlogSettingsPage",
+          "startLine": 27,
+          "endLine": 402,
+          "params": []
+        },
+        {
+          "name": "clampInt",
+          "startLine": 404,
+          "endLine": 408,
+          "params": [
+            "raw",
+            "min",
+            "max",
+            "fallback"
+          ]
+        },
+        {
+          "name": "clampFloat",
+          "startLine": 410,
+          "endLine": 414,
+          "params": [
+            "raw",
+            "min",
+            "max",
+            "fallback"
+          ]
+        },
+        {
+          "name": "Section",
+          "startLine": 416,
+          "endLine": 423,
+          "params": [
+            "{ title, children }"
+          ]
+        },
+        {
+          "name": "Field",
+          "startLine": 425,
+          "endLine": 432,
+          "params": [
+            "{ label, children }"
+          ]
+        },
+        {
+          "name": "Toggle",
+          "startLine": 434,
+          "endLine": 459,
+          "params": [
+            "{\n  label,\n  hint,\n  checked,\n  onChange,\n}"
+          ]
+        },
+        {
+          "name": "NumberField",
+          "startLine": 461,
+          "endLine": 491,
+          "params": [
+            "{\n  label,\n  value,\n  min,\n  max,\n  step,\n  suffix,\n  onChange,\n}"
+          ]
+        },
+        {
+          "name": "ColorField",
+          "startLine": 493,
+          "endLine": 516,
+          "params": [
+            "{\n  label,\n  value,\n  onChange,\n}"
+          ]
+        },
+        {
+          "name": "FontPicker",
+          "startLine": 518,
+          "endLine": 567,
+          "params": [
+            "{\n  label,\n  value,\n  onChange,\n}"
+          ]
+        },
+        {
+          "name": "EmptyImageField",
+          "startLine": 569,
+          "endLine": 614,
+          "params": [
+            "{\n  value,\n  onChange,\n}"
+          ]
+        },
+        {
+          "name": "Preview",
+          "startLine": 625,
+          "endLine": 735,
+          "params": [
+            "{ settings }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "BlogSettingsPage",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "JSON.stringify",
+          "lineNumber": 29
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useState",
+          "lineNumber": 30
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useState",
+          "lineNumber": 32
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useEffect",
+          "lineNumber": 34
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "(getBlogSettings as any)()\n      .then((value: BlogSettings) => {\n        setSettings(value);\n        setSaved(JSON.stringify(value));\n      })\n      .catch(() => setNotice({ kind: \"error\", text: \"Could not load blog settings.\" }))\n      .finally",
+          "lineNumber": 35
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "(getBlogSettings as any)()\n      .then((value: BlogSettings) => {\n        setSettings(value);\n        setSaved(JSON.stringify(value));\n      })\n      .catch",
+          "lineNumber": 35
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "(getBlogSettings as any)()\n      .then",
+          "lineNumber": 35
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "(getBlogSettings as any)",
+          "lineNumber": 35
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setSettings",
+          "lineNumber": 37
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setSaved",
+          "lineNumber": 38
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "JSON.stringify",
+          "lineNumber": 38
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setNotice",
+          "lineNumber": 40
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setLoading",
+          "lineNumber": 41
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "useMemo",
+          "lineNumber": 44
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "JSON.stringify",
+          "lineNumber": 44
+        },
+        {
+          "caller": "setPath",
+          "callee": "setSettings",
+          "lineNumber": 47
+        },
+        {
+          "caller": "setPath",
+          "callee": "structuredClone",
+          "lineNumber": 48
+        },
+        {
+          "caller": "setPath",
+          "callee": "path.split",
+          "lineNumber": 49
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setSaving",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setNotice",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handleSave",
+          "callee": "(saveBlogSettings as any)",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setSettings",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setSaved",
+          "lineNumber": 65
+        },
+        {
+          "caller": "handleSave",
+          "callee": "JSON.stringify",
+          "lineNumber": 65
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setNotice",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setNotice",
+          "lineNumber": 68
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setSaving",
+          "lineNumber": 70
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setSettings",
+          "lineNumber": 100
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "structuredClone",
+          "lineNumber": 100
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setNotice",
+          "lineNumber": 101
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "handleSave",
+          "lineNumber": 109
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 137
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 144
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 156
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 169
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "clampInt",
+          "lineNumber": 169
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 178
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 184
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 190
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 205
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 220
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "clampInt",
+          "lineNumber": 220
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 229
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 235
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "IMAGE_RATIOS.map",
+          "lineNumber": 238
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 249
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 255
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 260
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 265
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 274
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 281
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 288
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 297
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 302
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 313
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 322
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 330
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 341
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 350
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 359
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 369
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 374
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 379
+        },
+        {
+          "caller": "BlogSettingsPage",
+          "callee": "setPath",
+          "lineNumber": 384
+        },
+        {
+          "caller": "clampInt",
+          "callee": "Number",
+          "lineNumber": 405
+        },
+        {
+          "caller": "clampInt",
+          "callee": "Number.isFinite",
+          "lineNumber": 406
+        },
+        {
+          "caller": "clampInt",
+          "callee": "Math.min",
+          "lineNumber": 407
+        },
+        {
+          "caller": "clampInt",
+          "callee": "Math.max",
+          "lineNumber": 407
+        },
+        {
+          "caller": "clampInt",
+          "callee": "Math.round",
+          "lineNumber": 407
+        },
+        {
+          "caller": "clampFloat",
+          "callee": "Number",
+          "lineNumber": 411
+        },
+        {
+          "caller": "clampFloat",
+          "callee": "Number.isFinite",
+          "lineNumber": 412
+        },
+        {
+          "caller": "clampFloat",
+          "callee": "Math.min",
+          "lineNumber": 413
+        },
+        {
+          "caller": "clampFloat",
+          "callee": "Math.max",
+          "lineNumber": 413
+        },
+        {
+          "caller": "Toggle",
+          "callee": "onChange",
+          "lineNumber": 450
+        },
+        {
+          "caller": "NumberField",
+          "callee": "onChange",
+          "lineNumber": 486
+        },
+        {
+          "caller": "NumberField",
+          "callee": "clampFloat",
+          "lineNumber": 486
+        },
+        {
+          "caller": "ColorField",
+          "callee": "/^#[0-9a-f]{6}$/i.test",
+          "lineNumber": 508
+        },
+        {
+          "caller": "ColorField",
+          "callee": "onChange",
+          "lineNumber": 509
+        },
+        {
+          "caller": "ColorField",
+          "callee": "onChange",
+          "lineNumber": 512
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "FONT_OPTIONS.some",
+          "lineNumber": 527
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "useState",
+          "lineNumber": 528
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "setForceCustom",
+          "lineNumber": 538
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "setForceCustom",
+          "lineNumber": 540
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "onChange",
+          "lineNumber": 541
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "FONT_OPTIONS.map",
+          "lineNumber": 546
+        },
+        {
+          "caller": "FontPicker",
+          "callee": "onChange",
+          "lineNumber": 557
+        },
+        {
+          "caller": "EmptyImageField",
+          "callee": "useState",
+          "lineNumber": 576
+        },
+        {
+          "caller": "EmptyImageField",
+          "callee": "onChange",
+          "lineNumber": 583
+        },
+        {
+          "caller": "EmptyImageField",
+          "callee": "setOpen",
+          "lineNumber": 589
+        },
+        {
+          "caller": "EmptyImageField",
+          "callee": "onChange",
+          "lineNumber": 599
+        },
+        {
+          "caller": "EmptyImageField",
+          "callee": "setOpen",
+          "lineNumber": 607
+        },
+        {
+          "caller": "EmptyImageField",
+          "callee": "onChange",
+          "lineNumber": 610
+        },
+        {
+          "caller": "Preview",
+          "callee": "blogThemeVars",
+          "lineNumber": 626
+        },
+        {
+          "caller": "Preview",
+          "callee": "SAMPLE_BODY.dek.slice",
+          "lineNumber": 653
+        },
+        {
+          "caller": "Preview",
+          "callee": "Array.from",
+          "lineNumber": 666
+        },
+        {
+          "caller": "Preview",
+          "callee": "[\n                  settings.card.showDate && \"12 Oct 2026\",\n                  settings.card.showAuthor && SAMPLE_BODY.author,\n                  settings.card.showTags && SAMPLE_BODY.tags.join(\" · \"),\n                ]\n                  .filter(Boolean)\n                  .join",
+          "lineNumber": 688
+        },
+        {
+          "caller": "Preview",
+          "callee": "[\n                  settings.card.showDate && \"12 Oct 2026\",\n                  settings.card.showAuthor && SAMPLE_BODY.author,\n                  settings.card.showTags && SAMPLE_BODY.tags.join(\" · \"),\n                ]\n                  .filter",
+          "lineNumber": 688
+        },
+        {
+          "caller": "Preview",
+          "callee": "SAMPLE_BODY.tags.join",
+          "lineNumber": 691
+        },
+        {
+          "caller": "Preview",
+          "callee": "SAMPLE_BODY.dek.slice",
+          "lineNumber": 701
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.blogs.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 314,
+      "nonEmptyLines": 299,
+      "functions": [
+        {
+          "name": "slugify",
+          "startLine": 16,
+          "endLine": 24,
+          "params": [
+            "title"
+          ]
+        },
+        {
+          "name": "Blogs",
+          "startLine": 26,
+          "endLine": 312,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "slugify",
+          "callee": "title\n    .toLowerCase()\n    .trim()\n    .replace(/[^a-z0-9\\s-]/g, \"\")\n    .replace(/\\s+/g, \"-\")\n    .replace(/-+/g, \"-\")\n    .replace",
+          "lineNumber": 17
+        },
+        {
+          "caller": "slugify",
+          "callee": "title\n    .toLowerCase()\n    .trim()\n    .replace(/[^a-z0-9\\s-]/g, \"\")\n    .replace(/\\s+/g, \"-\")\n    .replace",
+          "lineNumber": 17
+        },
+        {
+          "caller": "slugify",
+          "callee": "title\n    .toLowerCase()\n    .trim()\n    .replace(/[^a-z0-9\\s-]/g, \"\")\n    .replace",
+          "lineNumber": 17
+        },
+        {
+          "caller": "slugify",
+          "callee": "title\n    .toLowerCase()\n    .trim()\n    .replace",
+          "lineNumber": 17
+        },
+        {
+          "caller": "slugify",
+          "callee": "title\n    .toLowerCase()\n    .trim",
+          "lineNumber": 17
+        },
+        {
+          "caller": "slugify",
+          "callee": "title\n    .toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Blogs",
+          "callee": "useNavigate",
+          "lineNumber": 27
+        },
+        {
+          "caller": "Blogs",
+          "callee": "useRouterState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 32
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 33
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 37
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 38
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 39
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 40
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 41
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useState",
+          "lineNumber": 42
+        },
+        {
+          "caller": "Blogs",
+          "callee": "React.useEffect",
+          "lineNumber": 44
+        },
+        {
+          "caller": "Blogs",
+          "callee": "(listStaged as any)({ data: { table: \"posts\" } }).then",
+          "lineNumber": 46
+        },
+        {
+          "caller": "Blogs",
+          "callee": "(listStaged as any)",
+          "lineNumber": 46
+        },
+        {
+          "caller": "Blogs",
+          "callee": "setItems",
+          "lineNumber": 46
+        },
+        {
+          "caller": "refresh",
+          "callee": "(listStaged as any)",
+          "lineNumber": 50
+        },
+        {
+          "caller": "refresh",
+          "callee": "setItems",
+          "lineNumber": 51
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "e.preventDefault",
+          "lineNumber": 55
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "setCreateError",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "setBusy",
+          "lineNumber": 57
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "(createItem as any)",
+          "lineNumber": 59
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "setBusy",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "setCreating",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "navigate",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "setBusy",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handleCreate",
+          "callee": "setCreateError",
+          "lineNumber": 65
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "window.confirm",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setStatus",
+          "lineNumber": 71
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "(deleteItem as any)",
+          "lineNumber": 73
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "refresh",
+          "lineNumber": 74
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setStatus",
+          "lineNumber": 75
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setStatus",
+          "lineNumber": 77
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setTimeout",
+          "lineNumber": 79
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setStatus",
+          "lineNumber": 79
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 83
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "(publishItem as any)",
+          "lineNumber": 85
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 86
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "refresh",
+          "lineNumber": 87
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setTimeout",
+          "lineNumber": 91
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 91
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 95
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "(revertItem as any)",
+          "lineNumber": 97
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "refresh",
+          "lineNumber": 98
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 100
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setTimeout",
+          "lineNumber": 102
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 102
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "window.confirm",
+          "lineNumber": 106
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "setStatus",
+          "lineNumber": 107
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "(unpublishItem as any)",
+          "lineNumber": 109
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "refresh",
+          "lineNumber": 110
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "setStatus",
+          "lineNumber": 112
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "setTimeout",
+          "lineNumber": 114
+        },
+        {
+          "caller": "handleUnpublish",
+          "callee": "setStatus",
+          "lineNumber": 114
+        },
+        {
+          "caller": "Blogs",
+          "callee": "setCreating",
+          "lineNumber": 129
+        },
+        {
+          "caller": "Blogs",
+          "callee": "setTitle",
+          "lineNumber": 146
+        },
+        {
+          "caller": "Blogs",
+          "callee": "setSlug",
+          "lineNumber": 147
+        },
+        {
+          "caller": "Blogs",
+          "callee": "slugify",
+          "lineNumber": 147
+        },
+        {
+          "caller": "Blogs",
+          "callee": "setSlug",
+          "lineNumber": 161
+        },
+        {
+          "caller": "Blogs",
+          "callee": "setSlugTouched",
+          "lineNumber": 162
+        },
+        {
+          "caller": "Blogs",
+          "callee": "title.trim",
+          "lineNumber": 172
+        },
+        {
+          "caller": "Blogs",
+          "callee": "slug.trim",
+          "lineNumber": 172
+        },
+        {
+          "caller": "Blogs",
+          "callee": "items.map",
+          "lineNumber": 202
+        },
+        {
+          "caller": "Blogs",
+          "callee": "Boolean",
+          "lineNumber": 205
+        },
+        {
+          "caller": "Blogs",
+          "callee": "publishedAt.getTime",
+          "lineNumber": 207
+        },
+        {
+          "caller": "Blogs",
+          "callee": "Date.now",
+          "lineNumber": 207
+        },
+        {
+          "caller": "Blogs",
+          "callee": "JSON.stringify",
+          "lineNumber": 208
+        },
+        {
+          "caller": "Blogs",
+          "callee": "JSON.stringify",
+          "lineNumber": 208
+        },
+        {
+          "caller": "Blogs",
+          "callee": "handlePublish",
+          "lineNumber": 248
+        },
+        {
+          "caller": "Blogs",
+          "callee": "handleUnpublish",
+          "lineNumber": 255
+        },
+        {
+          "caller": "Blogs",
+          "callee": "handlePublish",
+          "lineNumber": 265
+        },
+        {
+          "caller": "Blogs",
+          "callee": "handleRevert",
+          "lineNumber": 274
+        },
+        {
+          "caller": "Blogs",
+          "callee": "handleDelete",
+          "lineNumber": 281
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.export.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 63,
+      "nonEmptyLines": 57,
+      "functions": [
+        {
+          "name": "Export",
+          "startLine": 9,
+          "endLine": 61,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Export",
+          "callee": "React.useState",
+          "lineNumber": 10
+        },
+        {
+          "caller": "Export",
+          "callee": "React.useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setExporting",
+          "lineNumber": 14
+        },
+        {
+          "caller": "handleExport",
+          "callee": "(exportBackup as any)",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handleExport",
+          "callee": "JSON.stringify",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handleExport",
+          "callee": "URL.createObjectURL",
+          "lineNumber": 18
+        },
+        {
+          "caller": "handleExport",
+          "callee": "document.createElement",
+          "lineNumber": 19
+        },
+        {
+          "caller": "handleExport",
+          "callee": "new Date().toISOString().slice",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handleExport",
+          "callee": "new Date().toISOString",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handleExport",
+          "callee": "a.click",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handleExport",
+          "callee": "URL.revokeObjectURL",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setStatus",
+          "lineNumber": 24
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setTimeout",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setStatus",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setStatus",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setTimeout",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setStatus",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handleExport",
+          "callee": "setExporting",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.index.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 157,
+      "nonEmptyLines": 147,
+      "functions": [
+        {
+          "name": "Dashboard",
+          "startLine": 11,
+          "endLine": 157,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Dashboard",
+          "callee": "React.useState",
+          "lineNumber": 12
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "React.useState",
+          "lineNumber": 13
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "useState",
+          "lineNumber": 14
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "useState",
+          "lineNumber": 15
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "useEffect",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "(getBlogOverview as any)()\n      .then((o: any) => setOverview(o))\n      .catch(() => setOverview({}))\n      .finally",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "(getBlogOverview as any)()\n      .then((o: any) => setOverview(o))\n      .catch",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "(getBlogOverview as any)()\n      .then",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "(getBlogOverview as any)",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "setOverview",
+          "lineNumber": 19
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "setOverview",
+          "lineNumber": 20
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "setLoading",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setPublishing",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "(publishAll as any)",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setPublishStatus",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setTimeout",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setPublishStatus",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setPublishStatus",
+          "lineNumber": 31
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setTimeout",
+          "lineNumber": 32
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setPublishStatus",
+          "lineNumber": 32
+        },
+        {
+          "caller": "handlePublishAll",
+          "callee": "setPublishing",
+          "lineNumber": 34
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "[\n          { label: \"Pages\", to: \"/onlyme/pages\", icon: \"📄\" },\n          { label: \"Projects\", to: \"/onlyme/projects\", icon: \"💼\" },\n          { label: \"Blogs\", to: \"/onlyme/blogs\", icon: \"📝\" },\n          { label: \"Settings\", to: \"/onlyme/settings\", icon: \"⚙️\" },\n        ].map",
+          "lineNumber": 59
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "stat",
+          "lineNumber": 83
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "stat",
+          "lineNumber": 84
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "stat",
+          "lineNumber": 85
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "stat",
+          "lineNumber": 86
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "overview.recent.slice(0, 5).map",
+          "lineNumber": 113
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "overview.recent.slice",
+          "lineNumber": 113
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "new Date(item.publishedAt).toLocaleDateString",
+          "lineNumber": 125
+        },
+        {
+          "caller": "Dashboard",
+          "callee": "overview.topViewed.map",
+          "lineNumber": 138
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.login.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 157,
+      "nonEmptyLines": 143,
+      "functions": [
+        {
+          "name": "safeFrom",
+          "startLine": 16,
+          "endLine": 21,
+          "params": []
+        },
+        {
+          "name": "Login",
+          "startLine": 23,
+          "endLine": 157,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "safeFrom",
+          "callee": "new URLSearchParams(window.location.search).get",
+          "lineNumber": 18
+        },
+        {
+          "caller": "safeFrom",
+          "callee": "raw.startsWith",
+          "lineNumber": 19
+        },
+        {
+          "caller": "safeFrom",
+          "callee": "raw.startsWith",
+          "lineNumber": 19
+        },
+        {
+          "caller": "Login",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 24
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 25
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 26
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 27
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "Login",
+          "callee": "useEffect",
+          "lineNumber": 32
+        },
+        {
+          "caller": "Login",
+          "callee": "getSupabaseBrowser",
+          "lineNumber": 34
+        },
+        {
+          "caller": "Login",
+          "callee": "supabase.auth\n        .getUser()\n        .then(({ data }: any) => {\n          if (data.user) window.location.href = safeFrom();\n        })\n        .catch",
+          "lineNumber": 35
+        },
+        {
+          "caller": "Login",
+          "callee": "supabase.auth\n        .getUser()\n        .then",
+          "lineNumber": 35
+        },
+        {
+          "caller": "Login",
+          "callee": "supabase.auth\n        .getUser",
+          "lineNumber": 35
+        },
+        {
+          "caller": "Login",
+          "callee": "safeFrom",
+          "lineNumber": 38
+        },
+        {
+          "caller": "Login",
+          "callee": "setError",
+          "lineNumber": 44
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "event.preventDefault",
+          "lineNumber": 49
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 50
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setSubmitting",
+          "lineNumber": 51
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "getSupabaseBrowser",
+          "lineNumber": 54
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase.auth.signInWithPassword",
+          "lineNumber": 55
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "email.trim",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "safeFrom",
+          "lineNumber": 65
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 67
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setSubmitting",
+          "lineNumber": 69
+        },
+        {
+          "caller": "Login",
+          "callee": "setEmail",
+          "lineNumber": 100
+        },
+        {
+          "caller": "Login",
+          "callee": "setPassword",
+          "lineNumber": 118
+        },
+        {
+          "caller": "Login",
+          "callee": "setShowPassword",
+          "lineNumber": 126
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.pages.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 152,
+      "nonEmptyLines": 144,
+      "functions": [
+        {
+          "name": "Pages",
+          "startLine": 9,
+          "endLine": 150,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Pages",
+          "callee": "React.useState",
+          "lineNumber": 10
+        },
+        {
+          "caller": "Pages",
+          "callee": "React.useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "Pages",
+          "callee": "React.useEffect",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Pages",
+          "callee": "(listStaged as any)({ data: { table: \"pages\" } }).then",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Pages",
+          "callee": "(listStaged as any)",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Pages",
+          "callee": "setItems",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "(publishItem as any)",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 24
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setTimeout",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 32
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "(revertItem as any)",
+          "lineNumber": 34
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "(listStaged as any)",
+          "lineNumber": 35
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setItems",
+          "lineNumber": 36
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setTimeout",
+          "lineNumber": 40
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 40
+        },
+        {
+          "caller": "Pages",
+          "callee": "items.map",
+          "lineNumber": 74
+        },
+        {
+          "caller": "Pages",
+          "callee": "Boolean",
+          "lineNumber": 80
+        },
+        {
+          "caller": "Pages",
+          "callee": "new Date(item.updatedAt).toLocaleDateString",
+          "lineNumber": 91
+        },
+        {
+          "caller": "Pages",
+          "callee": "handlePublish",
+          "lineNumber": 113
+        },
+        {
+          "caller": "Pages",
+          "callee": "handleRevert",
+          "lineNumber": 121
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.preview.$slug.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 82,
+      "nonEmptyLines": 75,
+      "functions": [
+        {
+          "name": "PreviewPage",
+          "startLine": 30,
+          "endLine": 82,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "PreviewPage",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 31
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "notFound",
+          "lineNumber": 32
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "Boolean",
+          "lineNumber": 34
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "new Date(publishedAt).getTime",
+          "lineNumber": 35
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "Date.now",
+          "lineNumber": 35
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "blogThemeVars",
+          "lineNumber": 37
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "mergeBlogSettings",
+          "lineNumber": 37
+        },
+        {
+          "caller": "PreviewPage",
+          "callee": "new Date(publishedAt!).toLocaleString",
+          "lineNumber": 48
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.settings.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 219,
+      "nonEmptyLines": 207,
+      "functions": [
+        {
+          "name": "Settings",
+          "startLine": 10,
+          "endLine": 217,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 14
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 15
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 19
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useState",
+          "lineNumber": 20
+        },
+        {
+          "caller": "Settings",
+          "callee": "React.useEffect",
+          "lineNumber": 22
+        },
+        {
+          "caller": "Settings",
+          "callee": "(getStaged as any)({ data: { table: \"settings\", slug: \"site\" } }).then",
+          "lineNumber": 23
+        },
+        {
+          "caller": "Settings",
+          "callee": "(getStaged as any)",
+          "lineNumber": 23
+        },
+        {
+          "caller": "Settings",
+          "callee": "setData",
+          "lineNumber": 24
+        },
+        {
+          "caller": "Settings",
+          "callee": "setName",
+          "lineNumber": 26
+        },
+        {
+          "caller": "Settings",
+          "callee": "setTitle",
+          "lineNumber": 27
+        },
+        {
+          "caller": "Settings",
+          "callee": "setEdition",
+          "lineNumber": 28
+        },
+        {
+          "caller": "Settings",
+          "callee": "setEmail",
+          "lineNumber": 29
+        },
+        {
+          "caller": "Settings",
+          "callee": "setSocials",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setSaving",
+          "lineNumber": 37
+        },
+        {
+          "caller": "handleSave",
+          "callee": "(updateStaged as any)",
+          "lineNumber": 39
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setStatus",
+          "lineNumber": 47
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setTimeout",
+          "lineNumber": 48
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setStatus",
+          "lineNumber": 48
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setStatus",
+          "lineNumber": 50
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setTimeout",
+          "lineNumber": 51
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setStatus",
+          "lineNumber": 51
+        },
+        {
+          "caller": "handleSave",
+          "callee": "setSaving",
+          "lineNumber": 53
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setSaving",
+          "lineNumber": 58
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "(publishItem as any)",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setTimeout",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "(getStaged as any)",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setData",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setName",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setTitle",
+          "lineNumber": 67
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setEdition",
+          "lineNumber": 68
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setEmail",
+          "lineNumber": 69
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setSocials",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 71
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setTimeout",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 74
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setTimeout",
+          "lineNumber": 75
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setStatus",
+          "lineNumber": 75
+        },
+        {
+          "caller": "handlePublish",
+          "callee": "setSaving",
+          "lineNumber": 77
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setSaving",
+          "lineNumber": 82
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "(revertItem as any)",
+          "lineNumber": 84
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "(getStaged as any)",
+          "lineNumber": 85
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setData",
+          "lineNumber": 86
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setName",
+          "lineNumber": 88
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setTitle",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setEdition",
+          "lineNumber": 90
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setEmail",
+          "lineNumber": 91
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setSocials",
+          "lineNumber": 92
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setTimeout",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setTimeout",
+          "lineNumber": 97
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setStatus",
+          "lineNumber": 97
+        },
+        {
+          "caller": "handleRevert",
+          "callee": "setSaving",
+          "lineNumber": 99
+        },
+        {
+          "caller": "Settings",
+          "callee": "setName",
+          "lineNumber": 118
+        },
+        {
+          "caller": "Settings",
+          "callee": "setTitle",
+          "lineNumber": 126
+        },
+        {
+          "caller": "Settings",
+          "callee": "setEdition",
+          "lineNumber": 134
+        },
+        {
+          "caller": "Settings",
+          "callee": "setEmail",
+          "lineNumber": 143
+        },
+        {
+          "caller": "Settings",
+          "callee": "socials.map",
+          "lineNumber": 150
+        },
+        {
+          "caller": "Settings",
+          "callee": "setSocials",
+          "lineNumber": 157
+        },
+        {
+          "caller": "Settings",
+          "callee": "setSocials",
+          "lineNumber": 166
+        },
+        {
+          "caller": "Settings",
+          "callee": "setSocials",
+          "lineNumber": 171
+        },
+        {
+          "caller": "Settings",
+          "callee": "socials.filter",
+          "lineNumber": 171
+        },
+        {
+          "caller": "Settings",
+          "callee": "setSocials",
+          "lineNumber": 179
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/onlyme.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 139,
+      "functions": [
+        {
+          "name": "OnlymeLayout",
+          "startLine": 30,
+          "endLine": 150,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "OnlymeLayout",
+          "callee": "useRouterState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "OnlymeLayout",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 32
+        },
+        {
+          "caller": "OnlymeLayout",
+          "callee": "useState",
+          "lineNumber": 33
+        },
+        {
+          "caller": "OnlymeLayout",
+          "callee": "useEffect",
+          "lineNumber": 35
+        },
+        {
+          "caller": "OnlymeLayout",
+          "callee": "setSidebarCollapsed",
+          "lineNumber": 38
+        },
+        {
+          "caller": "OnlymeLayout",
+          "callee": "localStorage.getItem",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handleSignOut",
+          "callee": "getSupabaseBrowser().auth.signOut",
+          "lineNumber": 50
+        },
+        {
+          "caller": "handleSignOut",
+          "callee": "getSupabaseBrowser",
+          "lineNumber": 50
+        },
+        {
+          "caller": "toggleSidebar",
+          "callee": "setSidebarCollapsed",
+          "lineNumber": 59
+        },
+        {
+          "caller": "toggleSidebar",
+          "callee": "localStorage.setItem",
+          "lineNumber": 62
+        },
+        {
+          "caller": "toggleSidebar",
+          "callee": "String",
+          "lineNumber": 62
+        },
+        {
+          "caller": "OnlymeLayout",
+          "callee": "navItems.map",
+          "lineNumber": 104
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/projects.$slug.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 55,
+      "functions": [
+        {
+          "name": "ProjectNotFound",
+          "startLine": 36,
+          "endLine": 45,
+          "params": []
+        },
+        {
+          "name": "ProjectPage",
+          "startLine": 47,
+          "endLine": 58,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ProjectNotFound",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 37
+        },
+        {
+          "caller": "ProjectPage",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 48
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/projects.index.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 53,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "Projects",
+          "startLine": 34,
+          "endLine": 53,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Projects",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 35
+        },
+        {
+          "caller": "Projects",
+          "callee": "(projects as any[]).filter",
+          "lineNumber": 36
+        },
+        {
+          "caller": "Projects",
+          "callee": "visible.map",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/routes/skills.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 51,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "SkillsPage",
+          "startLine": 40,
+          "endLine": 51,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Route",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SkillsPage",
+          "callee": "Route.useLoaderData",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/test/app-routing.test.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

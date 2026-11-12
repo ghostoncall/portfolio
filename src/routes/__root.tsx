@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReactLenis } from "lenis/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -14,7 +15,9 @@ import { useEffect, useState, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import lenisCss from "lenis/dist/lenis.css?url";
 import { SiteHeader, SiteFooter } from "../components/PageShell";
-import { getSiteIdentity } from "@/lib/server-fns";
+import { NavProjectsContext, type NavProject } from "../components/nav-projects";
+import { Toaster } from "../components/ui/sonner";
+import { getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
 
 function NotFoundComponent() {
   return (
@@ -75,8 +78,14 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   loader: async () => {
-    const site = await (getSiteIdentity as any)();
-    return { site };
+    const [site, projects] = await Promise.all([
+      (getSiteIdentity as any)(),
+      (getPublishedProjects as any)(),
+    ]);
+    const navProjects: NavProject[] = (projects as any[])
+      .filter((p) => p.status !== "archived")
+      .map((p) => ({ slug: p.slug, title: p.title }));
+    return { site, navProjects };
   },
   head: () => ({
     meta: [
@@ -137,16 +146,22 @@ function SmoothScroll({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const { site } = Route.useLoaderData() as { site: any };
+  const { site, navProjects } = Route.useLoaderData() as {
+    site: any;
+    navProjects: NavProject[];
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
       <SmoothScroll>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <SiteHeader site={site} />
-        <Outlet />
+        <NavProjectsContext.Provider value={navProjects ?? []}>
+          <Outlet />
+        </NavProjectsContext.Provider>
         <SiteFooter site={site} />
       </SmoothScroll>
+      <Toaster />
     </QueryClientProvider>
   );
 }

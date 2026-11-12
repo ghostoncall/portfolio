@@ -156,11 +156,7 @@ export type Certificate = {
 };
 
 export type ExperienceEmploymentType =
-  | "full-time"
-  | "part-time"
-  | "contract"
-  | "freelance"
-  | "internship";
+  "full-time" | "part-time" | "contract" | "freelance" | "internship";
 
 export type ExperienceWorkMode = "on-site" | "remote" | "hybrid";
 
@@ -206,12 +202,57 @@ export type ExperiencePageContent = {
   entries: ExperienceEntry[];
 };
 
+export type VolunteeringEntry = {
+  id: string;
+  title: string;
+  organisation: string;
+  date?: string;
+  location?: string;
+  category?: string;
+  shortDescription?: string;
+  narrative?: string;
+  contribution?: string;
+  reflections?: string;
+  takeaways?: string[];
+  media: MediaItem[];
+  featuredImage?: MediaItem;
+  featured?: boolean;
+  visible?: boolean;
+  sort: number;
+  links?: ProjectLink[];
+};
+
+export type VolunteeringPageContent = {
+  kind: "volunteering";
+  introduction: {
+    heading?: string;
+    body?: string;
+    image?: MediaItem;
+  };
+  entries: VolunteeringEntry[];
+  whyVolunteering: {
+    heading?: string;
+    body?: string;
+  };
+  lookingAhead: {
+    heading?: string;
+    body?: string;
+  };
+  interests: string[];
+  cta: {
+    heading?: string;
+    body?: string;
+    buttonText?: string;
+  };
+};
+
 /** A page body. `kind` tells the admin editor which form shape to render. */
 export type PageContent =
   | { kind: "blocks"; blocks: Block[] }
   | SkillsPageContent
   | CertificatesPageContent
-  | ExperiencePageContent;
+  | ExperiencePageContent
+  | VolunteeringPageContent;
 
 export type PageKind = PageContent["kind"];
 

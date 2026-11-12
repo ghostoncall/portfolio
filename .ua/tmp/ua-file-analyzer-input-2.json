@@ -1,0 +1,194 @@
+{
+  "projectRoot": "/home/ghost-malware/projects/ai-portfolio",
+  "batchFiles": [
+    {"path": "src/components/PageShell.tsx", "language": "typescript", "sizeLines": 109, "fileCategory": "code"},
+    {"path": "src/components/admin/BlogRenderer.tsx", "language": "typescript", "sizeLines": 84, "fileCategory": "code"},
+    {"path": "src/components/public/ProjectSummary.tsx", "language": "typescript", "sizeLines": 54, "fileCategory": "code"},
+    {"path": "src/components/public/SkillsView.tsx", "language": "typescript", "sizeLines": 41, "fileCategory": "code"},
+    {"path": "src/components/ui/sonner.tsx", "language": "typescript", "sizeLines": 23, "fileCategory": "code"},
+    {"path": "src/lib/blog-settings.ts", "language": "typescript", "sizeLines": 143, "fileCategory": "code"},
+    {"path": "src/lib/format-date.ts", "language": "typescript", "sizeLines": 9, "fileCategory": "code"},
+    {"path": "src/lib/server-fns.ts", "language": "typescript", "sizeLines": 1579, "fileCategory": "code"},
+    {"path": "src/lib/supabase-browser.ts", "language": "typescript", "sizeLines": 23, "fileCategory": "code"},
+    {"path": "src/lib/supabase.server.ts", "language": "typescript", "sizeLines": 68, "fileCategory": "code"},
+    {"path": "src/routeTree.gen.ts", "language": "typescript", "sizeLines": 635, "fileCategory": "code"},
+    {"path": "src/router.tsx", "language": "typescript", "sizeLines": 16, "fileCategory": "code"},
+    {"path": "src/routes/__root.tsx", "language": "typescript", "sizeLines": 167, "fileCategory": "code"},
+    {"path": "src/routes/blog.$slug.tsx", "language": "typescript", "sizeLines": 80, "fileCategory": "code"},
+    {"path": "src/routes/blog.index.tsx", "language": "typescript", "sizeLines": 275, "fileCategory": "code"},
+    {"path": "src/routes/blog.search.tsx", "language": "typescript", "sizeLines": 353, "fileCategory": "code"},
+    {"path": "src/routes/contact.tsx", "language": "typescript", "sizeLines": 376, "fileCategory": "code"},
+    {"path": "src/routes/experience.tsx", "language": "typescript", "sizeLines": 50, "fileCategory": "code"},
+    {"path": "src/routes/index.tsx", "language": "typescript", "sizeLines": 67, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.blog-settings.tsx", "language": "typescript", "sizeLines": 735, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.blogs.tsx", "language": "typescript", "sizeLines": 314, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.export.tsx", "language": "typescript", "sizeLines": 63, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.index.tsx", "language": "typescript", "sizeLines": 157, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.login.tsx", "language": "typescript", "sizeLines": 157, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.pages.tsx", "language": "typescript", "sizeLines": 152, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.preview.$slug.tsx", "language": "typescript", "sizeLines": 82, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.settings.tsx", "language": "typescript", "sizeLines": 219, "fileCategory": "code"},
+    {"path": "src/routes/onlyme.tsx", "language": "typescript", "sizeLines": 150, "fileCategory": "code"},
+    {"path": "src/routes/projects.$slug.tsx", "language": "typescript", "sizeLines": 58, "fileCategory": "code"},
+    {"path": "src/routes/projects.index.tsx", "language": "typescript", "sizeLines": 53, "fileCategory": "code"},
+    {"path": "src/routes/skills.tsx", "language": "typescript", "sizeLines": 51, "fileCategory": "code"},
+    {"path": "src/test/app-routing.test.tsx", "language": "typescript", "sizeLines": 17, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "src/components/PageShell.tsx": [
+      "src/components/SideMenu.tsx",
+      "src/db/schema.ts"
+    ],
+    "src/components/admin/BlogRenderer.tsx": [
+      "src/components/blocks.tsx",
+      "src/components/media.tsx",
+      "src/content/site.ts",
+      "src/lib/blog-settings.ts"
+    ],
+    "src/components/public/ProjectSummary.tsx": [
+      "src/components/ui/badge.tsx"
+    ],
+    "src/components/public/SkillsView.tsx": [],
+    "src/components/ui/sonner.tsx": [],
+    "src/lib/blog-settings.ts": [],
+    "src/lib/format-date.ts": [],
+    "src/lib/server-fns.ts": [
+      "src/db/client.ts",
+      "src/db/schema.ts",
+      "src/lib/blog-settings.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/cms-server.ts",
+      "src/lib/cms-validation.ts",
+      "src/lib/supabase.server.ts"
+    ],
+    "src/lib/supabase-browser.ts": [],
+    "src/lib/supabase.server.ts": [],
+    "src/routeTree.gen.ts": [
+      "src/router.tsx",
+      "src/routes/__root.tsx",
+      "src/routes/blog.$slug.tsx",
+      "src/routes/blog.index.tsx",
+      "src/routes/blog.search.tsx",
+      "src/routes/contact.tsx",
+      "src/routes/experience.tsx",
+      "src/routes/index.tsx",
+      "src/routes/onlyme.blog-settings.tsx",
+      "src/routes/onlyme.blogs.$slug.tsx",
+      "src/routes/onlyme.blogs.tsx",
+      "src/routes/onlyme.certificates.tsx",
+      "src/routes/onlyme.experience.tsx",
+      "src/routes/onlyme.export.tsx",
+      "src/routes/onlyme.index.tsx",
+      "src/routes/onlyme.login.tsx",
+      "src/routes/onlyme.media.tsx",
+      "src/routes/onlyme.pages.$slug.tsx",
+      "src/routes/onlyme.pages.tsx",
+      "src/routes/onlyme.preview.$slug.tsx",
+      "src/routes/onlyme.projects.$slug.tsx",
+      "src/routes/onlyme.projects.tsx",
+      "src/routes/onlyme.settings.tsx",
+      "src/routes/onlyme.skills.tsx",
+      "src/routes/onlyme.tsx",
+      "src/routes/projects.$slug.tsx",
+      "src/routes/projects.index.tsx",
+      "src/routes/skills.tsx",
+      "src/start.ts"
+    ],
+    "src/router.tsx": [
+      "src/routeTree.gen.ts"
+    ],
+    "src/routes/__root.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/nav-projects.ts",
+      "src/components/ui/sonner.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/blog.$slug.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/admin/BlogRenderer.tsx",
+      "src/lib/blog-settings.ts",
+      "src/lib/format-date.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/blog.index.tsx": [
+      "src/components/PageShell.tsx",
+      "src/content/site.ts",
+      "src/lib/blog-settings.ts",
+      "src/lib/format-date.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/blog.search.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/contact.tsx": [
+      "src/components/PageShell.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/experience.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/ExperienceView.tsx",
+      "src/lib/cms-normalize.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/index.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/blocks.tsx",
+      "src/components/public/ProjectSummary.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.blog-settings.tsx": [
+      "src/components/admin/MediaPicker.tsx",
+      "src/lib/blog-settings.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.blogs.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.export.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.index.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.login.tsx": [
+      "src/lib/server-fns.ts",
+      "src/lib/supabase-browser.ts"
+    ],
+    "src/routes/onlyme.pages.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.preview.$slug.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/admin/BlogRenderer.tsx",
+      "src/lib/blog-settings.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.settings.tsx": [
+      "src/db/schema.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.tsx": [
+      "src/lib/server-fns.ts",
+      "src/lib/supabase-browser.ts"
+    ],
+    "src/routes/projects.$slug.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/ProjectView.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/projects.index.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/ProjectSummary.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/skills.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/CertificatesView.tsx",
+      "src/components/public/SkillsView.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/test/app-routing.test.tsx": [
+      "src/routeTree.gen.ts"
+    ]
+  }
+}

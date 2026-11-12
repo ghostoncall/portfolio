@@ -1,0 +1,664 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/components/ui/popover.tsx",
+      "type": "file",
+      "name": "popover.tsx",
+      "filePath": "src/components/ui/popover.tsx",
+      "summary": "Radix UI popover wrapper exposing Root, Trigger, Anchor, and a styled PopoverContent panel rendered through a portal with alignment and offset props plus animated open/close transitions.",
+      "tags": ["component", "ui-primitive", "popover", "radix", "shadcn"],
+      "complexity": "simple",
+      "languageNotes": "Re-exports Radix popover parts under their own names and only restyles PopoverContent, the canonical shadcn/ui primitive pattern."
+    },
+    {
+      "id": "file:src/components/ui/progress.tsx",
+      "type": "file",
+      "name": "progress.tsx",
+      "filePath": "src/components/ui/progress.tsx",
+      "summary": "Radix UI progress bar rendering a track with an indicator translated by percentage value, styled through the primary color token for loading and completion feedback.",
+      "tags": ["component", "ui-primitive", "progress", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/radio-group.tsx",
+      "type": "file",
+      "name": "radio-group.tsx",
+      "filePath": "src/components/ui/radio-group.tsx",
+      "summary": "Radix UI radio group primitives: a grid-layout RadioGroup root and a RadioGroupItem that shows a filled circle indicator when selected, with focus and disabled styling.",
+      "tags": ["component", "ui-primitive", "radio", "form", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/resizable.tsx",
+      "type": "file",
+      "name": "resizable.tsx",
+      "filePath": "src/components/ui/resizable.tsx",
+      "summary": "Wraps react-resizable-panels with ResizablePanelGroup, a plain re-exported ResizablePanel, and a ResizableHandle drag separator that supports an optional grip icon and vertical or horizontal orientations.",
+      "tags": ["component", "ui-primitive", "layout", "resizable", "panels"],
+      "complexity": "simple",
+      "languageNotes": "Panel is re-exported directly from react-resizable-panels; handle direction styling keys off data attributes the library sets on the group."
+    },
+    {
+      "id": "file:src/components/ui/scroll-area.tsx",
+      "type": "file",
+      "name": "scroll-area.tsx",
+      "filePath": "src/components/ui/scroll-area.tsx",
+      "summary": "Radix UI scroll area with a styled viewport and custom ScrollBar components for vertical and horizontal orientations, replacing native scrollbars with theme-aware thumbs.",
+      "tags": ["component", "ui-primitive", "scroll", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/separator.tsx",
+      "type": "file",
+      "name": "separator.tsx",
+      "filePath": "src/components/ui/separator.tsx",
+      "summary": "Radix UI separator rendering a 1px hairline rule in horizontal or vertical orientation using the border token; the atomic divider used throughout the editorial layout.",
+      "tags": ["component", "ui-primitive", "separator", "layout"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/sheet.tsx",
+      "type": "file",
+      "name": "sheet.tsx",
+      "filePath": "src/components/ui/sheet.tsx",
+      "summary": "Radix dialog-based side panel with slide-in variants for top, bottom, left, and right, an overlay, built-in close button, and header, footer, title, and description subcomponents; reused by the sidebar for mobile navigation and by admin routes for edit panels.",
+      "tags": ["component", "ui-primitive", "dialog", "overlay", "radix"],
+      "complexity": "moderate",
+      "languageNotes": "Uses class-variance-authority for side variants and re-exports Radix dialog parts (Root, Trigger, Close, Portal) under Sheet-prefixed names."
+    },
+    {
+      "id": "file:src/components/ui/sidebar.tsx",
+      "type": "file",
+      "name": "sidebar.tsx",
+      "filePath": "src/components/ui/sidebar.tsx",
+      "summary": "Complete shadcn sidebar system: a SidebarProvider context with cookie-persisted open state, a Cmd/Ctrl+B toggle shortcut, and a mobile Sheet fallback, plus roughly twenty composable layout and menu subcomponents for collapsible navigation shells.",
+      "tags": ["component", "ui-primitive", "sidebar", "navigation", "context", "shadcn"],
+      "complexity": "complex",
+      "languageNotes": "State flows through React context via a useSidebar hook; desktop styling is driven by data attributes (data-state, data-collapsible, data-variant, data-side) and CSS variables for sidebar widths, while open state persists in a sidebar_state cookie with a one-week max-age."
+    },
+    {
+      "id": "file:src/components/ui/skeleton.tsx",
+      "type": "file",
+      "name": "skeleton.tsx",
+      "filePath": "src/components/ui/skeleton.tsx",
+      "summary": "Minimal pulsing placeholder div for loading states, styled with the primary token at low opacity; consumed by the sidebar's menu skeleton and admin lists.",
+      "tags": ["component", "ui-primitive", "skeleton", "loading"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/slider.tsx",
+      "type": "file",
+      "name": "slider.tsx",
+      "filePath": "src/components/ui/slider.tsx",
+      "summary": "Radix UI slider with a rounded track, range fill, and focusable thumb for numeric value selection, with disabled pointer and opacity states.",
+      "tags": ["component", "ui-primitive", "slider", "form", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/switch.tsx",
+      "type": "file",
+      "name": "switch.tsx",
+      "filePath": "src/components/ui/switch.tsx",
+      "summary": "Radix UI toggle switch: a pill-shaped track with a translating thumb that changes color via data-state checked and unchecked attributes, for boolean form controls.",
+      "tags": ["component", "ui-primitive", "switch", "form", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/table.tsx",
+      "type": "file",
+      "name": "table.tsx",
+      "filePath": "src/components/ui/table.tsx",
+      "summary": "Semantic HTML table primitives (Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell, TableCaption) with Tailwind styling, checkbox-aware cell padding, and a horizontally scrollable wrapper div.",
+      "tags": ["component", "ui-primitive", "table", "data-display"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/tabs.tsx",
+      "type": "file",
+      "name": "tabs.tsx",
+      "filePath": "src/components/ui/tabs.tsx",
+      "summary": "Radix UI tabs primitives with a TabsList trigger bar and TabsContent panels whose active state is styled through the muted and background tokens.",
+      "tags": ["component", "ui-primitive", "tabs", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/textarea.tsx",
+      "type": "file",
+      "name": "textarea.tsx",
+      "filePath": "src/components/ui/textarea.tsx",
+      "summary": "Styled multiline textarea form control with focus-ring and disabled states, forwarding refs for form library integration.",
+      "tags": ["component", "ui-primitive", "form", "textarea"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/toggle-group.tsx",
+      "type": "file",
+      "name": "toggle-group.tsx",
+      "filePath": "src/components/ui/toggle-group.tsx",
+      "summary": "Radix UI toggle group where ToggleGroup distributes variant and size to its items through React context, keeping them visually consistent with the base Toggle component's styling.",
+      "tags": ["component", "ui-primitive", "toggle", "context", "radix"],
+      "complexity": "simple",
+      "languageNotes": "Variant and size props flow from ToggleGroup to ToggleGroupItem via a module-level React context instead of prop drilling, falling back to the item's own props."
+    },
+    {
+      "id": "file:src/components/ui/toggle.tsx",
+      "type": "file",
+      "name": "toggle.tsx",
+      "filePath": "src/components/ui/toggle.tsx",
+      "summary": "Radix UI two-state toggle button with class-variance-authority variant and size classes; exports toggleVariants for reuse by the toggle-group components.",
+      "tags": ["component", "ui-primitive", "toggle", "cva", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/tooltip.tsx",
+      "type": "file",
+      "name": "tooltip.tsx",
+      "filePath": "src/components/ui/tooltip.tsx",
+      "summary": "Radix UI tooltip primitives: Provider, Root, Trigger, and a portal-rendered TooltipContent bubble with entrance and exit animations; used by the sidebar to label collapsed icon items.",
+      "tags": ["component", "ui-primitive", "tooltip", "radix"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/use-mobile.tsx",
+      "type": "file",
+      "name": "use-mobile.tsx",
+      "filePath": "src/hooks/use-mobile.tsx",
+      "summary": "Custom hook tracking whether the viewport is below a 768px mobile breakpoint using window.matchMedia, updating reactively and removing its listener on unmount; consumed by the sidebar to switch to a sheet layout.",
+      "tags": ["hook", "responsive", "utility", "react"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/utils.ts",
+      "type": "file",
+      "name": "utils.ts",
+      "filePath": "src/lib/utils.ts",
+      "summary": "Standard shadcn class-name helper: cn() merges conditional clsx inputs through tailwind-merge so conflicting Tailwind classes resolve predictably; the most widely imported utility in the project's UI layer.",
+      "tags": ["utility", "styling", "tailwind", "shadcn"],
+      "complexity": "simple",
+      "languageNotes": "Combines clsx (conditional class joining) with tailwind-merge (conflict resolution), the canonical shadcn/ui cn pattern."
+    },
+    {
+      "id": "function:src/components/ui/resizable.tsx:ResizablePanelGroup",
+      "type": "function",
+      "name": "ResizablePanelGroup",
+      "filePath": "src/components/ui/resizable.tsx",
+      "lineRange": [6, 11],
+      "summary": "Wraps react-resizable-panels' Group with flex layout classes that switch to a column direction for vertical panel groups.",
+      "tags": ["component", "layout", "resizable"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/resizable.tsx:ResizableHandle",
+      "type": "function",
+      "name": "ResizableHandle",
+      "filePath": "src/components/ui/resizable.tsx",
+      "lineRange": [15, 35],
+      "summary": "Drag separator between resizable panels; renders an optional grip icon and adapts its hairline and hit-area styling for vertical or horizontal group directions.",
+      "tags": ["component", "layout", "resizable", "drag"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/sheet.tsx:SheetHeader",
+      "type": "function",
+      "name": "SheetHeader",
+      "filePath": "src/components/ui/sheet.tsx",
+      "lineRange": [74, 76],
+      "summary": "Column-layout header wrapper for sheet content, left-aligned except centered on the smallest breakpoint.",
+      "tags": ["component", "layout", "sheet"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/sheet.tsx:SheetFooter",
+      "type": "function",
+      "name": "SheetFooter",
+      "filePath": "src/components/ui/sheet.tsx",
+      "lineRange": [79, 84],
+      "summary": "Footer wrapper that stacks actions vertically on small screens and right-aligns them in a row on larger viewports.",
+      "tags": ["component", "layout", "sheet"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/sidebar.tsx:useSidebar",
+      "type": "function",
+      "name": "useSidebar",
+      "filePath": "src/components/ui/sidebar.tsx",
+      "lineRange": [40, 47],
+      "summary": "Context hook exposing sidebar state (open, openMobile, isMobile, expanded or collapsed) and the toggleSidebar action; throws when used outside a SidebarProvider.",
+      "tags": ["hook", "context", "sidebar"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/sidebar.tsx:SidebarProvider",
+      "type": "function",
+      "name": "SidebarProvider",
+      "filePath": "src/components/ui/sidebar.tsx",
+      "lineRange": [49, 151],
+      "summary": "Context provider managing controlled or internal open state, persisting it to a week-long sidebar_state cookie, registering a Cmd/Ctrl+B keyboard shortcut, and exposing toggleSidebar plus mobile open state and the useIsMobile flag to descendants.",
+      "tags": ["component", "context", "provider", "sidebar", "state"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/sidebar.tsx:Sidebar",
+      "type": "function",
+      "name": "Sidebar",
+      "filePath": "src/components/ui/sidebar.tsx",
+      "lineRange": [153, 258],
+      "summary": "Root sidebar container supporting side (left or right), variant (sidebar, floating, inset), and collapsible (offcanvas, icon, none) options; renders children inside a Sheet on mobile and a fixed, data-attribute-driven column on desktop.",
+      "tags": ["component", "sidebar", "layout", "responsive"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/sidebar.tsx:SidebarMenuButton",
+      "type": "function",
+      "name": "SidebarMenuButton",
+      "filePath": "src/components/ui/sidebar.tsx",
+      "lineRange": [525, 582],
+      "summary": "Menu item button with cva variant and size classes, asChild slot support, active-state highlighting, and an optional tooltip that only renders while the sidebar is collapsed to icon mode on desktop.",
+      "tags": ["component", "sidebar", "menu", "tooltip", "cva"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/skeleton.tsx:Skeleton",
+      "type": "function",
+      "name": "Skeleton",
+      "filePath": "src/components/ui/skeleton.tsx",
+      "lineRange": [3, 5],
+      "summary": "Renders a pulsing placeholder div used for loading states while content mounts.",
+      "tags": ["component", "loading", "skeleton"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/use-mobile.tsx:useIsMobile",
+      "type": "function",
+      "name": "useIsMobile",
+      "filePath": "src/hooks/use-mobile.tsx",
+      "lineRange": [5, 19],
+      "summary": "Returns true when the viewport width is under the 768px breakpoint, listening to matchMedia change events and cleaning up its listener on unmount.",
+      "tags": ["hook", "responsive", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:cn",
+      "type": "function",
+      "name": "cn",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [4, 6],
+      "summary": "Merges conditional class values with clsx and resolves Tailwind class conflicts with tailwind-merge; the standard className composition helper used by every UI component in the project.",
+      "tags": ["utility", "styling", "tailwind"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/components/ui/popover.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/progress.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/radio-group.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/resizable.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/scroll-area.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/separator.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sheet.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/components/ui/input.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/components/ui/separator.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/components/ui/sheet.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/components/ui/skeleton.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/components/ui/tooltip.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/hooks/use-mobile.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/skeleton.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/slider.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/switch.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/table.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/tabs.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/textarea.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/toggle-group.tsx",
+      "target": "file:src/components/ui/toggle.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/toggle-group.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/toggle.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/tooltip.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/resizable.tsx",
+      "target": "function:src/components/ui/resizable.tsx:ResizablePanelGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/resizable.tsx",
+      "target": "function:src/components/ui/resizable.tsx:ResizableHandle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/sheet.tsx",
+      "target": "function:src/components/ui/sheet.tsx:SheetHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/sheet.tsx",
+      "target": "function:src/components/ui/sheet.tsx:SheetFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:useSidebar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:SidebarProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:Sidebar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:SidebarMenuButton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/skeleton.tsx",
+      "target": "function:src/components/ui/skeleton.tsx:Skeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/hooks/use-mobile.tsx",
+      "target": "function:src/hooks/use-mobile.tsx:useIsMobile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/resizable.tsx",
+      "target": "function:src/components/ui/resizable.tsx:ResizablePanelGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/resizable.tsx",
+      "target": "function:src/components/ui/resizable.tsx:ResizableHandle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/sheet.tsx",
+      "target": "function:src/components/ui/sheet.tsx:SheetHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/sheet.tsx",
+      "target": "function:src/components/ui/sheet.tsx:SheetFooter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:useSidebar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:SidebarProvider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:Sidebar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/sidebar.tsx",
+      "target": "function:src/components/ui/sidebar.tsx:SidebarMenuButton",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/skeleton.tsx",
+      "target": "function:src/components/ui/skeleton.tsx:Skeleton",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/use-mobile.tsx",
+      "target": "function:src/hooks/use-mobile.tsx:useIsMobile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/resizable.tsx:ResizablePanelGroup",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/resizable.tsx:ResizableHandle",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/sheet.tsx:SheetHeader",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/sheet.tsx:SheetFooter",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/skeleton.tsx:Skeleton",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/sidebar.tsx:SidebarProvider",
+      "target": "function:src/hooks/use-mobile.tsx:useIsMobile",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

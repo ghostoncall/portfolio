@@ -57,7 +57,10 @@ const httpOrRelativeUrl = z
 
 const projectLinkSchema = z.object({
   id: z.string().trim().min(1),
-  label: z.string().trim().min(1),
+  // Links start life as blank rows in the editor ("Add link"). Drafts must stay
+  // savable while a row is half-filled; the public renderer skips incomplete
+  // links so an empty row never reaches the page.
+  label: z.string().trim(),
   href: httpOrRelativeUrl,
   kind: z.enum(["live", "github", "docs", "demo", "other"]),
 });
@@ -218,6 +221,80 @@ export const experiencePageSchema = z.object({
   entries: z.array(experienceEntrySchemaWithDates),
 });
 
+export const volunteeringEntrySchema = z.object({
+  id: z.string().trim().min(1),
+  title: z.string().trim().optional(),
+  organisation: z.string().trim().optional(),
+  date: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  shortDescription: z.string().trim().optional(),
+  narrative: z.string().trim().optional(),
+  contribution: z.string().trim().optional(),
+  reflections: z.string().trim().optional(),
+  takeaways: z.array(z.string().trim()).optional(),
+  media: z
+    .array(
+      z.object({
+        src: z.string().trim().optional(),
+        kind: z.string().optional(),
+        title: z.string().optional(),
+        alt: z.string().optional(),
+        caption: z.string().optional(),
+        credit: z.string().optional(),
+        poster: z.string().optional(),
+      }),
+    )
+    .optional(),
+  featuredImage: z
+    .object({
+      src: z.string().trim().optional(),
+      kind: z.string().optional(),
+      title: z.string().optional(),
+      alt: z.string().optional(),
+      caption: z.string().optional(),
+      credit: z.string().optional(),
+      poster: z.string().optional(),
+    })
+    .optional(),
+  featured: z.boolean().optional(),
+  visible: z.boolean().optional(),
+  sort: z.number().int().min(0).default(0),
+  links: z.array(projectLinkSchema).optional(),
+});
+
+export const volunteeringPageSchema = z.object({
+  kind: z.literal("volunteering"),
+  introduction: z
+    .object({
+      heading: z.string().trim().optional(),
+      body: z.string().trim().optional(),
+      image: z.any().optional(),
+    })
+    .optional(),
+  entries: z.array(volunteeringEntrySchema).optional(),
+  whyVolunteering: z
+    .object({
+      heading: z.string().trim().optional(),
+      body: z.string().trim().optional(),
+    })
+    .optional(),
+  lookingAhead: z
+    .object({
+      heading: z.string().trim().optional(),
+      body: z.string().trim().optional(),
+    })
+    .optional(),
+  interests: z.array(z.string().trim()).optional(),
+  cta: z
+    .object({
+      heading: z.string().trim().optional(),
+      body: z.string().trim().optional(),
+      buttonText: z.string().trim().optional(),
+    })
+    .optional(),
+});
+
 // ---------------------------------------------------------------------------
 // Validation results
 // ---------------------------------------------------------------------------
@@ -253,6 +330,9 @@ export function validatePageDoc(kind: PageKind, doc: unknown): ValidationResult<
       break;
     case "experience":
       schema = experiencePageSchema;
+      break;
+    case "volunteering":
+      schema = volunteeringPageSchema;
       break;
     case "blocks":
     default:

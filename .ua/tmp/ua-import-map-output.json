@@ -1,0 +1,626 @@
+{
+  "scriptCompleted": true,
+  "stats": {
+    "filesScanned": 169,
+    "filesWithImports": 112,
+    "totalEdges": 334
+  },
+  "failures": [],
+  "importMap": {
+    ".env.example": [],
+    ".prettierignore": [],
+    ".ua/config.json": [],
+    "AGENTS.md": [],
+    "README.md": [],
+    "components.json": [],
+    "config.yaml": [],
+    "docs/admin-panel-briefing.md": [],
+    "docs/blog-cms-progress.md": [],
+    "docs/cms-projects-skills-certificates-experience.md": [],
+    "docs/design-plan.md": [],
+    "docs/operations-guide.md": [],
+    "docs/plans/2026-11-05-smooth-scroll-lenis.md": [],
+    "drizzle.config.ts": [],
+    "drizzle/0000_striped_kingpin.sql": [],
+    "drizzle/0001_blog_cms.sql": [],
+    "drizzle/0002_search_text.sql": [],
+    "drizzle/meta/0000_snapshot.json": [],
+    "drizzle/meta/0001_snapshot.json": [],
+    "drizzle/meta/0002_snapshot.json": [],
+    "drizzle/meta/_journal.json": [],
+    "eslint.config.js": [],
+    "nitro.config.ts": [],
+    "package.json": [],
+    "public/robots.txt": [],
+    "scripts/apply-sql.mjs": [],
+    "scripts/e2e-dbcheck.mjs": [],
+    "scripts/migrate-cms-content.mjs": [],
+    "server/routes/rss.xml.ts": [
+      "src/db/client.ts",
+      "src/db/schema.ts"
+    ],
+    "server/routes/sitemap.xml.ts": [
+      "src/db/client.ts",
+      "src/db/schema.ts"
+    ],
+    "src/components/PageShell.tsx": [
+      "src/components/SideMenu.tsx",
+      "src/db/schema.ts"
+    ],
+    "src/components/SideMenu.tsx": [
+      "src/components/nav-projects.ts",
+      "src/content/site.ts"
+    ],
+    "src/components/admin/BlockEditor.tsx": [
+      "src/content/site.ts"
+    ],
+    "src/components/admin/BlogRenderer.tsx": [
+      "src/components/blocks.tsx",
+      "src/components/media.tsx",
+      "src/content/site.ts",
+      "src/lib/blog-settings.ts"
+    ],
+    "src/components/admin/FontSizeToolbar.tsx": [],
+    "src/components/admin/KoenigBodyEditor.tsx": [
+      "src/components/admin/KoenigInner.tsx"
+    ],
+    "src/components/admin/KoenigInner.tsx": [
+      "src/lib/media-upload.ts"
+    ],
+    "src/components/admin/MediaPicker.tsx": [
+      "src/db/schema.ts",
+      "src/lib/media-config.ts",
+      "src/lib/media-upload.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/components/admin/cms/ConfirmDialog.tsx": [
+      "src/components/ui/alert-dialog.tsx",
+      "src/components/ui/button.tsx"
+    ],
+    "src/components/admin/cms/DateField.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/calendar.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/popover.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/admin/cms/EmptyState.tsx": [
+      "src/components/ui/button.tsx"
+    ],
+    "src/components/admin/cms/FormSection.tsx": [
+      "src/components/ui/select.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/admin/cms/MediaField.tsx": [
+      "src/components/admin/MediaPicker.tsx",
+      "src/components/admin/cms/FormSection.tsx",
+      "src/components/media.tsx"
+    ],
+    "src/components/admin/cms/MediaGallery.tsx": [
+      "src/components/admin/MediaPicker.tsx",
+      "src/components/admin/cms/FormSection.tsx",
+      "src/components/admin/cms/SortableList.tsx",
+      "src/components/media.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx"
+    ],
+    "src/components/admin/cms/PreviewPane.tsx": [],
+    "src/components/admin/cms/SaveBar.tsx": [
+      "src/components/ui/button.tsx"
+    ],
+    "src/components/admin/cms/SkillMultiSelect.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/checkbox.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/admin/cms/SortableList.tsx": [],
+    "src/components/admin/cms/TagInput.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/admin/cms/useCmsDraft.ts": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/components/admin/cms/useUnsavedChanges.ts": [],
+    "src/components/blocks.tsx": [
+      "src/components/media.tsx",
+      "src/content/site.ts"
+    ],
+    "src/components/media.tsx": [],
+    "src/components/nav-projects.ts": [],
+    "src/components/public/CertificatesView.tsx": [
+      "src/components/media.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/dialog.tsx"
+    ],
+    "src/components/public/ExperienceView.tsx": [
+      "src/components/blocks.tsx",
+      "src/components/media.tsx",
+      "src/components/ui/badge.tsx"
+    ],
+    "src/components/public/ProjectSummary.tsx": [
+      "src/components/ui/badge.tsx"
+    ],
+    "src/components/public/ProjectView.tsx": [
+      "src/components/blocks.tsx",
+      "src/components/media.tsx",
+      "src/components/ui/badge.tsx"
+    ],
+    "src/components/public/SkillsView.tsx": [],
+    "src/components/ui/accordion.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/alert-dialog.tsx": [
+      "src/components/ui/button.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/alert.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/aspect-ratio.tsx": [],
+    "src/components/ui/avatar.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/badge.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/breadcrumb.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/button.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/calendar.tsx": [
+      "src/components/ui/button.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/card.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/carousel.tsx": [
+      "src/components/ui/button.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/chart.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/checkbox.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/collapsible.tsx": [],
+    "src/components/ui/command.tsx": [
+      "src/components/ui/dialog.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/context-menu.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/dialog.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/drawer.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/dropdown-menu.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/form.tsx": [
+      "src/components/ui/label.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/hover-card.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/input-otp.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/input.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/label.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/menubar.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/navigation-menu.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/pagination.tsx": [
+      "src/components/ui/button.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/popover.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/progress.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/radio-group.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/resizable.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/scroll-area.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/select.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/separator.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/sheet.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/sidebar.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/separator.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/components/ui/skeleton.tsx",
+      "src/components/ui/tooltip.tsx",
+      "src/hooks/use-mobile.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/skeleton.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/slider.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/sonner.tsx": [],
+    "src/components/ui/switch.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/table.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/tabs.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/textarea.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/toggle-group.tsx": [
+      "src/components/ui/toggle.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/toggle.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/tooltip.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/content/site.ts": [
+      "src/components/media.tsx"
+    ],
+    "src/db/client.ts": [
+      "src/db/schema.ts"
+    ],
+    "src/db/schema.ts": [
+      "src/content/site.ts",
+      "src/lib/blog-settings.ts"
+    ],
+    "src/db/seed.ts": [
+      "src/content/site.ts",
+      "src/db/client.ts",
+      "src/db/schema.ts"
+    ],
+    "src/hooks/use-mobile.tsx": [],
+    "src/lib/blocks-to-html.ts": [
+      "src/content/site.ts"
+    ],
+    "src/lib/blog-settings.ts": [],
+    "src/lib/cms-normalize.ts": [
+      "src/components/media.tsx",
+      "src/content/site.ts"
+    ],
+    "src/lib/cms-server.ts": [
+      "src/db/schema.ts",
+      "src/lib/cms-normalize.ts"
+    ],
+    "src/lib/cms-validation.ts": [
+      "src/content/site.ts"
+    ],
+    "src/lib/error-capture.ts": [],
+    "src/lib/error-page.ts": [],
+    "src/lib/format-date.ts": [],
+    "src/lib/media-config.ts": [],
+    "src/lib/media-upload.ts": [
+      "src/db/schema.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/lib/server-fns.ts": [
+      "src/db/client.ts",
+      "src/db/schema.ts",
+      "src/lib/blog-settings.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/cms-server.ts",
+      "src/lib/cms-validation.ts",
+      "src/lib/supabase.server.ts"
+    ],
+    "src/lib/supabase-browser.ts": [],
+    "src/lib/supabase.server.ts": [],
+    "src/lib/utils.ts": [],
+    "src/routeTree.gen.ts": [
+      "src/router.tsx",
+      "src/routes/__root.tsx",
+      "src/routes/blog.$slug.tsx",
+      "src/routes/blog.index.tsx",
+      "src/routes/blog.search.tsx",
+      "src/routes/contact.tsx",
+      "src/routes/experience.tsx",
+      "src/routes/index.tsx",
+      "src/routes/onlyme.blog-settings.tsx",
+      "src/routes/onlyme.blogs.$slug.tsx",
+      "src/routes/onlyme.blogs.tsx",
+      "src/routes/onlyme.certificates.tsx",
+      "src/routes/onlyme.experience.tsx",
+      "src/routes/onlyme.export.tsx",
+      "src/routes/onlyme.index.tsx",
+      "src/routes/onlyme.login.tsx",
+      "src/routes/onlyme.media.tsx",
+      "src/routes/onlyme.pages.$slug.tsx",
+      "src/routes/onlyme.pages.tsx",
+      "src/routes/onlyme.preview.$slug.tsx",
+      "src/routes/onlyme.projects.$slug.tsx",
+      "src/routes/onlyme.projects.tsx",
+      "src/routes/onlyme.settings.tsx",
+      "src/routes/onlyme.skills.tsx",
+      "src/routes/onlyme.tsx",
+      "src/routes/projects.$slug.tsx",
+      "src/routes/projects.index.tsx",
+      "src/routes/skills.tsx",
+      "src/start.ts"
+    ],
+    "src/router.tsx": [
+      "src/routeTree.gen.ts"
+    ],
+    "src/routes/README.md": [],
+    "src/routes/__root.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/nav-projects.ts",
+      "src/components/ui/sonner.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/blog.$slug.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/admin/BlogRenderer.tsx",
+      "src/lib/blog-settings.ts",
+      "src/lib/format-date.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/blog.index.tsx": [
+      "src/components/PageShell.tsx",
+      "src/content/site.ts",
+      "src/lib/blog-settings.ts",
+      "src/lib/format-date.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/blog.search.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/contact.tsx": [
+      "src/components/PageShell.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/experience.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/ExperienceView.tsx",
+      "src/lib/cms-normalize.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/index.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/blocks.tsx",
+      "src/components/public/ProjectSummary.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.blog-settings.tsx": [
+      "src/components/admin/MediaPicker.tsx",
+      "src/lib/blog-settings.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.blogs.$slug.tsx": [
+      "src/components/admin/BlogRenderer.tsx",
+      "src/components/admin/FontSizeToolbar.tsx",
+      "src/components/admin/KoenigBodyEditor.tsx",
+      "src/components/admin/MediaPicker.tsx",
+      "src/components/media.tsx",
+      "src/content/site.ts",
+      "src/lib/blocks-to-html.ts",
+      "src/lib/blog-settings.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.blogs.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.certificates.tsx": [
+      "src/components/admin/cms/ConfirmDialog.tsx",
+      "src/components/admin/cms/DateField.tsx",
+      "src/components/admin/cms/EmptyState.tsx",
+      "src/components/admin/cms/FormSection.tsx",
+      "src/components/admin/cms/MediaField.tsx",
+      "src/components/admin/cms/SaveBar.tsx",
+      "src/components/admin/cms/SkillMultiSelect.tsx",
+      "src/components/admin/cms/SortableList.tsx",
+      "src/components/admin/cms/useCmsDraft.ts",
+      "src/components/admin/cms/useUnsavedChanges.ts",
+      "src/components/media.tsx",
+      "src/components/public/CertificatesView.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/content/site.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.experience.tsx": [
+      "src/components/admin/BlockEditor.tsx",
+      "src/components/admin/cms/ConfirmDialog.tsx",
+      "src/components/admin/cms/DateField.tsx",
+      "src/components/admin/cms/EmptyState.tsx",
+      "src/components/admin/cms/FormSection.tsx",
+      "src/components/admin/cms/MediaField.tsx",
+      "src/components/admin/cms/MediaGallery.tsx",
+      "src/components/admin/cms/SaveBar.tsx",
+      "src/components/admin/cms/SkillMultiSelect.tsx",
+      "src/components/admin/cms/SortableList.tsx",
+      "src/components/admin/cms/TagInput.tsx",
+      "src/components/admin/cms/useCmsDraft.ts",
+      "src/components/admin/cms/useUnsavedChanges.ts",
+      "src/components/public/ExperienceView.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/content/site.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.export.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.index.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.login.tsx": [
+      "src/lib/server-fns.ts",
+      "src/lib/supabase-browser.ts"
+    ],
+    "src/routes/onlyme.media.tsx": [
+      "src/components/admin/MediaPicker.tsx",
+      "src/db/schema.ts",
+      "src/lib/media-config.ts",
+      "src/lib/media-upload.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.pages.$slug.tsx": [
+      "src/components/admin/BlockEditor.tsx",
+      "src/components/admin/cms/EmptyState.tsx",
+      "src/components/admin/cms/PreviewPane.tsx",
+      "src/components/admin/cms/SaveBar.tsx",
+      "src/components/admin/cms/useCmsDraft.ts",
+      "src/components/admin/cms/useUnsavedChanges.ts",
+      "src/components/blocks.tsx",
+      "src/db/schema.ts",
+      "src/lib/cms-normalize.ts"
+    ],
+    "src/routes/onlyme.pages.tsx": [
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.preview.$slug.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/admin/BlogRenderer.tsx",
+      "src/lib/blog-settings.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.projects.$slug.tsx": [
+      "src/components/admin/BlockEditor.tsx",
+      "src/components/admin/cms/EmptyState.tsx",
+      "src/components/admin/cms/FormSection.tsx",
+      "src/components/admin/cms/MediaField.tsx",
+      "src/components/admin/cms/MediaGallery.tsx",
+      "src/components/admin/cms/PreviewPane.tsx",
+      "src/components/admin/cms/SaveBar.tsx",
+      "src/components/admin/cms/SkillMultiSelect.tsx",
+      "src/components/admin/cms/TagInput.tsx",
+      "src/components/admin/cms/useCmsDraft.ts",
+      "src/components/admin/cms/useUnsavedChanges.ts",
+      "src/components/public/ProjectView.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/content/site.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.projects.tsx": [
+      "src/components/admin/cms/ConfirmDialog.tsx",
+      "src/components/admin/cms/EmptyState.tsx",
+      "src/components/admin/cms/SortableList.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/dialog.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.settings.tsx": [
+      "src/db/schema.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.skills.tsx": [
+      "src/components/admin/cms/ConfirmDialog.tsx",
+      "src/components/admin/cms/EmptyState.tsx",
+      "src/components/admin/cms/FormSection.tsx",
+      "src/components/admin/cms/SaveBar.tsx",
+      "src/components/admin/cms/SortableList.tsx",
+      "src/components/admin/cms/useCmsDraft.ts",
+      "src/components/admin/cms/useUnsavedChanges.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/checkbox.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/content/site.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/onlyme.tsx": [
+      "src/lib/server-fns.ts",
+      "src/lib/supabase-browser.ts"
+    ],
+    "src/routes/projects.$slug.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/ProjectView.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/projects.index.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/ProjectSummary.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/routes/skills.tsx": [
+      "src/components/PageShell.tsx",
+      "src/components/public/CertificatesView.tsx",
+      "src/components/public/SkillsView.tsx",
+      "src/lib/server-fns.ts"
+    ],
+    "src/server.ts": [
+      "src/lib/error-capture.ts",
+      "src/lib/error-page.ts"
+    ],
+    "src/start.ts": [
+      "src/lib/error-page.ts"
+    ],
+    "src/styles.css": [],
+    "src/test/app-routing.test.tsx": [
+      "src/routeTree.gen.ts"
+    ],
+    "src/test/cms-normalize.test.ts": [
+      "src/content/site.ts",
+      "src/lib/cms-normalize.ts",
+      "src/lib/cms-server.ts"
+    ],
+    "src/test/cms-validation.test.ts": [
+      "src/content/site.ts",
+      "src/lib/cms-validation.ts"
+    ],
+    "src/test/media.test.ts": [
+      "src/components/media.tsx"
+    ],
+    "src/test/setup.ts": [],
+    "src/types/koenig-lexical.d.ts": [],
+    "supabase/migrations/0001_blog_cms.sql": [],
+    "tests/e2e/verify-all-public-pages.test.ts": [],
+    "tests/e2e/verify-projects-page.test.ts": [],
+    "tsconfig.json": [],
+    "vite.config.ts": [],
+    "vitest.config.ts": []
+  }
+}

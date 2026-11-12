@@ -85,24 +85,26 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
         </div>
       )}
 
-      {project.links && project.links.length && (
+      {project.links && project.links.some((l: any) => l?.label?.trim() && l?.href?.trim()) && (
         <div className="my-6">
           <h2 className="mb-3 text-2xl text-foreground">Links</h2>
           <div className="space-y-2">
-            {project.links.map((link: any) => (
-              <a
-                key={link.id}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                className="group border-t border-b border-border py-3 flex items-center gap-2 hover:bg-muted"
-              >
-                <span className="label-caps text-muted-foreground">{link.kind}</span>
-                <span className="font-serif text-foreground group-hover:underline">
-                  {link.label}
-                </span>
-              </a>
-            ))}
+            {project.links
+              .filter((link: any) => link?.label?.trim() && link?.href?.trim())
+              .map((link: any) => (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group border-t border-b border-border py-3 flex items-center gap-2 hover:bg-muted"
+                >
+                  <span className="label-caps text-muted-foreground">{link.kind}</span>
+                  <span className="font-serif text-foreground group-hover:underline">
+                    {link.label}
+                  </span>
+                </a>
+              ))}
           </div>
         </div>
       )}

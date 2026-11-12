@@ -1,0 +1,5300 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 169,
+  "totalBatches": 12,
+  "exportsByPath": {
+    ".prettierignore": [],
+    "drizzle.config.ts": [],
+    "eslint.config.js": [],
+    "nitro.config.ts": [],
+    "scripts/apply-sql.mjs": [],
+    "scripts/e2e-dbcheck.mjs": [],
+    "scripts/migrate-cms-content.mjs": [],
+    "server/routes/rss.xml.ts": [],
+    "server/routes/sitemap.xml.ts": [],
+    "src/components/PageShell.tsx": [
+      "SiteHeader",
+      "PageShell",
+      "SiteFooter"
+    ],
+    "src/components/SideMenu.tsx": [
+      "SideMenu"
+    ],
+    "src/components/admin/BlockEditor.tsx": [
+      "BlockEditor"
+    ],
+    "src/components/admin/BlogRenderer.tsx": [
+      "BlogRenderer"
+    ],
+    "src/components/admin/FontSizeToolbar.tsx": [
+      "FontSizeToolbar"
+    ],
+    "src/components/admin/KoenigBodyEditor.tsx": [
+      "KoenigBodyEditor"
+    ],
+    "src/components/admin/KoenigInner.tsx": [
+      "KoenigInner"
+    ],
+    "src/components/admin/MediaPicker.tsx": [
+      "MediaThumb",
+      "MediaPicker",
+      "MediaItemFields"
+    ],
+    "src/components/admin/cms/ConfirmDialog.tsx": [
+      "ConfirmDialog"
+    ],
+    "src/components/admin/cms/DateField.tsx": [
+      "DateField"
+    ],
+    "src/components/admin/cms/EmptyState.tsx": [
+      "EmptyState"
+    ],
+    "src/components/admin/cms/FormSection.tsx": [
+      "Field",
+      "InputField",
+      "SelectField",
+      "FormSection"
+    ],
+    "src/components/admin/cms/MediaField.tsx": [
+      "MediaField"
+    ],
+    "src/components/admin/cms/MediaGallery.tsx": [
+      "MediaGallery"
+    ],
+    "src/components/admin/cms/PreviewPane.tsx": [
+      "PreviewPane"
+    ],
+    "src/components/admin/cms/SaveBar.tsx": [
+      "SaveBar"
+    ],
+    "src/components/admin/cms/SkillMultiSelect.tsx": [
+      "SkillMultiSelect"
+    ],
+    "src/components/admin/cms/SortableList.tsx": [
+      "SortableList"
+    ],
+    "src/components/admin/cms/TagInput.tsx": [
+      "TagInput"
+    ],
+    "src/components/admin/cms/useCmsDraft.ts": [
+      "useCmsDraft"
+    ],
+    "src/components/admin/cms/useUnsavedChanges.ts": [
+      "useUnsavedChanges"
+    ],
+    "src/components/blocks.tsx": [
+      "BlockView",
+      "Blocks"
+    ],
+    "src/components/media.tsx": [
+      "fileExtension",
+      "fileName",
+      "detectMediaKind",
+      "youtubeEmbedUrl",
+      "vimeoEmbedUrl",
+      "Media"
+    ],
+    "src/components/nav-projects.ts": [
+      "NavProjectsContext"
+    ],
+    "src/components/public/CertificatesView.tsx": [
+      "CertificatesView"
+    ],
+    "src/components/public/ExperienceView.tsx": [
+      "ExperienceView"
+    ],
+    "src/components/public/ProjectSummary.tsx": [
+      "ProjectSummary"
+    ],
+    "src/components/public/ProjectView.tsx": [
+      "ProjectView"
+    ],
+    "src/components/public/SkillsView.tsx": [
+      "SkillsView"
+    ],
+    "src/components/ui/accordion.tsx": [
+      "Accordion",
+      "AccordionItem",
+      "AccordionTrigger",
+      "AccordionContent"
+    ],
+    "src/components/ui/alert-dialog.tsx": [
+      "AlertDialog",
+      "AlertDialogPortal",
+      "AlertDialogOverlay",
+      "AlertDialogTrigger",
+      "AlertDialogContent",
+      "AlertDialogHeader",
+      "AlertDialogFooter",
+      "AlertDialogTitle",
+      "AlertDialogDescription",
+      "AlertDialogAction",
+      "AlertDialogCancel"
+    ],
+    "src/components/ui/alert.tsx": [
+      "Alert",
+      "AlertTitle",
+      "AlertDescription"
+    ],
+    "src/components/ui/aspect-ratio.tsx": [
+      "AspectRatio"
+    ],
+    "src/components/ui/avatar.tsx": [
+      "Avatar",
+      "AvatarImage",
+      "AvatarFallback"
+    ],
+    "src/components/ui/badge.tsx": [
+      "Badge",
+      "badgeVariants"
+    ],
+    "src/components/ui/breadcrumb.tsx": [
+      "Breadcrumb",
+      "BreadcrumbList",
+      "BreadcrumbItem",
+      "BreadcrumbLink",
+      "BreadcrumbPage",
+      "BreadcrumbSeparator",
+      "BreadcrumbEllipsis"
+    ],
+    "src/components/ui/button.tsx": [
+      "Button",
+      "buttonVariants"
+    ],
+    "src/components/ui/calendar.tsx": [
+      "Calendar",
+      "CalendarDayButton"
+    ],
+    "src/components/ui/card.tsx": [
+      "Card",
+      "CardHeader",
+      "CardFooter",
+      "CardTitle",
+      "CardDescription",
+      "CardContent"
+    ],
+    "src/components/ui/carousel.tsx": [
+      "CarouselApi",
+      "Carousel",
+      "CarouselContent",
+      "CarouselItem",
+      "CarouselPrevious",
+      "CarouselNext"
+    ],
+    "src/components/ui/chart.tsx": [
+      "ChartContainer",
+      "ChartTooltip",
+      "ChartTooltipContent",
+      "ChartLegend",
+      "ChartLegendContent",
+      "ChartStyle"
+    ],
+    "src/components/ui/checkbox.tsx": [
+      "Checkbox"
+    ],
+    "src/components/ui/collapsible.tsx": [
+      "Collapsible",
+      "CollapsibleTrigger",
+      "CollapsibleContent"
+    ],
+    "src/components/ui/command.tsx": [
+      "Command",
+      "CommandDialog",
+      "CommandInput",
+      "CommandList",
+      "CommandEmpty",
+      "CommandGroup",
+      "CommandItem",
+      "CommandShortcut",
+      "CommandSeparator"
+    ],
+    "src/components/ui/context-menu.tsx": [
+      "ContextMenu",
+      "ContextMenuTrigger",
+      "ContextMenuContent",
+      "ContextMenuItem",
+      "ContextMenuCheckboxItem",
+      "ContextMenuRadioItem",
+      "ContextMenuLabel",
+      "ContextMenuSeparator",
+      "ContextMenuShortcut",
+      "ContextMenuGroup",
+      "ContextMenuPortal",
+      "ContextMenuSub",
+      "ContextMenuSubContent",
+      "ContextMenuSubTrigger",
+      "ContextMenuRadioGroup"
+    ],
+    "src/components/ui/dialog.tsx": [
+      "Dialog",
+      "DialogPortal",
+      "DialogOverlay",
+      "DialogTrigger",
+      "DialogClose",
+      "DialogContent",
+      "DialogHeader",
+      "DialogFooter",
+      "DialogTitle",
+      "DialogDescription"
+    ],
+    "src/components/ui/drawer.tsx": [
+      "Drawer",
+      "DrawerPortal",
+      "DrawerOverlay",
+      "DrawerTrigger",
+      "DrawerClose",
+      "DrawerContent",
+      "DrawerHeader",
+      "DrawerFooter",
+      "DrawerTitle",
+      "DrawerDescription"
+    ],
+    "src/components/ui/dropdown-menu.tsx": [
+      "DropdownMenu",
+      "DropdownMenuTrigger",
+      "DropdownMenuContent",
+      "DropdownMenuItem",
+      "DropdownMenuCheckboxItem",
+      "DropdownMenuRadioItem",
+      "DropdownMenuLabel",
+      "DropdownMenuSeparator",
+      "DropdownMenuShortcut",
+      "DropdownMenuGroup",
+      "DropdownMenuPortal",
+      "DropdownMenuSub",
+      "DropdownMenuSubContent",
+      "DropdownMenuSubTrigger",
+      "DropdownMenuRadioGroup"
+    ],
+    "src/components/ui/form.tsx": [
+      "useFormField",
+      "Form",
+      "FormItem",
+      "FormLabel",
+      "FormControl",
+      "FormDescription",
+      "FormMessage",
+      "FormField"
+    ],
+    "src/components/ui/hover-card.tsx": [
+      "HoverCard",
+      "HoverCardTrigger",
+      "HoverCardContent"
+    ],
+    "src/components/ui/input-otp.tsx": [
+      "InputOTP",
+      "InputOTPGroup",
+      "InputOTPSlot",
+      "InputOTPSeparator"
+    ],
+    "src/components/ui/input.tsx": [
+      "Input"
+    ],
+    "src/components/ui/label.tsx": [
+      "Label"
+    ],
+    "src/components/ui/menubar.tsx": [
+      "Menubar",
+      "MenubarMenu",
+      "MenubarTrigger",
+      "MenubarContent",
+      "MenubarItem",
+      "MenubarSeparator",
+      "MenubarLabel",
+      "MenubarCheckboxItem",
+      "MenubarRadioGroup",
+      "MenubarRadioItem",
+      "MenubarPortal",
+      "MenubarSubContent",
+      "MenubarSubTrigger",
+      "MenubarGroup",
+      "MenubarSub",
+      "MenubarShortcut"
+    ],
+    "src/components/ui/navigation-menu.tsx": [
+      "navigationMenuTriggerStyle",
+      "NavigationMenu",
+      "NavigationMenuList",
+      "NavigationMenuItem",
+      "NavigationMenuContent",
+      "NavigationMenuTrigger",
+      "NavigationMenuLink",
+      "NavigationMenuIndicator",
+      "NavigationMenuViewport"
+    ],
+    "src/components/ui/pagination.tsx": [
+      "Pagination",
+      "PaginationContent",
+      "PaginationLink",
+      "PaginationItem",
+      "PaginationPrevious",
+      "PaginationNext",
+      "PaginationEllipsis"
+    ],
+    "src/components/ui/popover.tsx": [
+      "Popover",
+      "PopoverTrigger",
+      "PopoverContent",
+      "PopoverAnchor"
+    ],
+    "src/components/ui/progress.tsx": [
+      "Progress"
+    ],
+    "src/components/ui/radio-group.tsx": [
+      "RadioGroup",
+      "RadioGroupItem"
+    ],
+    "src/components/ui/resizable.tsx": [
+      "ResizablePanelGroup",
+      "ResizablePanel",
+      "ResizableHandle"
+    ],
+    "src/components/ui/scroll-area.tsx": [
+      "ScrollArea",
+      "ScrollBar"
+    ],
+    "src/components/ui/select.tsx": [
+      "Select",
+      "SelectGroup",
+      "SelectValue",
+      "SelectTrigger",
+      "SelectContent",
+      "SelectLabel",
+      "SelectItem",
+      "SelectSeparator",
+      "SelectScrollUpButton",
+      "SelectScrollDownButton"
+    ],
+    "src/components/ui/separator.tsx": [
+      "Separator"
+    ],
+    "src/components/ui/sheet.tsx": [
+      "Sheet",
+      "SheetPortal",
+      "SheetOverlay",
+      "SheetTrigger",
+      "SheetClose",
+      "SheetContent",
+      "SheetHeader",
+      "SheetFooter",
+      "SheetTitle",
+      "SheetDescription"
+    ],
+    "src/components/ui/sidebar.tsx": [
+      "Sidebar",
+      "SidebarContent",
+      "SidebarFooter",
+      "SidebarGroup",
+      "SidebarGroupAction",
+      "SidebarGroupContent",
+      "SidebarGroupLabel",
+      "SidebarHeader",
+      "SidebarInput",
+      "SidebarInset",
+      "SidebarMenu",
+      "SidebarMenuAction",
+      "SidebarMenuBadge",
+      "SidebarMenuButton",
+      "SidebarMenuItem",
+      "SidebarMenuSkeleton",
+      "SidebarMenuSub",
+      "SidebarMenuSubButton",
+      "SidebarMenuSubItem",
+      "SidebarProvider",
+      "SidebarRail",
+      "SidebarSeparator",
+      "SidebarTrigger",
+      "useSidebar"
+    ],
+    "src/components/ui/skeleton.tsx": [
+      "Skeleton"
+    ],
+    "src/components/ui/slider.tsx": [
+      "Slider"
+    ],
+    "src/components/ui/sonner.tsx": [
+      "Toaster"
+    ],
+    "src/components/ui/switch.tsx": [
+      "Switch"
+    ],
+    "src/components/ui/table.tsx": [
+      "Table",
+      "TableHeader",
+      "TableBody",
+      "TableFooter",
+      "TableHead",
+      "TableRow",
+      "TableCell",
+      "TableCaption"
+    ],
+    "src/components/ui/tabs.tsx": [
+      "Tabs",
+      "TabsList",
+      "TabsTrigger",
+      "TabsContent"
+    ],
+    "src/components/ui/textarea.tsx": [
+      "Textarea"
+    ],
+    "src/components/ui/toggle-group.tsx": [
+      "ToggleGroup",
+      "ToggleGroupItem"
+    ],
+    "src/components/ui/toggle.tsx": [
+      "Toggle",
+      "toggleVariants"
+    ],
+    "src/components/ui/tooltip.tsx": [
+      "Tooltip",
+      "TooltipTrigger",
+      "TooltipContent",
+      "TooltipProvider"
+    ],
+    "src/content/site.ts": [
+      "MediaItem",
+      "site",
+      "overview",
+      "projects",
+      "skills",
+      "certificates",
+      "posts",
+      "experience"
+    ],
+    "src/db/client.ts": [
+      "getDb",
+      "closeDb"
+    ],
+    "src/db/schema.ts": [
+      "pages",
+      "projects",
+      "posts",
+      "postRevisions",
+      "postViews",
+      "contactMessages",
+      "settings",
+      "mediaAssets",
+      "blogSettings",
+      "Project",
+      "ProjectStatus",
+      "ProjectLink",
+      "Skill",
+      "SkillCategory",
+      "SkillLevel",
+      "Certificate",
+      "ExperienceEntry",
+      "ExperienceEmploymentType",
+      "ExperienceWorkMode",
+      "SkillsPageContent",
+      "CertificatesPageContent",
+      "ExperiencePageContent",
+      "PageContent",
+      "PageKind"
+    ],
+    "src/db/seed.ts": [
+      "seedContent"
+    ],
+    "src/hooks/use-mobile.tsx": [
+      "useIsMobile"
+    ],
+    "src/lib/blocks-to-html.ts": [
+      "blocksToHtml"
+    ],
+    "src/lib/blog-settings.ts": [
+      "FONT_OPTIONS",
+      "IMAGE_RATIOS",
+      "DEFAULT_BLOG_SETTINGS",
+      "mergeBlogSettings",
+      "blogThemeVars"
+    ],
+    "src/lib/cms-normalize.ts": [
+      "stableId",
+      "nextSort",
+      "normalizeProject",
+      "normalizeSkillsPage",
+      "normalizeCertificatesPage",
+      "normalizeExperiencePage",
+      "normalizePageContent",
+      "removeSkillReferences",
+      "removeCertificateReferences",
+      "removeProjectReferences",
+      "replaceProjectSlug"
+    ],
+    "src/lib/cms-server.ts": [
+      "planProjectRename",
+      "planProjectDelete",
+      "planPageReferenceCleanup"
+    ],
+    "src/lib/cms-validation.ts": [
+      "projectSchema",
+      "skillCategorySchema",
+      "skillSchema",
+      "certificateSchema",
+      "certificateSchemaWithDates",
+      "skillsPageSchema",
+      "certificatesPageSchema",
+      "experienceEntrySchema",
+      "experienceEntrySchemaWithDates",
+      "experiencePageSchema",
+      "validateProjectDoc",
+      "validatePageDoc",
+      "assertValidContent"
+    ],
+    "src/lib/error-capture.ts": [
+      "describeError",
+      "consumeLastCapturedError"
+    ],
+    "src/lib/error-page.ts": [
+      "renderErrorPage"
+    ],
+    "src/lib/format-date.ts": [
+      "formatDate"
+    ],
+    "src/lib/media-config.ts": [
+      "MEDIA_MAX_BYTES",
+      "formatBytes"
+    ],
+    "src/lib/media-upload.ts": [
+      "uploadFileToLibrary",
+      "KOENIG_FILE_TYPES",
+      "useMediaUpload"
+    ],
+    "src/lib/server-fns.ts": [
+      "mediaMaxBytes",
+      "listStaged",
+      "getStaged",
+      "updateStaged",
+      "createItem",
+      "deleteItem",
+      "updatePostSlug",
+      "bulkUpdatePosts",
+      "publishItem",
+      "unpublishItem",
+      "revertItem",
+      "updateProjectSlug",
+      "duplicateProject",
+      "reorderProjects",
+      "deleteProject",
+      "ensureContentPage",
+      "getPublishedSkillsBundle",
+      "publishAll",
+      "getSiteIdentity",
+      "getBlogSettings",
+      "saveBlogSettings",
+      "getPublishedPosts",
+      "getPublishedPost",
+      "getPostPreview",
+      "searchPosts",
+      "searchSuggest",
+      "getBlogTags",
+      "getRelatedPosts",
+      "recordPostView",
+      "getBlogOverview",
+      "listPostRevisions",
+      "createPostRevision",
+      "restorePostRevision",
+      "submitContact",
+      "listContactMessages",
+      "markContactRead",
+      "getPublishedProjects",
+      "getPublishedProject",
+      "getPublishedPage",
+      "exportBackup",
+      "createMediaUpload",
+      "listMedia",
+      "updateMedia",
+      "getMediaUsage",
+      "deleteMedia",
+      "getAdminUser",
+      "sendContactEmail"
+    ],
+    "src/lib/supabase-browser.ts": [
+      "getSupabaseBrowser"
+    ],
+    "src/lib/supabase.server.ts": [
+      "getSupabaseServer",
+      "getAuthUser"
+    ],
+    "src/lib/utils.ts": [
+      "cn"
+    ],
+    "src/routeTree.gen.ts": [
+      "routeTree"
+    ],
+    "src/router.tsx": [
+      "getRouter"
+    ],
+    "src/routes/__root.tsx": [
+      "Route"
+    ],
+    "src/routes/blog.$slug.tsx": [
+      "Route"
+    ],
+    "src/routes/blog.index.tsx": [
+      "Route"
+    ],
+    "src/routes/blog.search.tsx": [
+      "Route"
+    ],
+    "src/routes/contact.tsx": [
+      "Route"
+    ],
+    "src/routes/experience.tsx": [
+      "Route"
+    ],
+    "src/routes/index.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.blog-settings.tsx": [
+      "Route",
+      "BlogSettingsPage"
+    ],
+    "src/routes/onlyme.blogs.$slug.tsx": [
+      "Route",
+      "PostEditor"
+    ],
+    "src/routes/onlyme.blogs.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.certificates.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.experience.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.export.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.index.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.login.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.media.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.pages.$slug.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.pages.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.preview.$slug.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.projects.$slug.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.projects.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.settings.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.skills.tsx": [
+      "Route"
+    ],
+    "src/routes/onlyme.tsx": [
+      "Route"
+    ],
+    "src/routes/projects.$slug.tsx": [
+      "Route"
+    ],
+    "src/routes/projects.index.tsx": [
+      "Route"
+    ],
+    "src/routes/skills.tsx": [
+      "Route"
+    ],
+    "src/server.ts": [],
+    "src/start.ts": [
+      "startInstance"
+    ],
+    "src/test/app-routing.test.tsx": [],
+    "src/test/cms-normalize.test.ts": [],
+    "src/test/cms-validation.test.ts": [],
+    "src/test/media.test.ts": [],
+    "src/test/setup.ts": [],
+    "src/types/koenig-lexical.d.ts": [],
+    "tests/e2e/verify-all-public-pages.test.ts": [],
+    "tests/e2e/verify-projects-page.test.ts": [],
+    "vite.config.ts": [],
+    "vitest.config.ts": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "src/components/admin/BlockEditor.tsx",
+          "language": "typescript",
+          "sizeLines": 603,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/ConfirmDialog.tsx",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/EmptyState.tsx",
+          "language": "typescript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/FormSection.tsx",
+          "language": "typescript",
+          "sizeLines": 101,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/MediaField.tsx",
+          "language": "typescript",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/MediaGallery.tsx",
+          "language": "typescript",
+          "sizeLines": 140,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/PreviewPane.tsx",
+          "language": "typescript",
+          "sizeLines": 93,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/SaveBar.tsx",
+          "language": "typescript",
+          "sizeLines": 84,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/SkillMultiSelect.tsx",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/SortableList.tsx",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/TagInput.tsx",
+          "language": "typescript",
+          "sizeLines": 76,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/useCmsDraft.ts",
+          "language": "typescript",
+          "sizeLines": 277,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/cms/useUnsavedChanges.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/blocks.tsx",
+          "language": "typescript",
+          "sizeLines": 191,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/media.tsx",
+          "language": "typescript",
+          "sizeLines": 409,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/public/CertificatesView.tsx",
+          "language": "typescript",
+          "sizeLines": 220,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/public/ExperienceView.tsx",
+          "language": "typescript",
+          "sizeLines": 138,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/public/ProjectView.tsx",
+          "language": "typescript",
+          "sizeLines": 146,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/alert-dialog.tsx",
+          "language": "typescript",
+          "sizeLines": 115,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "language": "typescript",
+          "sizeLines": 49,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/carousel.tsx",
+          "language": "typescript",
+          "sizeLines": 240,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "language": "typescript",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "language": "typescript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/pagination.tsx",
+          "language": "typescript",
+          "sizeLines": 98,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "language": "typescript",
+          "sizeLines": 152,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.certificates.tsx",
+          "language": "typescript",
+          "sizeLines": 696,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.experience.tsx",
+          "language": "typescript",
+          "sizeLines": 750,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.pages.$slug.tsx",
+          "language": "typescript",
+          "sizeLines": 133,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.projects.$slug.tsx",
+          "language": "typescript",
+          "sizeLines": 396,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.projects.tsx",
+          "language": "typescript",
+          "sizeLines": 441,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.skills.tsx",
+          "language": "typescript",
+          "sizeLines": 664,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/test/media.test.ts",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/components/admin/BlockEditor.tsx": [
+          "src/content/site.ts"
+        ],
+        "src/components/admin/cms/ConfirmDialog.tsx": [
+          "src/components/ui/alert-dialog.tsx",
+          "src/components/ui/button.tsx"
+        ],
+        "src/components/admin/cms/EmptyState.tsx": [
+          "src/components/ui/button.tsx"
+        ],
+        "src/components/admin/cms/FormSection.tsx": [
+          "src/components/ui/select.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/admin/cms/MediaField.tsx": [
+          "src/components/admin/MediaPicker.tsx",
+          "src/components/admin/cms/FormSection.tsx",
+          "src/components/media.tsx"
+        ],
+        "src/components/admin/cms/MediaGallery.tsx": [
+          "src/components/admin/MediaPicker.tsx",
+          "src/components/admin/cms/FormSection.tsx",
+          "src/components/admin/cms/SortableList.tsx",
+          "src/components/media.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/input.tsx"
+        ],
+        "src/components/admin/cms/PreviewPane.tsx": [],
+        "src/components/admin/cms/SaveBar.tsx": [
+          "src/components/ui/button.tsx"
+        ],
+        "src/components/admin/cms/SkillMultiSelect.tsx": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/checkbox.tsx",
+          "src/components/ui/input.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/admin/cms/SortableList.tsx": [],
+        "src/components/admin/cms/TagInput.tsx": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/input.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/admin/cms/useCmsDraft.ts": [
+          "src/lib/server-fns.ts"
+        ],
+        "src/components/admin/cms/useUnsavedChanges.ts": [],
+        "src/components/blocks.tsx": [
+          "src/components/media.tsx",
+          "src/content/site.ts"
+        ],
+        "src/components/media.tsx": [],
+        "src/components/public/CertificatesView.tsx": [
+          "src/components/media.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/dialog.tsx"
+        ],
+        "src/components/public/ExperienceView.tsx": [
+          "src/components/blocks.tsx",
+          "src/components/media.tsx",
+          "src/components/ui/badge.tsx"
+        ],
+        "src/components/public/ProjectView.tsx": [
+          "src/components/blocks.tsx",
+          "src/components/media.tsx",
+          "src/components/ui/badge.tsx"
+        ],
+        "src/components/ui/alert-dialog.tsx": [
+          "src/components/ui/button.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/badge.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/button.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/carousel.tsx": [
+          "src/components/ui/button.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/checkbox.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/input.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/pagination.tsx": [
+          "src/components/ui/button.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/select.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/routes/onlyme.certificates.tsx": [
+          "src/components/admin/cms/ConfirmDialog.tsx",
+          "src/components/admin/cms/DateField.tsx",
+          "src/components/admin/cms/EmptyState.tsx",
+          "src/components/admin/cms/FormSection.tsx",
+          "src/components/admin/cms/MediaField.tsx",
+          "src/components/admin/cms/SaveBar.tsx",
+          "src/components/admin/cms/SkillMultiSelect.tsx",
+          "src/components/admin/cms/SortableList.tsx",
+          "src/components/admin/cms/useCmsDraft.ts",
+          "src/components/admin/cms/useUnsavedChanges.ts",
+          "src/components/media.tsx",
+          "src/components/public/CertificatesView.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/sheet.tsx",
+          "src/content/site.ts",
+          "src/lib/cms-normalize.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.experience.tsx": [
+          "src/components/admin/BlockEditor.tsx",
+          "src/components/admin/cms/ConfirmDialog.tsx",
+          "src/components/admin/cms/DateField.tsx",
+          "src/components/admin/cms/EmptyState.tsx",
+          "src/components/admin/cms/FormSection.tsx",
+          "src/components/admin/cms/MediaField.tsx",
+          "src/components/admin/cms/MediaGallery.tsx",
+          "src/components/admin/cms/SaveBar.tsx",
+          "src/components/admin/cms/SkillMultiSelect.tsx",
+          "src/components/admin/cms/SortableList.tsx",
+          "src/components/admin/cms/TagInput.tsx",
+          "src/components/admin/cms/useCmsDraft.ts",
+          "src/components/admin/cms/useUnsavedChanges.ts",
+          "src/components/public/ExperienceView.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/sheet.tsx",
+          "src/content/site.ts",
+          "src/lib/cms-normalize.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.pages.$slug.tsx": [
+          "src/components/admin/BlockEditor.tsx",
+          "src/components/admin/cms/EmptyState.tsx",
+          "src/components/admin/cms/PreviewPane.tsx",
+          "src/components/admin/cms/SaveBar.tsx",
+          "src/components/admin/cms/useCmsDraft.ts",
+          "src/components/admin/cms/useUnsavedChanges.ts",
+          "src/components/blocks.tsx",
+          "src/db/schema.ts",
+          "src/lib/cms-normalize.ts"
+        ],
+        "src/routes/onlyme.projects.$slug.tsx": [
+          "src/components/admin/BlockEditor.tsx",
+          "src/components/admin/cms/EmptyState.tsx",
+          "src/components/admin/cms/FormSection.tsx",
+          "src/components/admin/cms/MediaField.tsx",
+          "src/components/admin/cms/MediaGallery.tsx",
+          "src/components/admin/cms/PreviewPane.tsx",
+          "src/components/admin/cms/SaveBar.tsx",
+          "src/components/admin/cms/SkillMultiSelect.tsx",
+          "src/components/admin/cms/TagInput.tsx",
+          "src/components/admin/cms/useCmsDraft.ts",
+          "src/components/admin/cms/useUnsavedChanges.ts",
+          "src/components/public/ProjectView.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/input.tsx",
+          "src/content/site.ts",
+          "src/lib/cms-normalize.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.projects.tsx": [
+          "src/components/admin/cms/ConfirmDialog.tsx",
+          "src/components/admin/cms/EmptyState.tsx",
+          "src/components/admin/cms/SortableList.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/dialog.tsx",
+          "src/components/ui/input.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.skills.tsx": [
+          "src/components/admin/cms/ConfirmDialog.tsx",
+          "src/components/admin/cms/EmptyState.tsx",
+          "src/components/admin/cms/FormSection.tsx",
+          "src/components/admin/cms/SaveBar.tsx",
+          "src/components/admin/cms/SortableList.tsx",
+          "src/components/admin/cms/useCmsDraft.ts",
+          "src/components/admin/cms/useUnsavedChanges.ts",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/checkbox.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/sheet.tsx",
+          "src/content/site.ts",
+          "src/lib/cms-normalize.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/test/media.test.ts": [
+          "src/components/media.tsx"
+        ]
+      },
+      "neighborMap": {
+        "src/components/admin/BlockEditor.tsx": [
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          }
+        ],
+        "src/components/admin/cms/FormSection.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/admin/cms/MediaField.tsx": [
+          {
+            "path": "src/components/admin/MediaPicker.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaThumb",
+              "MediaPicker",
+              "MediaItemFields"
+            ]
+          }
+        ],
+        "src/components/admin/cms/MediaGallery.tsx": [
+          {
+            "path": "src/components/admin/MediaPicker.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaThumb",
+              "MediaPicker",
+              "MediaItemFields"
+            ]
+          }
+        ],
+        "src/components/admin/cms/SkillMultiSelect.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/admin/cms/TagInput.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/admin/cms/useCmsDraft.ts": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          }
+        ],
+        "src/components/blocks.tsx": [
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/components/admin/BlogRenderer.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "BlogRenderer"
+            ]
+          },
+          {
+            "path": "src/routes/index.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/media.tsx": [
+          {
+            "path": "src/components/admin/BlogRenderer.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "BlogRenderer"
+            ]
+          },
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.blogs.$slug.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route",
+              "PostEditor"
+            ]
+          }
+        ],
+        "src/components/public/CertificatesView.tsx": [
+          {
+            "path": "src/components/ui/dialog.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Dialog",
+              "DialogPortal",
+              "DialogOverlay",
+              "DialogTrigger",
+              "DialogClose",
+              "DialogContent",
+              "DialogHeader",
+              "DialogFooter",
+              "DialogTitle",
+              "DialogDescription"
+            ]
+          },
+          {
+            "path": "src/routes/skills.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/public/ExperienceView.tsx": [
+          {
+            "path": "src/routes/experience.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/public/ProjectView.tsx": [
+          {
+            "path": "src/routes/projects.$slug.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/ui/alert-dialog.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/badge.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "src/components/public/ProjectSummary.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "ProjectSummary"
+            ]
+          }
+        ],
+        "src/components/ui/button.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/DateField.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DateField"
+            ]
+          },
+          {
+            "path": "src/components/ui/calendar.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Calendar",
+              "CalendarDayButton"
+            ]
+          },
+          {
+            "path": "src/components/ui/sidebar.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Sidebar",
+              "SidebarContent",
+              "SidebarFooter",
+              "SidebarGroup",
+              "SidebarGroupAction",
+              "SidebarGroupContent",
+              "SidebarGroupLabel",
+              "SidebarHeader",
+              "SidebarInput",
+              "SidebarInset",
+              "SidebarMenu",
+              "SidebarMenuAction",
+              "SidebarMenuBadge",
+              "SidebarMenuButton",
+              "SidebarMenuItem",
+              "SidebarMenuSkeleton",
+              "SidebarMenuSub",
+              "SidebarMenuSubButton",
+              "SidebarMenuSubItem",
+              "SidebarProvider",
+              "SidebarRail",
+              "SidebarSeparator",
+              "SidebarTrigger",
+              "useSidebar"
+            ]
+          }
+        ],
+        "src/components/ui/carousel.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/checkbox.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/input.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/DateField.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DateField"
+            ]
+          },
+          {
+            "path": "src/components/ui/sidebar.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Sidebar",
+              "SidebarContent",
+              "SidebarFooter",
+              "SidebarGroup",
+              "SidebarGroupAction",
+              "SidebarGroupContent",
+              "SidebarGroupLabel",
+              "SidebarHeader",
+              "SidebarInput",
+              "SidebarInset",
+              "SidebarMenu",
+              "SidebarMenuAction",
+              "SidebarMenuBadge",
+              "SidebarMenuButton",
+              "SidebarMenuItem",
+              "SidebarMenuSkeleton",
+              "SidebarMenuSub",
+              "SidebarMenuSubButton",
+              "SidebarMenuSubItem",
+              "SidebarProvider",
+              "SidebarRail",
+              "SidebarSeparator",
+              "SidebarTrigger",
+              "useSidebar"
+            ]
+          }
+        ],
+        "src/components/ui/pagination.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/select.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/routes/onlyme.certificates.tsx": [
+          {
+            "path": "src/components/admin/cms/DateField.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DateField"
+            ]
+          },
+          {
+            "path": "src/components/ui/sheet.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Sheet",
+              "SheetPortal",
+              "SheetOverlay",
+              "SheetTrigger",
+              "SheetClose",
+              "SheetContent",
+              "SheetHeader",
+              "SheetFooter",
+              "SheetTitle",
+              "SheetDescription"
+            ]
+          },
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ],
+        "src/routes/onlyme.experience.tsx": [
+          {
+            "path": "src/components/admin/cms/DateField.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DateField"
+            ]
+          },
+          {
+            "path": "src/components/ui/sheet.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Sheet",
+              "SheetPortal",
+              "SheetOverlay",
+              "SheetTrigger",
+              "SheetClose",
+              "SheetContent",
+              "SheetHeader",
+              "SheetFooter",
+              "SheetTitle",
+              "SheetDescription"
+            ]
+          },
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ],
+        "src/routes/onlyme.pages.$slug.tsx": [
+          {
+            "path": "src/db/schema.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "pages",
+              "projects",
+              "posts",
+              "postRevisions",
+              "postViews",
+              "contactMessages",
+              "settings",
+              "mediaAssets",
+              "blogSettings",
+              "Project",
+              "ProjectStatus",
+              "ProjectLink",
+              "Skill",
+              "SkillCategory",
+              "SkillLevel",
+              "Certificate",
+              "ExperienceEntry",
+              "ExperienceEmploymentType",
+              "ExperienceWorkMode",
+              "SkillsPageContent",
+              "CertificatesPageContent",
+              "ExperiencePageContent",
+              "PageContent",
+              "PageKind"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ],
+        "src/routes/onlyme.projects.$slug.tsx": [
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ],
+        "src/routes/onlyme.projects.tsx": [
+          {
+            "path": "src/components/ui/dialog.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Dialog",
+              "DialogPortal",
+              "DialogOverlay",
+              "DialogTrigger",
+              "DialogClose",
+              "DialogContent",
+              "DialogHeader",
+              "DialogFooter",
+              "DialogTitle",
+              "DialogDescription"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ],
+        "src/routes/onlyme.skills.tsx": [
+          {
+            "path": "src/components/ui/sheet.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Sheet",
+              "SheetPortal",
+              "SheetOverlay",
+              "SheetTrigger",
+              "SheetClose",
+              "SheetContent",
+              "SheetHeader",
+              "SheetFooter",
+              "SheetTitle",
+              "SheetDescription"
+            ]
+          },
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "src/components/PageShell.tsx",
+          "language": "typescript",
+          "sizeLines": 109,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/BlogRenderer.tsx",
+          "language": "typescript",
+          "sizeLines": 84,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/public/ProjectSummary.tsx",
+          "language": "typescript",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/public/SkillsView.tsx",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/sonner.tsx",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/blog-settings.ts",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/format-date.ts",
+          "language": "typescript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/server-fns.ts",
+          "language": "typescript",
+          "sizeLines": 1579,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/supabase-browser.ts",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/supabase.server.ts",
+          "language": "typescript",
+          "sizeLines": 68,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routeTree.gen.ts",
+          "language": "typescript",
+          "sizeLines": 635,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/router.tsx",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/__root.tsx",
+          "language": "typescript",
+          "sizeLines": 167,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/blog.$slug.tsx",
+          "language": "typescript",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/blog.index.tsx",
+          "language": "typescript",
+          "sizeLines": 275,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/blog.search.tsx",
+          "language": "typescript",
+          "sizeLines": 353,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/contact.tsx",
+          "language": "typescript",
+          "sizeLines": 376,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/experience.tsx",
+          "language": "typescript",
+          "sizeLines": 50,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/index.tsx",
+          "language": "typescript",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.blog-settings.tsx",
+          "language": "typescript",
+          "sizeLines": 735,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.blogs.tsx",
+          "language": "typescript",
+          "sizeLines": 314,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.export.tsx",
+          "language": "typescript",
+          "sizeLines": 63,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.index.tsx",
+          "language": "typescript",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.login.tsx",
+          "language": "typescript",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.pages.tsx",
+          "language": "typescript",
+          "sizeLines": 152,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.preview.$slug.tsx",
+          "language": "typescript",
+          "sizeLines": 82,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.settings.tsx",
+          "language": "typescript",
+          "sizeLines": 219,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.tsx",
+          "language": "typescript",
+          "sizeLines": 150,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/projects.$slug.tsx",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/projects.index.tsx",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/skills.tsx",
+          "language": "typescript",
+          "sizeLines": 51,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/test/app-routing.test.tsx",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/components/PageShell.tsx": [
+          "src/components/SideMenu.tsx",
+          "src/db/schema.ts"
+        ],
+        "src/components/admin/BlogRenderer.tsx": [
+          "src/components/blocks.tsx",
+          "src/components/media.tsx",
+          "src/content/site.ts",
+          "src/lib/blog-settings.ts"
+        ],
+        "src/components/public/ProjectSummary.tsx": [
+          "src/components/ui/badge.tsx"
+        ],
+        "src/components/public/SkillsView.tsx": [],
+        "src/components/ui/sonner.tsx": [],
+        "src/lib/blog-settings.ts": [],
+        "src/lib/format-date.ts": [],
+        "src/lib/server-fns.ts": [
+          "src/db/client.ts",
+          "src/db/schema.ts",
+          "src/lib/blog-settings.ts",
+          "src/lib/cms-normalize.ts",
+          "src/lib/cms-server.ts",
+          "src/lib/cms-validation.ts",
+          "src/lib/supabase.server.ts"
+        ],
+        "src/lib/supabase-browser.ts": [],
+        "src/lib/supabase.server.ts": [],
+        "src/routeTree.gen.ts": [
+          "src/router.tsx",
+          "src/routes/__root.tsx",
+          "src/routes/blog.$slug.tsx",
+          "src/routes/blog.index.tsx",
+          "src/routes/blog.search.tsx",
+          "src/routes/contact.tsx",
+          "src/routes/experience.tsx",
+          "src/routes/index.tsx",
+          "src/routes/onlyme.blog-settings.tsx",
+          "src/routes/onlyme.blogs.$slug.tsx",
+          "src/routes/onlyme.blogs.tsx",
+          "src/routes/onlyme.certificates.tsx",
+          "src/routes/onlyme.experience.tsx",
+          "src/routes/onlyme.export.tsx",
+          "src/routes/onlyme.index.tsx",
+          "src/routes/onlyme.login.tsx",
+          "src/routes/onlyme.media.tsx",
+          "src/routes/onlyme.pages.$slug.tsx",
+          "src/routes/onlyme.pages.tsx",
+          "src/routes/onlyme.preview.$slug.tsx",
+          "src/routes/onlyme.projects.$slug.tsx",
+          "src/routes/onlyme.projects.tsx",
+          "src/routes/onlyme.settings.tsx",
+          "src/routes/onlyme.skills.tsx",
+          "src/routes/onlyme.tsx",
+          "src/routes/projects.$slug.tsx",
+          "src/routes/projects.index.tsx",
+          "src/routes/skills.tsx",
+          "src/start.ts"
+        ],
+        "src/router.tsx": [
+          "src/routeTree.gen.ts"
+        ],
+        "src/routes/__root.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/nav-projects.ts",
+          "src/components/ui/sonner.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/blog.$slug.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/admin/BlogRenderer.tsx",
+          "src/lib/blog-settings.ts",
+          "src/lib/format-date.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/blog.index.tsx": [
+          "src/components/PageShell.tsx",
+          "src/content/site.ts",
+          "src/lib/blog-settings.ts",
+          "src/lib/format-date.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/blog.search.tsx": [
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/contact.tsx": [
+          "src/components/PageShell.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/experience.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/public/ExperienceView.tsx",
+          "src/lib/cms-normalize.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/index.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/blocks.tsx",
+          "src/components/public/ProjectSummary.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.blog-settings.tsx": [
+          "src/components/admin/MediaPicker.tsx",
+          "src/lib/blog-settings.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.blogs.tsx": [
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.export.tsx": [
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.index.tsx": [
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.login.tsx": [
+          "src/lib/server-fns.ts",
+          "src/lib/supabase-browser.ts"
+        ],
+        "src/routes/onlyme.pages.tsx": [
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.preview.$slug.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/admin/BlogRenderer.tsx",
+          "src/lib/blog-settings.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.settings.tsx": [
+          "src/db/schema.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.tsx": [
+          "src/lib/server-fns.ts",
+          "src/lib/supabase-browser.ts"
+        ],
+        "src/routes/projects.$slug.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/public/ProjectView.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/projects.index.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/public/ProjectSummary.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/skills.tsx": [
+          "src/components/PageShell.tsx",
+          "src/components/public/CertificatesView.tsx",
+          "src/components/public/SkillsView.tsx",
+          "src/lib/server-fns.ts"
+        ],
+        "src/test/app-routing.test.tsx": [
+          "src/routeTree.gen.ts"
+        ]
+      },
+      "neighborMap": {
+        "src/components/PageShell.tsx": [
+          {
+            "path": "src/components/SideMenu.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "SideMenu"
+            ]
+          },
+          {
+            "path": "src/db/schema.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "pages",
+              "projects",
+              "posts",
+              "postRevisions",
+              "postViews",
+              "contactMessages",
+              "settings",
+              "mediaAssets",
+              "blogSettings",
+              "Project",
+              "ProjectStatus",
+              "ProjectLink",
+              "Skill",
+              "SkillCategory",
+              "SkillLevel",
+              "Certificate",
+              "ExperienceEntry",
+              "ExperienceEmploymentType",
+              "ExperienceWorkMode",
+              "SkillsPageContent",
+              "CertificatesPageContent",
+              "ExperiencePageContent",
+              "PageContent",
+              "PageKind"
+            ]
+          }
+        ],
+        "src/components/admin/BlogRenderer.tsx": [
+          {
+            "path": "src/components/blocks.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "BlockView",
+              "Blocks"
+            ]
+          },
+          {
+            "path": "src/components/media.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "fileExtension",
+              "fileName",
+              "detectMediaKind",
+              "youtubeEmbedUrl",
+              "vimeoEmbedUrl",
+              "Media"
+            ]
+          },
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.blogs.$slug.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route",
+              "PostEditor"
+            ]
+          }
+        ],
+        "src/components/public/ProjectSummary.tsx": [
+          {
+            "path": "src/components/ui/badge.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Badge",
+              "badgeVariants"
+            ]
+          }
+        ],
+        "src/lib/blog-settings.ts": [
+          {
+            "path": "src/db/schema.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "pages",
+              "projects",
+              "posts",
+              "postRevisions",
+              "postViews",
+              "contactMessages",
+              "settings",
+              "mediaAssets",
+              "blogSettings",
+              "Project",
+              "ProjectStatus",
+              "ProjectLink",
+              "Skill",
+              "SkillCategory",
+              "SkillLevel",
+              "Certificate",
+              "ExperienceEntry",
+              "ExperienceEmploymentType",
+              "ExperienceWorkMode",
+              "SkillsPageContent",
+              "CertificatesPageContent",
+              "ExperiencePageContent",
+              "PageContent",
+              "PageKind"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.blogs.$slug.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route",
+              "PostEditor"
+            ]
+          }
+        ],
+        "src/lib/server-fns.ts": [
+          {
+            "path": "src/db/client.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "getDb",
+              "closeDb"
+            ]
+          },
+          {
+            "path": "src/db/schema.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "pages",
+              "projects",
+              "posts",
+              "postRevisions",
+              "postViews",
+              "contactMessages",
+              "settings",
+              "mediaAssets",
+              "blogSettings",
+              "Project",
+              "ProjectStatus",
+              "ProjectLink",
+              "Skill",
+              "SkillCategory",
+              "SkillLevel",
+              "Certificate",
+              "ExperienceEntry",
+              "ExperienceEmploymentType",
+              "ExperienceWorkMode",
+              "SkillsPageContent",
+              "CertificatesPageContent",
+              "ExperiencePageContent",
+              "PageContent",
+              "PageKind"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          },
+          {
+            "path": "src/lib/cms-server.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "planProjectRename",
+              "planProjectDelete",
+              "planPageReferenceCleanup"
+            ]
+          },
+          {
+            "path": "src/lib/cms-validation.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "projectSchema",
+              "skillCategorySchema",
+              "skillSchema",
+              "certificateSchema",
+              "certificateSchemaWithDates",
+              "skillsPageSchema",
+              "certificatesPageSchema",
+              "experienceEntrySchema",
+              "experienceEntrySchemaWithDates",
+              "experiencePageSchema",
+              "validateProjectDoc",
+              "validatePageDoc",
+              "assertValidContent"
+            ]
+          },
+          {
+            "path": "src/components/admin/MediaPicker.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaThumb",
+              "MediaPicker",
+              "MediaItemFields"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/useCmsDraft.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "useCmsDraft"
+            ]
+          },
+          {
+            "path": "src/lib/media-upload.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "uploadFileToLibrary",
+              "KOENIG_FILE_TYPES",
+              "useMediaUpload"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.blogs.$slug.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route",
+              "PostEditor"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.certificates.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.experience.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.media.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.skills.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/routeTree.gen.ts": [
+          {
+            "path": "src/routes/onlyme.blogs.$slug.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route",
+              "PostEditor"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.certificates.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.experience.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.media.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.pages.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.skills.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/start.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "startInstance"
+            ]
+          }
+        ],
+        "src/routes/__root.tsx": [
+          {
+            "path": "src/components/nav-projects.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "NavProjectsContext"
+            ]
+          }
+        ],
+        "src/routes/blog.index.tsx": [
+          {
+            "path": "src/content/site.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaItem",
+              "site",
+              "overview",
+              "projects",
+              "skills",
+              "certificates",
+              "posts",
+              "experience"
+            ]
+          }
+        ],
+        "src/routes/experience.tsx": [
+          {
+            "path": "src/components/public/ExperienceView.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "ExperienceView"
+            ]
+          },
+          {
+            "path": "src/lib/cms-normalize.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "stableId",
+              "nextSort",
+              "normalizeProject",
+              "normalizeSkillsPage",
+              "normalizeCertificatesPage",
+              "normalizeExperiencePage",
+              "normalizePageContent",
+              "removeSkillReferences",
+              "removeCertificateReferences",
+              "removeProjectReferences",
+              "replaceProjectSlug"
+            ]
+          }
+        ],
+        "src/routes/index.tsx": [
+          {
+            "path": "src/components/blocks.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "BlockView",
+              "Blocks"
+            ]
+          }
+        ],
+        "src/routes/onlyme.blog-settings.tsx": [
+          {
+            "path": "src/components/admin/MediaPicker.tsx",
+            "batchIndex": 3,
+            "symbols": [
+              "MediaThumb",
+              "MediaPicker",
+              "MediaItemFields"
+            ]
+          }
+        ],
+        "src/routes/onlyme.settings.tsx": [
+          {
+            "path": "src/db/schema.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "pages",
+              "projects",
+              "posts",
+              "postRevisions",
+              "postViews",
+              "contactMessages",
+              "settings",
+              "mediaAssets",
+              "blogSettings",
+              "Project",
+              "ProjectStatus",
+              "ProjectLink",
+              "Skill",
+              "SkillCategory",
+              "SkillLevel",
+              "Certificate",
+              "ExperienceEntry",
+              "ExperienceEmploymentType",
+              "ExperienceWorkMode",
+              "SkillsPageContent",
+              "CertificatesPageContent",
+              "ExperiencePageContent",
+              "PageContent",
+              "PageKind"
+            ]
+          }
+        ],
+        "src/routes/projects.$slug.tsx": [
+          {
+            "path": "src/components/public/ProjectView.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "ProjectView"
+            ]
+          }
+        ],
+        "src/routes/skills.tsx": [
+          {
+            "path": "src/components/public/CertificatesView.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "CertificatesView"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "server/routes/rss.xml.ts",
+          "language": "typescript",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/routes/sitemap.xml.ts",
+          "language": "typescript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/SideMenu.tsx",
+          "language": "typescript",
+          "sizeLines": 90,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/FontSizeToolbar.tsx",
+          "language": "typescript",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/KoenigBodyEditor.tsx",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/KoenigInner.tsx",
+          "language": "typescript",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/admin/MediaPicker.tsx",
+          "language": "typescript",
+          "sizeLines": 282,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/nav-projects.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/content/site.ts",
+          "language": "typescript",
+          "sizeLines": 564,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/db/client.ts",
+          "language": "typescript",
+          "sizeLines": 49,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "language": "typescript",
+          "sizeLines": 222,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/db/seed.ts",
+          "language": "typescript",
+          "sizeLines": 168,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/blocks-to-html.ts",
+          "language": "typescript",
+          "sizeLines": 136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/cms-normalize.ts",
+          "language": "typescript",
+          "sizeLines": 443,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/cms-server.ts",
+          "language": "typescript",
+          "sizeLines": 135,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/cms-validation.ts",
+          "language": "typescript",
+          "sizeLines": 303,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/media-config.ts",
+          "language": "typescript",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/media-upload.ts",
+          "language": "typescript",
+          "sizeLines": 171,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.blogs.$slug.tsx",
+          "language": "typescript",
+          "sizeLines": 1152,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/onlyme.media.tsx",
+          "language": "typescript",
+          "sizeLines": 478,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/test/cms-normalize.test.ts",
+          "language": "typescript",
+          "sizeLines": 514,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/test/cms-validation.test.ts",
+          "language": "typescript",
+          "sizeLines": 209,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "server/routes/rss.xml.ts": [
+          "src/db/client.ts",
+          "src/db/schema.ts"
+        ],
+        "server/routes/sitemap.xml.ts": [
+          "src/db/client.ts",
+          "src/db/schema.ts"
+        ],
+        "src/components/SideMenu.tsx": [
+          "src/components/nav-projects.ts",
+          "src/content/site.ts"
+        ],
+        "src/components/admin/FontSizeToolbar.tsx": [],
+        "src/components/admin/KoenigBodyEditor.tsx": [
+          "src/components/admin/KoenigInner.tsx"
+        ],
+        "src/components/admin/KoenigInner.tsx": [
+          "src/lib/media-upload.ts"
+        ],
+        "src/components/admin/MediaPicker.tsx": [
+          "src/db/schema.ts",
+          "src/lib/media-config.ts",
+          "src/lib/media-upload.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/components/nav-projects.ts": [],
+        "src/content/site.ts": [
+          "src/components/media.tsx"
+        ],
+        "src/db/client.ts": [
+          "src/db/schema.ts"
+        ],
+        "src/db/schema.ts": [
+          "src/content/site.ts",
+          "src/lib/blog-settings.ts"
+        ],
+        "src/db/seed.ts": [
+          "src/content/site.ts",
+          "src/db/client.ts",
+          "src/db/schema.ts"
+        ],
+        "src/lib/blocks-to-html.ts": [
+          "src/content/site.ts"
+        ],
+        "src/lib/cms-normalize.ts": [
+          "src/components/media.tsx",
+          "src/content/site.ts"
+        ],
+        "src/lib/cms-server.ts": [
+          "src/db/schema.ts",
+          "src/lib/cms-normalize.ts"
+        ],
+        "src/lib/cms-validation.ts": [
+          "src/content/site.ts"
+        ],
+        "src/lib/media-config.ts": [],
+        "src/lib/media-upload.ts": [
+          "src/db/schema.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.blogs.$slug.tsx": [
+          "src/components/admin/BlogRenderer.tsx",
+          "src/components/admin/FontSizeToolbar.tsx",
+          "src/components/admin/KoenigBodyEditor.tsx",
+          "src/components/admin/MediaPicker.tsx",
+          "src/components/media.tsx",
+          "src/content/site.ts",
+          "src/lib/blocks-to-html.ts",
+          "src/lib/blog-settings.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/routes/onlyme.media.tsx": [
+          "src/components/admin/MediaPicker.tsx",
+          "src/db/schema.ts",
+          "src/lib/media-config.ts",
+          "src/lib/media-upload.ts",
+          "src/lib/server-fns.ts"
+        ],
+        "src/test/cms-normalize.test.ts": [
+          "src/content/site.ts",
+          "src/lib/cms-normalize.ts",
+          "src/lib/cms-server.ts"
+        ],
+        "src/test/cms-validation.test.ts": [
+          "src/content/site.ts",
+          "src/lib/cms-validation.ts"
+        ]
+      },
+      "neighborMap": {
+        "src/components/SideMenu.tsx": [
+          {
+            "path": "src/components/PageShell.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "SiteHeader",
+              "PageShell",
+              "SiteFooter"
+            ]
+          }
+        ],
+        "src/components/admin/MediaPicker.tsx": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/MediaField.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "MediaField"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/MediaGallery.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "MediaGallery"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.blog-settings.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route",
+              "BlogSettingsPage"
+            ]
+          }
+        ],
+        "src/components/nav-projects.ts": [
+          {
+            "path": "src/routes/__root.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/content/site.ts": [
+          {
+            "path": "src/components/media.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "fileExtension",
+              "fileName",
+              "detectMediaKind",
+              "youtubeEmbedUrl",
+              "vimeoEmbedUrl",
+              "Media"
+            ]
+          },
+          {
+            "path": "src/components/admin/BlockEditor.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "BlockEditor"
+            ]
+          },
+          {
+            "path": "src/components/admin/BlogRenderer.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "BlogRenderer"
+            ]
+          },
+          {
+            "path": "src/components/blocks.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "BlockView",
+              "Blocks"
+            ]
+          },
+          {
+            "path": "src/routes/blog.index.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.certificates.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.experience.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.skills.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/db/client.ts": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          }
+        ],
+        "src/db/schema.ts": [
+          {
+            "path": "src/lib/blog-settings.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "FONT_OPTIONS",
+              "IMAGE_RATIOS",
+              "DEFAULT_BLOG_SETTINGS",
+              "mergeBlogSettings",
+              "blogThemeVars"
+            ]
+          },
+          {
+            "path": "src/components/PageShell.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "SiteHeader",
+              "PageShell",
+              "SiteFooter"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.pages.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.settings.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/lib/cms-normalize.ts": [
+          {
+            "path": "src/components/media.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "fileExtension",
+              "fileName",
+              "detectMediaKind",
+              "youtubeEmbedUrl",
+              "vimeoEmbedUrl",
+              "Media"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routes/experience.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.certificates.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.experience.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.pages.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.$slug.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.skills.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/lib/cms-server.ts": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          }
+        ],
+        "src/lib/cms-validation.ts": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          }
+        ],
+        "src/lib/media-upload.ts": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          }
+        ],
+        "src/routes/onlyme.blogs.$slug.tsx": [
+          {
+            "path": "src/components/admin/BlogRenderer.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "BlogRenderer"
+            ]
+          },
+          {
+            "path": "src/components/media.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "fileExtension",
+              "fileName",
+              "detectMediaKind",
+              "youtubeEmbedUrl",
+              "vimeoEmbedUrl",
+              "Media"
+            ]
+          },
+          {
+            "path": "src/lib/blog-settings.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "FONT_OPTIONS",
+              "IMAGE_RATIOS",
+              "DEFAULT_BLOG_SETTINGS",
+              "mergeBlogSettings",
+              "blogThemeVars"
+            ]
+          },
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ],
+        "src/routes/onlyme.media.tsx": [
+          {
+            "path": "src/lib/server-fns.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "mediaMaxBytes",
+              "listStaged",
+              "getStaged",
+              "updateStaged",
+              "createItem",
+              "deleteItem",
+              "updatePostSlug",
+              "bulkUpdatePosts",
+              "publishItem",
+              "unpublishItem",
+              "revertItem",
+              "updateProjectSlug",
+              "duplicateProject",
+              "reorderProjects",
+              "deleteProject",
+              "ensureContentPage",
+              "getPublishedSkillsBundle",
+              "publishAll",
+              "getSiteIdentity",
+              "getBlogSettings",
+              "saveBlogSettings",
+              "getPublishedPosts",
+              "getPublishedPost",
+              "getPostPreview",
+              "searchPosts",
+              "searchSuggest",
+              "getBlogTags",
+              "getRelatedPosts",
+              "recordPostView",
+              "getBlogOverview",
+              "listPostRevisions",
+              "createPostRevision",
+              "restorePostRevision",
+              "submitContact",
+              "listContactMessages",
+              "markContactRead",
+              "getPublishedProjects",
+              "getPublishedProject",
+              "getPublishedPage",
+              "exportBackup",
+              "createMediaUpload",
+              "listMedia",
+              "updateMedia",
+              "getMediaUsage",
+              "deleteMedia",
+              "getAdminUser",
+              "sendContactEmail"
+            ]
+          },
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "src/components/admin/cms/DateField.tsx",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/accordion.tsx",
+          "language": "typescript",
+          "sizeLines": 51,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/alert.tsx",
+          "language": "typescript",
+          "sizeLines": 49,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/avatar.tsx",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/breadcrumb.tsx",
+          "language": "typescript",
+          "sizeLines": 101,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/calendar.tsx",
+          "language": "typescript",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "language": "typescript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/chart.tsx",
+          "language": "typescript",
+          "sizeLines": 331,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/command.tsx",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/context-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 186,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "language": "typescript",
+          "sizeLines": 104,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/drawer.tsx",
+          "language": "typescript",
+          "sizeLines": 98,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 187,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/form.tsx",
+          "language": "typescript",
+          "sizeLines": 171,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/hover-card.tsx",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/input-otp.tsx",
+          "language": "typescript",
+          "sizeLines": 73,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/menubar.tsx",
+          "language": "typescript",
+          "sizeLines": 228,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/navigation-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 120,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/components/admin/cms/DateField.tsx": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/calendar.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/popover.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/accordion.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/alert.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/avatar.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/breadcrumb.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/calendar.tsx": [
+          "src/components/ui/button.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/card.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/chart.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/command.tsx": [
+          "src/components/ui/dialog.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/context-menu.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/dialog.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/drawer.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/dropdown-menu.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/form.tsx": [
+          "src/components/ui/label.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/hover-card.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/input-otp.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/label.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/menubar.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/navigation-menu.tsx": [
+          "src/lib/utils.ts"
+        ]
+      },
+      "neighborMap": {
+        "src/components/admin/cms/DateField.tsx": [
+          {
+            "path": "src/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          },
+          {
+            "path": "src/components/ui/input.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Input"
+            ]
+          },
+          {
+            "path": "src/components/ui/popover.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Popover",
+              "PopoverTrigger",
+              "PopoverContent",
+              "PopoverAnchor"
+            ]
+          },
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.certificates.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.experience.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/ui/accordion.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/alert.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/avatar.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/breadcrumb.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/calendar.tsx": [
+          {
+            "path": "src/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          },
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/card.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/chart.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/command.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/context-menu.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/dialog.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "src/components/public/CertificatesView.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "CertificatesView"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.projects.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/ui/drawer.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/dropdown-menu.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/form.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/hover-card.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/input-otp.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/label.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/menubar.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "src/components/ui/navigation-menu.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "src/components/ui/popover.tsx",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/progress.tsx",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "language": "typescript",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/resizable.tsx",
+          "language": "typescript",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "language": "typescript",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/sheet.tsx",
+          "language": "typescript",
+          "sizeLines": 122,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/sidebar.tsx",
+          "language": "typescript",
+          "sizeLines": 744,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "language": "typescript",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/slider.tsx",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "language": "typescript",
+          "sizeLines": 94,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/toggle-group.tsx",
+          "language": "typescript",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/use-mobile.tsx",
+          "language": "typescript",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/components/ui/popover.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/progress.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/radio-group.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/resizable.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/scroll-area.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/separator.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/sheet.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/sidebar.tsx": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/separator.tsx",
+          "src/components/ui/sheet.tsx",
+          "src/components/ui/skeleton.tsx",
+          "src/components/ui/tooltip.tsx",
+          "src/hooks/use-mobile.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/skeleton.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/slider.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/switch.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/table.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/tabs.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/textarea.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/toggle-group.tsx": [
+          "src/components/ui/toggle.tsx",
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/toggle.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/ui/tooltip.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/hooks/use-mobile.tsx": [],
+        "src/lib/utils.ts": []
+      },
+      "neighborMap": {
+        "src/components/ui/popover.tsx": [
+          {
+            "path": "src/components/admin/cms/DateField.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DateField"
+            ]
+          }
+        ],
+        "src/components/ui/sheet.tsx": [
+          {
+            "path": "src/routes/onlyme.certificates.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.experience.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          },
+          {
+            "path": "src/routes/onlyme.skills.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Route"
+            ]
+          }
+        ],
+        "src/components/ui/sidebar.tsx": [
+          {
+            "path": "src/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          },
+          {
+            "path": "src/components/ui/input.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Input"
+            ]
+          }
+        ],
+        "src/lib/utils.ts": [
+          {
+            "path": "src/components/admin/cms/DateField.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DateField"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/FormSection.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Field",
+              "InputField",
+              "SelectField",
+              "FormSection"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/SkillMultiSelect.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "SkillMultiSelect"
+            ]
+          },
+          {
+            "path": "src/components/admin/cms/TagInput.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "TagInput"
+            ]
+          },
+          {
+            "path": "src/components/ui/accordion.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Accordion",
+              "AccordionItem",
+              "AccordionTrigger",
+              "AccordionContent"
+            ]
+          },
+          {
+            "path": "src/components/ui/alert-dialog.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "AlertDialog",
+              "AlertDialogPortal",
+              "AlertDialogOverlay",
+              "AlertDialogTrigger",
+              "AlertDialogContent",
+              "AlertDialogHeader",
+              "AlertDialogFooter",
+              "AlertDialogTitle",
+              "AlertDialogDescription",
+              "AlertDialogAction",
+              "AlertDialogCancel"
+            ]
+          },
+          {
+            "path": "src/components/ui/alert.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Alert",
+              "AlertTitle",
+              "AlertDescription"
+            ]
+          },
+          {
+            "path": "src/components/ui/avatar.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Avatar",
+              "AvatarImage",
+              "AvatarFallback"
+            ]
+          },
+          {
+            "path": "src/components/ui/badge.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Badge",
+              "badgeVariants"
+            ]
+          },
+          {
+            "path": "src/components/ui/breadcrumb.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Breadcrumb",
+              "BreadcrumbList",
+              "BreadcrumbItem",
+              "BreadcrumbLink",
+              "BreadcrumbPage",
+              "BreadcrumbSeparator",
+              "BreadcrumbEllipsis"
+            ]
+          },
+          {
+            "path": "src/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          },
+          {
+            "path": "src/components/ui/calendar.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Calendar",
+              "CalendarDayButton"
+            ]
+          },
+          {
+            "path": "src/components/ui/card.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Card",
+              "CardHeader",
+              "CardFooter",
+              "CardTitle",
+              "CardDescription",
+              "CardContent"
+            ]
+          },
+          {
+            "path": "src/components/ui/carousel.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "CarouselApi",
+              "Carousel",
+              "CarouselContent",
+              "CarouselItem",
+              "CarouselPrevious",
+              "CarouselNext"
+            ]
+          },
+          {
+            "path": "src/components/ui/chart.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "ChartContainer",
+              "ChartTooltip",
+              "ChartTooltipContent",
+              "ChartLegend",
+              "ChartLegendContent",
+              "ChartStyle"
+            ]
+          },
+          {
+            "path": "src/components/ui/checkbox.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Checkbox"
+            ]
+          },
+          {
+            "path": "src/components/ui/command.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Command",
+              "CommandDialog",
+              "CommandInput",
+              "CommandList",
+              "CommandEmpty",
+              "CommandGroup",
+              "CommandItem",
+              "CommandShortcut",
+              "CommandSeparator"
+            ]
+          },
+          {
+            "path": "src/components/ui/context-menu.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "ContextMenu",
+              "ContextMenuTrigger",
+              "ContextMenuContent",
+              "ContextMenuItem",
+              "ContextMenuCheckboxItem",
+              "ContextMenuRadioItem",
+              "ContextMenuLabel",
+              "ContextMenuSeparator",
+              "ContextMenuShortcut",
+              "ContextMenuGroup",
+              "ContextMenuPortal",
+              "ContextMenuSub",
+              "ContextMenuSubContent",
+              "ContextMenuSubTrigger",
+              "ContextMenuRadioGroup"
+            ]
+          },
+          {
+            "path": "src/components/ui/dialog.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Dialog",
+              "DialogPortal",
+              "DialogOverlay",
+              "DialogTrigger",
+              "DialogClose",
+              "DialogContent",
+              "DialogHeader",
+              "DialogFooter",
+              "DialogTitle",
+              "DialogDescription"
+            ]
+          },
+          {
+            "path": "src/components/ui/drawer.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Drawer",
+              "DrawerPortal",
+              "DrawerOverlay",
+              "DrawerTrigger",
+              "DrawerClose",
+              "DrawerContent",
+              "DrawerHeader",
+              "DrawerFooter",
+              "DrawerTitle",
+              "DrawerDescription"
+            ]
+          },
+          {
+            "path": "src/components/ui/dropdown-menu.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "DropdownMenu",
+              "DropdownMenuTrigger",
+              "DropdownMenuContent",
+              "DropdownMenuItem",
+              "DropdownMenuCheckboxItem",
+              "DropdownMenuRadioItem",
+              "DropdownMenuLabel",
+              "DropdownMenuSeparator",
+              "DropdownMenuShortcut",
+              "DropdownMenuGroup",
+              "DropdownMenuPortal",
+              "DropdownMenuSub",
+              "DropdownMenuSubContent",
+              "DropdownMenuSubTrigger",
+              "DropdownMenuRadioGroup"
+            ]
+          },
+          {
+            "path": "src/components/ui/form.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "useFormField",
+              "Form",
+              "FormItem",
+              "FormLabel",
+              "FormControl",
+              "FormDescription",
+              "FormMessage",
+              "FormField"
+            ]
+          },
+          {
+            "path": "src/components/ui/hover-card.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "HoverCard",
+              "HoverCardTrigger",
+              "HoverCardContent"
+            ]
+          },
+          {
+            "path": "src/components/ui/input-otp.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "InputOTP",
+              "InputOTPGroup",
+              "InputOTPSlot",
+              "InputOTPSeparator"
+            ]
+          },
+          {
+            "path": "src/components/ui/input.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Input"
+            ]
+          },
+          {
+            "path": "src/components/ui/label.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Label"
+            ]
+          },
+          {
+            "path": "src/components/ui/menubar.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "Menubar",
+              "MenubarMenu",
+              "MenubarTrigger",
+              "MenubarContent",
+              "MenubarItem",
+              "MenubarSeparator",
+              "MenubarLabel",
+              "MenubarCheckboxItem",
+              "MenubarRadioGroup",
+              "MenubarRadioItem",
+              "MenubarPortal",
+              "MenubarSubContent",
+              "MenubarSubTrigger",
+              "MenubarGroup",
+              "MenubarSub",
+              "MenubarShortcut"
+            ]
+          },
+          {
+            "path": "src/components/ui/navigation-menu.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "navigationMenuTriggerStyle",
+              "NavigationMenu",
+              "NavigationMenuList",
+              "NavigationMenuItem",
+              "NavigationMenuContent",
+              "NavigationMenuTrigger",
+              "NavigationMenuLink",
+              "NavigationMenuIndicator",
+              "NavigationMenuViewport"
+            ]
+          },
+          {
+            "path": "src/components/ui/pagination.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Pagination",
+              "PaginationContent",
+              "PaginationLink",
+              "PaginationItem",
+              "PaginationPrevious",
+              "PaginationNext",
+              "PaginationEllipsis"
+            ]
+          },
+          {
+            "path": "src/components/ui/select.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Select",
+              "SelectGroup",
+              "SelectValue",
+              "SelectTrigger",
+              "SelectContent",
+              "SelectLabel",
+              "SelectItem",
+              "SelectSeparator",
+              "SelectScrollUpButton",
+              "SelectScrollDownButton"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "src/lib/error-capture.ts",
+          "language": "typescript",
+          "sizeLines": 81,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/error-page.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/server.ts",
+          "language": "typescript",
+          "sizeLines": 148,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/start.ts",
+          "language": "typescript",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/lib/error-capture.ts": [],
+        "src/lib/error-page.ts": [],
+        "src/server.ts": [
+          "src/lib/error-capture.ts",
+          "src/lib/error-page.ts"
+        ],
+        "src/start.ts": [
+          "src/lib/error-page.ts"
+        ]
+      },
+      "neighborMap": {
+        "src/start.ts": [
+          {
+            "path": "src/routeTree.gen.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "routeTree"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "supabase/migrations/0001_blog_cms.sql",
+          "language": "sql",
+          "sizeLines": 509,
+          "fileCategory": "data"
+        }
+      ],
+      "batchImportData": {
+        "supabase/migrations/0001_blog_cms.sql": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": ".env.example",
+          "language": "config",
+          "sizeLines": 33,
+          "fileCategory": "config"
+        },
+        {
+          "path": "AGENTS.md",
+          "language": "markdown",
+          "sizeLines": 6,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 141,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "components.json",
+          "language": "json",
+          "sizeLines": 22,
+          "fileCategory": "config"
+        },
+        {
+          "path": "config.yaml",
+          "language": "yaml",
+          "sizeLines": 12,
+          "fileCategory": "config"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 118,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 36,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".env.example": [],
+        "AGENTS.md": [],
+        "README.md": [],
+        "components.json": [],
+        "config.yaml": [],
+        "package.json": [],
+        "tsconfig.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": "docs/admin-panel-briefing.md",
+          "language": "markdown",
+          "sizeLines": 295,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/blog-cms-progress.md",
+          "language": "markdown",
+          "sizeLines": 123,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/cms-projects-skills-certificates-experience.md",
+          "language": "markdown",
+          "sizeLines": 71,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/design-plan.md",
+          "language": "markdown",
+          "sizeLines": 72,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/operations-guide.md",
+          "language": "markdown",
+          "sizeLines": 207,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "docs/admin-panel-briefing.md": [],
+        "docs/blog-cms-progress.md": [],
+        "docs/cms-projects-skills-certificates-experience.md": [],
+        "docs/design-plan.md": [],
+        "docs/operations-guide.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": "drizzle/0000_striped_kingpin.sql",
+          "language": "sql",
+          "sizeLines": 37,
+          "fileCategory": "data"
+        },
+        {
+          "path": "drizzle/0001_blog_cms.sql",
+          "language": "sql",
+          "sizeLines": 51,
+          "fileCategory": "data"
+        },
+        {
+          "path": "drizzle/0002_search_text.sql",
+          "language": "sql",
+          "sizeLines": 0,
+          "fileCategory": "data"
+        }
+      ],
+      "batchImportData": {
+        "drizzle/0000_striped_kingpin.sql": [],
+        "drizzle/0001_blog_cms.sql": [],
+        "drizzle/0002_search_text.sql": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": "drizzle/meta/0000_snapshot.json",
+          "language": "json",
+          "sizeLines": 235,
+          "fileCategory": "config"
+        },
+        {
+          "path": "drizzle/meta/0001_snapshot.json",
+          "language": "json",
+          "sizeLines": 550,
+          "fileCategory": "config"
+        },
+        {
+          "path": "drizzle/meta/0002_snapshot.json",
+          "language": "json",
+          "sizeLines": 556,
+          "fileCategory": "config"
+        },
+        {
+          "path": "drizzle/meta/_journal.json",
+          "language": "json",
+          "sizeLines": 26,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "drizzle/meta/0000_snapshot.json": [],
+        "drizzle/meta/0001_snapshot.json": [],
+        "drizzle/meta/0002_snapshot.json": [],
+        "drizzle/meta/_journal.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": ".prettierignore",
+          "language": "unknown",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/config.json",
+          "language": "json",
+          "sizeLines": 3,
+          "fileCategory": "config"
+        },
+        {
+          "path": "docs/plans/2026-11-05-smooth-scroll-lenis.md",
+          "language": "markdown",
+          "sizeLines": 65,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "drizzle.config.ts",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "eslint.config.js",
+          "language": "javascript",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "nitro.config.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "public/robots.txt",
+          "language": "txt",
+          "sizeLines": 14,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "scripts/apply-sql.mjs",
+          "language": "javascript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/e2e-dbcheck.mjs",
+          "language": "javascript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/migrate-cms-content.mjs",
+          "language": "javascript",
+          "sizeLines": 221,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/aspect-ratio.tsx",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/collapsible.tsx",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/README.md",
+          "language": "markdown",
+          "sizeLines": 21,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "src/styles.css",
+          "language": "css",
+          "sizeLines": 309,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/test/setup.ts",
+          "language": "typescript",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/koenig-lexical.d.ts",
+          "language": "typescript",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/e2e/verify-all-public-pages.test.ts",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/e2e/verify-projects-page.test.ts",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vite.config.ts",
+          "language": "typescript",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vitest.config.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".prettierignore": [],
+        ".ua/config.json": [],
+        "docs/plans/2026-11-05-smooth-scroll-lenis.md": [],
+        "drizzle.config.ts": [],
+        "eslint.config.js": [],
+        "nitro.config.ts": [],
+        "public/robots.txt": [],
+        "scripts/apply-sql.mjs": [],
+        "scripts/e2e-dbcheck.mjs": [],
+        "scripts/migrate-cms-content.mjs": [],
+        "src/components/ui/aspect-ratio.tsx": [],
+        "src/components/ui/collapsible.tsx": [],
+        "src/routes/README.md": [],
+        "src/styles.css": [],
+        "src/test/setup.ts": [],
+        "src/types/koenig-lexical.d.ts": [],
+        "tests/e2e/verify-all-public-pages.test.ts": [],
+        "tests/e2e/verify-projects-page.test.ts": [],
+        "vite.config.ts": [],
+        "vitest.config.ts": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

@@ -182,7 +182,11 @@ export function useCmsDraft<T>({
   const publish = useCallback(async (): Promise<boolean> => {
     if (!data) return false;
     const saved = await save({ silent: true });
-    if (!saved) return false;
+    if (!saved) {
+      setNotice({ kind: "error", text: "Publish blocked — fix the save error first" });
+      notify("Publish blocked — fix the save error first", "error");
+      return false;
+    }
     try {
       setSaving(true);
       await (publishItem as any)({ data: { table, slug } });

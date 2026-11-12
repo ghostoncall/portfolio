@@ -1,6 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { projects } from "@/content/site";
+import { useContext, useState } from "react";
+import { projects as staticProjects } from "@/content/site";
+import { NavProjectsContext, type NavProject } from "@/components/nav-projects";
 
 const items = [
   { to: "/", label: "Overview" },
@@ -8,6 +9,7 @@ const items = [
   { to: "/blog", label: "Blog" },
   { to: "/skills", label: "Skills & Certificates" },
   { to: "/experience", label: "Experience" },
+  { to: "/volunteering", label: "Volunteering" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
@@ -18,6 +20,9 @@ export function SideMenu() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [open, setOpen] = useState(pathname.startsWith("/projects"));
+  const liveProjects = useContext(NavProjectsContext);
+  const projectList: NavProject[] =
+    liveProjects ?? staticProjects.map((p) => ({ slug: p.slug, title: p.title }));
 
   return (
     <nav aria-label="Site index" className="border-t border-foreground/30">
@@ -45,7 +50,9 @@ export function SideMenu() {
               >
                 <span>{item.label}</span>
                 {hasChildren && (
-                  <sup className="ml-1 align-super text-xs font-normal">(+{projects.length})</sup>
+                  <sup className="ml-1 align-super text-xs font-normal">
+                    (+{projectList.length})
+                  </sup>
                 )}
               </Link>
               {hasChildren && (
@@ -62,7 +69,7 @@ export function SideMenu() {
             </div>
             {hasChildren && open && (
               <ul className="space-y-1 px-3 pb-4 pt-2">
-                {projects.map((p) => (
+                {projectList.map((p) => (
                   <li key={p.slug}>
                     <Link
                       to="/projects/$slug"

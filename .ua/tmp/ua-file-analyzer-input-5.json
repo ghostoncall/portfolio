@@ -1,0 +1,87 @@
+{
+  "projectRoot": "/home/ghost-malware/projects/ai-portfolio",
+  "batchFiles": [
+    {"path": "src/components/ui/popover.tsx", "language": "typescript", "sizeLines": 31, "fileCategory": "code"},
+    {"path": "src/components/ui/progress.tsx", "language": "typescript", "sizeLines": 25, "fileCategory": "code"},
+    {"path": "src/components/ui/radio-group.tsx", "language": "typescript", "sizeLines": 36, "fileCategory": "code"},
+    {"path": "src/components/ui/resizable.tsx", "language": "typescript", "sizeLines": 37, "fileCategory": "code"},
+    {"path": "src/components/ui/scroll-area.tsx", "language": "typescript", "sizeLines": 44, "fileCategory": "code"},
+    {"path": "src/components/ui/separator.tsx", "language": "typescript", "sizeLines": 24, "fileCategory": "code"},
+    {"path": "src/components/ui/sheet.tsx", "language": "typescript", "sizeLines": 122, "fileCategory": "code"},
+    {"path": "src/components/ui/sidebar.tsx", "language": "typescript", "sizeLines": 744, "fileCategory": "code"},
+    {"path": "src/components/ui/skeleton.tsx", "language": "typescript", "sizeLines": 7, "fileCategory": "code"},
+    {"path": "src/components/ui/slider.tsx", "language": "typescript", "sizeLines": 23, "fileCategory": "code"},
+    {"path": "src/components/ui/switch.tsx", "language": "typescript", "sizeLines": 27, "fileCategory": "code"},
+    {"path": "src/components/ui/table.tsx", "language": "typescript", "sizeLines": 94, "fileCategory": "code"},
+    {"path": "src/components/ui/tabs.tsx", "language": "typescript", "sizeLines": 53, "fileCategory": "code"},
+    {"path": "src/components/ui/textarea.tsx", "language": "typescript", "sizeLines": 21, "fileCategory": "code"},
+    {"path": "src/components/ui/toggle-group.tsx", "language": "typescript", "sizeLines": 57, "fileCategory": "code"},
+    {"path": "src/components/ui/toggle.tsx", "language": "typescript", "sizeLines": 42, "fileCategory": "code"},
+    {"path": "src/components/ui/tooltip.tsx", "language": "typescript", "sizeLines": 32, "fileCategory": "code"},
+    {"path": "src/hooks/use-mobile.tsx", "language": "typescript", "sizeLines": 19, "fileCategory": "code"},
+    {"path": "src/lib/utils.ts", "language": "typescript", "sizeLines": 6, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "src/components/ui/popover.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/progress.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/radio-group.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/resizable.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/scroll-area.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/separator.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/sheet.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/sidebar.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/separator.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/components/ui/skeleton.tsx",
+      "src/components/ui/tooltip.tsx",
+      "src/hooks/use-mobile.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/skeleton.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/slider.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/switch.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/table.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/tabs.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/textarea.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/toggle-group.tsx": [
+      "src/components/ui/toggle.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/toggle.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/ui/tooltip.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/hooks/use-mobile.tsx": [],
+    "src/lib/utils.ts": []
+  }
+}

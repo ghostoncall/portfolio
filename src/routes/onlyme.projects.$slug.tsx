@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/onlyme/projects/$slug")({
 function ProjectEditor() {
   const slug = Route.useParams().slug;
   const navigate = useNavigate();
+  const router = useRouter();
 
   const draft = useCmsDraft<Project>({
     table: "projects",
@@ -84,6 +85,7 @@ function ProjectEditor() {
       await (updateProjectSlug as any)({ data: { oldSlug: slug, newSlug: newSlug.trim() } });
       toast.success(`Renamed to "${newSlug}" — references updated`);
       navigate({ to: "/onlyme/projects/$slug", params: { slug: newSlug } });
+      await router.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? "Rename failed");
     } finally {
@@ -373,7 +375,10 @@ function ProjectEditor() {
         lastSaved={draft.lastSaved}
         error={draft.error}
         onSave={() => draft.save()}
-        onPublish={() => draft.publish()}
+        onPublish={async () => {
+          const ok = await draft.publish();
+          if (ok) await router.invalidate();
+        }}
         onRevert={() =>
           window.confirm("Discard staged changes and restore the published version?") &&
           draft.revert()

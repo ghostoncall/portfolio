@@ -25,7 +25,7 @@ export function SaveBar({
   onRevert: () => void;
 }) {
   const statusText = React.useMemo(() => {
-    if (error) return "Error";
+    if (error) return error;
     if (saving) return "Saving…";
     if (lastSaved)
       return `Saved ${lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
@@ -70,7 +70,13 @@ export function SaveBar({
         </Button>
       </div>
 
-      <div className="text-xs text-muted-foreground" data-testid="cms-save-status">
+      <div
+        className={`max-w-[26rem] truncate text-right text-xs ${
+          error ? "text-destructive" : "text-muted-foreground"
+        }`}
+        data-testid="cms-save-status"
+        title={error ?? undefined}
+      >
         {statusText}
       </div>
     </div>

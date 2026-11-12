@@ -14,6 +14,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as OnlymeRouteImport } from './routes/onlyme'
 import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as VolunteeringRouteImport } from './routes/volunteering'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BlogSearchRouteImport } from './routes/blog.search'
@@ -29,6 +30,7 @@ import { Route as OnlymePagesRouteImport } from './routes/onlyme.pages'
 import { Route as OnlymeProjectsRouteImport } from './routes/onlyme.projects'
 import { Route as OnlymeSettingsRouteImport } from './routes/onlyme.settings'
 import { Route as OnlymeSkillsRouteImport } from './routes/onlyme.skills'
+import { Route as OnlymeVolunteeringRouteImport } from './routes/onlyme.volunteering'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as OnlymeBlogsSlugRouteImport } from './routes/onlyme.blogs.$slug'
@@ -59,6 +61,11 @@ const OnlymeRoute = OnlymeRouteImport.update({
 const SkillsRoute = SkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolunteeringRoute = VolunteeringRouteImport.update({
+  id: '/volunteering',
+  path: '/volunteering',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
@@ -136,6 +143,11 @@ const OnlymeSkillsRoute = OnlymeSkillsRouteImport.update({
   path: '/skills',
   getParentRoute: () => OnlymeRoute,
 } as any)
+const OnlymeVolunteeringRoute = OnlymeVolunteeringRouteImport.update({
+  id: '/volunteering',
+  path: '/volunteering',
+  getParentRoute: () => OnlymeRoute,
+} as any)
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
@@ -173,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/experience': typeof ExperienceRoute
   '/onlyme': typeof OnlymeRouteWithChildren
   '/skills': typeof SkillsRoute
+  '/volunteering': typeof VolunteeringRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/search': typeof BlogSearchRoute
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
@@ -186,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
   '/onlyme/settings': typeof OnlymeSettingsRoute
   '/onlyme/skills': typeof OnlymeSkillsRoute
+  '/onlyme/volunteering': typeof OnlymeVolunteeringRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/onlyme/': typeof OnlymeIndexRoute
@@ -200,6 +214,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/experience': typeof ExperienceRoute
   '/skills': typeof SkillsRoute
+  '/volunteering': typeof VolunteeringRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/search': typeof BlogSearchRoute
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
@@ -213,6 +228,7 @@ export interface FileRoutesByTo {
   '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
   '/onlyme/settings': typeof OnlymeSettingsRoute
   '/onlyme/skills': typeof OnlymeSkillsRoute
+  '/onlyme/volunteering': typeof OnlymeVolunteeringRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog': typeof BlogIndexRoute
   '/onlyme': typeof OnlymeIndexRoute
@@ -229,6 +245,7 @@ export interface FileRoutesById {
   '/experience': typeof ExperienceRoute
   '/onlyme': typeof OnlymeRouteWithChildren
   '/skills': typeof SkillsRoute
+  '/volunteering': typeof VolunteeringRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/search': typeof BlogSearchRoute
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
@@ -242,6 +259,7 @@ export interface FileRoutesById {
   '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
   '/onlyme/settings': typeof OnlymeSettingsRoute
   '/onlyme/skills': typeof OnlymeSkillsRoute
+  '/onlyme/volunteering': typeof OnlymeVolunteeringRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/onlyme/': typeof OnlymeIndexRoute
@@ -259,6 +277,7 @@ export interface FileRouteTypes {
     | '/experience'
     | '/onlyme'
     | '/skills'
+    | '/volunteering'
     | '/blog/$slug'
     | '/blog/search'
     | '/onlyme/blog-settings'
@@ -272,6 +291,7 @@ export interface FileRouteTypes {
     | '/onlyme/projects'
     | '/onlyme/settings'
     | '/onlyme/skills'
+    | '/onlyme/volunteering'
     | '/projects/$slug'
     | '/blog/'
     | '/onlyme/'
@@ -286,6 +306,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/experience'
     | '/skills'
+    | '/volunteering'
     | '/blog/$slug'
     | '/blog/search'
     | '/onlyme/blog-settings'
@@ -299,6 +320,7 @@ export interface FileRouteTypes {
     | '/onlyme/projects'
     | '/onlyme/settings'
     | '/onlyme/skills'
+    | '/onlyme/volunteering'
     | '/projects/$slug'
     | '/blog'
     | '/onlyme'
@@ -314,6 +336,7 @@ export interface FileRouteTypes {
     | '/experience'
     | '/onlyme'
     | '/skills'
+    | '/volunteering'
     | '/blog/$slug'
     | '/blog/search'
     | '/onlyme/blog-settings'
@@ -327,6 +350,7 @@ export interface FileRouteTypes {
     | '/onlyme/projects'
     | '/onlyme/settings'
     | '/onlyme/skills'
+    | '/onlyme/volunteering'
     | '/projects/$slug'
     | '/blog/'
     | '/onlyme/'
@@ -343,6 +367,7 @@ export interface RootRouteChildren {
   ExperienceRoute: typeof ExperienceRoute
   OnlymeRoute: typeof OnlymeRouteWithChildren
   SkillsRoute: typeof SkillsRoute
+  VolunteeringRoute: typeof VolunteeringRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BlogSearchRoute: typeof BlogSearchRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
@@ -385,6 +410,13 @@ declare module '@tanstack/react-router' {
       path: '/skills'
       fullPath: '/skills'
       preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/volunteering': {
+      id: '/volunteering'
+      path: '/volunteering'
+      fullPath: '/volunteering'
+      preLoaderRoute: typeof VolunteeringRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/': {
@@ -492,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnlymeSkillsRouteImport
       parentRoute: typeof OnlymeRoute
     }
+    '/onlyme/volunteering': {
+      id: '/onlyme/volunteering'
+      path: '/volunteering'
+      fullPath: '/onlyme/volunteering'
+      preLoaderRoute: typeof OnlymeVolunteeringRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
     '/projects/': {
       id: '/projects/'
       path: '/projects'
@@ -585,6 +624,7 @@ interface OnlymeRouteChildren {
   OnlymeProjectsRoute: typeof OnlymeProjectsRouteWithChildren
   OnlymeSettingsRoute: typeof OnlymeSettingsRoute
   OnlymeSkillsRoute: typeof OnlymeSkillsRoute
+  OnlymeVolunteeringRoute: typeof OnlymeVolunteeringRoute
   OnlymeIndexRoute: typeof OnlymeIndexRoute
   OnlymePreviewSlugRoute: typeof OnlymePreviewSlugRoute
 }
@@ -601,6 +641,7 @@ const OnlymeRouteChildren: OnlymeRouteChildren = {
   OnlymeProjectsRoute: OnlymeProjectsRouteWithChildren,
   OnlymeSettingsRoute: OnlymeSettingsRoute,
   OnlymeSkillsRoute: OnlymeSkillsRoute,
+  OnlymeVolunteeringRoute: OnlymeVolunteeringRoute,
   OnlymeIndexRoute: OnlymeIndexRoute,
   OnlymePreviewSlugRoute: OnlymePreviewSlugRoute,
 }
@@ -614,6 +655,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExperienceRoute: ExperienceRoute,
   OnlymeRoute: OnlymeRouteWithChildren,
   SkillsRoute: SkillsRoute,
+  VolunteeringRoute: VolunteeringRoute,
   BlogSlugRoute: BlogSlugRoute,
   BlogSearchRoute: BlogSearchRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
   createItem,
@@ -52,6 +52,7 @@ type Row = {
 
 function Projects() {
   const navigate = useNavigate();
+  const router = useRouter();
   const [items, setItems] = React.useState<Row[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [creating, setCreating] = React.useState(false);
@@ -94,6 +95,7 @@ function Projects() {
       await (publishItem as any)({ data: { table: "projects", slug } });
       toast.success(`Published "${slug}"`);
       await refresh();
+      await router.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? "Publish failed");
     }
@@ -104,6 +106,7 @@ function Projects() {
       await (revertItem as any)({ data: { table: "projects", slug } });
       toast.success(`Reverted "${slug}" to the published version`);
       await refresh();
+      await router.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? "Revert failed");
     }
@@ -119,6 +122,7 @@ function Projects() {
       });
       toast.success(`Marked "${row.slug}" as ${nextStatus}`);
       await refresh();
+      await router.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? "Could not change status");
     }
@@ -130,6 +134,7 @@ function Projects() {
       toast.success(`Deleted "${row.slug}" and cleaned its references`);
       setDeleteTarget(null);
       await refresh();
+      await router.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? "Delete failed");
     }
@@ -154,6 +159,7 @@ function Projects() {
     try {
       await (reorderProjects as any)({ data: { slugs: next.map((r) => r.slug) } });
       toast.success("Order saved");
+      await router.invalidate();
     } catch (err: any) {
       toast.error(err?.message ?? "Reorder failed");
       await refresh();

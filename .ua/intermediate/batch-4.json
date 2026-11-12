@@ -1,0 +1,602 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/components/admin/cms/DateField.tsx",
+      "type": "file",
+      "name": "DateField.tsx",
+      "filePath": "src/components/admin/cms/DateField.tsx",
+      "summary": "Admin CMS form control for date entry: an outline Button trigger showing the current YYYY-MM-DD value that opens a Popover-hosted Calendar picker, converting picked days to and from ISO date strings with date-fns parseISO/format.",
+      "tags": ["component", "form-control", "date-picker", "admin-cms", "popover"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/accordion.tsx",
+      "type": "file",
+      "name": "accordion.tsx",
+      "filePath": "src/components/ui/accordion.tsx",
+      "summary": "Radix-based accordion primitives (Accordion, AccordionItem, AccordionTrigger, AccordionContent) restyled with square corners, hairline borders, and a chevron indicator for the site's editorial design system.",
+      "tags": ["component", "ui-primitive", "radix", "accordion", "design-system"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/alert.tsx",
+      "type": "file",
+      "name": "alert.tsx",
+      "filePath": "src/components/ui/alert.tsx",
+      "summary": "Alert component family (Alert, AlertTitle, AlertDescription) with default and destructive variants defined via class-variance-authority, bordered with hairlines in the monochrome editorial palette.",
+      "tags": ["component", "ui-primitive", "alert", "variant-styling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/avatar.tsx",
+      "type": "file",
+      "name": "avatar.tsx",
+      "filePath": "src/components/ui/avatar.tsx",
+      "summary": "Radix avatar primitives (Avatar, AvatarImage, AvatarFallback) for rendering profile imagery with a styled placeholder fallback in the editorial design system.",
+      "tags": ["component", "ui-primitive", "radix", "avatar"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/breadcrumb.tsx",
+      "type": "file",
+      "name": "breadcrumb.tsx",
+      "filePath": "src/components/ui/breadcrumb.tsx",
+      "summary": "Breadcrumb navigation primitives (Breadcrumb, List, Item, Link, Page, Separator, Ellipsis) built on Radix Slot for as-child link composition, with chevron separators and an ellipsis indicator for truncated trails.",
+      "tags": ["component", "ui-primitive", "navigation", "breadcrumb", "radix"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/calendar.tsx",
+      "type": "file",
+      "name": "calendar.tsx",
+      "filePath": "src/components/ui/calendar.tsx",
+      "summary": "Calendar component wrapping react-day-picker, remapping every sub-element's classes onto the editorial styles and reusing the shared Button (buttonVariants) for day cells and navigation through the CalendarDayButton override.",
+      "tags": ["component", "ui-primitive", "calendar", "date-picker", "react-day-picker"],
+      "complexity": "moderate",
+      "languageNotes": "react-day-picker styling is applied entirely by merging its classNames prop through cn() with Tailwind utilities, and day cells delegate to the shared buttonVariants factory from button.tsx."
+    },
+    {
+      "id": "file:src/components/ui/card.tsx",
+      "type": "file",
+      "name": "card.tsx",
+      "filePath": "src/components/ui/card.tsx",
+      "summary": "Card layout primitives (Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent) providing the square-cornered, hairline-bordered containers used across the site's editorial layouts.",
+      "tags": ["component", "ui-primitive", "layout", "card"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/chart.tsx",
+      "type": "file",
+      "name": "chart.tsx",
+      "filePath": "src/components/ui/chart.tsx",
+      "summary": "Recharts wrapper layer exporting ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, and ChartStyle; provides a React-context-based chart config with CSS-variable theming and payload-config helpers for series labels, icons, and colors.",
+      "tags": ["component", "ui-primitive", "chart", "recharts", "data-visualization"],
+      "complexity": "complex",
+      "languageNotes": "Themes charts by injecting CSS custom properties (--color-*) scoped to a data-chart attribute id, supporting light and dark palettes from a single ChartConfig object."
+    },
+    {
+      "id": "file:src/components/ui/command.tsx",
+      "type": "file",
+      "name": "command.tsx",
+      "filePath": "src/components/ui/command.tsx",
+      "summary": "Command palette primitives built on cmdk: Command, CommandDialog (a Dialog-wrapped palette), Input, List, Empty, Group, Item, Separator, and Shortcut, restyled for the monochrome editorial theme.",
+      "tags": ["component", "ui-primitive", "command-palette", "cmdk", "search"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/context-menu.tsx",
+      "type": "file",
+      "name": "context-menu.tsx",
+      "filePath": "src/components/ui/context-menu.tsx",
+      "summary": "Radix context menu with fifteen exported parts — menu, trigger, content, items, checkbox and radio items, labels, groups, submenus, separators, and shortcuts — restyled with square corners and hairline dividers.",
+      "tags": ["component", "ui-primitive", "radix", "context-menu", "menu"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/dialog.tsx",
+      "type": "file",
+      "name": "dialog.tsx",
+      "filePath": "src/components/ui/dialog.tsx",
+      "summary": "Radix dialog primitives (Dialog, Portal, Overlay, Trigger, Close, Content, Header, Footer, Title, Description) with a built-in close button and subtle fade/slide animations adapted to the editorial design.",
+      "tags": ["component", "ui-primitive", "radix", "dialog", "modal"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/drawer.tsx",
+      "type": "file",
+      "name": "drawer.tsx",
+      "filePath": "src/components/ui/drawer.tsx",
+      "summary": "Drawer component family built on Vaul for mobile-style bottom sheets: Drawer (with optional background scaling), Portal, Overlay, Trigger, Close, Content, Header, Footer, Title, and Description.",
+      "tags": ["component", "ui-primitive", "drawer", "vaul", "overlay"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/dropdown-menu.tsx",
+      "type": "file",
+      "name": "dropdown-menu.tsx",
+      "filePath": "src/components/ui/dropdown-menu.tsx",
+      "summary": "Radix dropdown menu with fifteen exported parts covering triggers, content, items, checkbox/radio items, labels, groups, submenus, separators, and shortcuts, restyled for the editorial design system.",
+      "tags": ["component", "ui-primitive", "radix", "dropdown", "menu"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/form.tsx",
+      "type": "file",
+      "name": "form.tsx",
+      "filePath": "src/components/ui/form.tsx",
+      "summary": "react-hook-form integration layer exporting Form, FormField, useFormField, FormItem, FormLabel, FormControl, FormDescription, and FormMessage; wires field state, error messages, and aria attributes through nested React contexts and composes the shared Label primitive.",
+      "tags": ["component", "form", "react-hook-form", "context", "validation"],
+      "complexity": "moderate",
+      "languageNotes": "Combines react-hook-form's useFormContext with a custom FieldContext so deeply nested controls can resolve their field's name, id, and error state without prop drilling."
+    },
+    {
+      "id": "file:src/components/ui/hover-card.tsx",
+      "type": "file",
+      "name": "hover-card.tsx",
+      "filePath": "src/components/ui/hover-card.tsx",
+      "summary": "Radix hover card primitives (HoverCard, HoverCardTrigger, HoverCardContent) for hover-triggered preview popovers styled with hairline borders.",
+      "tags": ["component", "ui-primitive", "radix", "hover-card", "popover"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/input-otp.tsx",
+      "type": "file",
+      "name": "input-otp.tsx",
+      "filePath": "src/components/ui/input-otp.tsx",
+      "summary": "One-time-code input built on input-otp: InputOTP, InputOTPGroup, InputOTPSlot (with active caret and separator indication), and InputOTPSeparator for grouped verification codes.",
+      "tags": ["component", "ui-primitive", "otp", "input", "verification"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/ui/label.tsx",
+      "type": "file",
+      "name": "label.tsx",
+      "filePath": "src/components/ui/label.tsx",
+      "summary": "Radix Label primitive styled for form field captions in the editorial design system; reused as the base of form.tsx's FormLabel.",
+      "tags": ["component", "ui-primitive", "radix", "label", "form"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ui/menubar.tsx",
+      "type": "file",
+      "name": "menubar.tsx",
+      "filePath": "src/components/ui/menubar.tsx",
+      "summary": "Radix menubar with sixteen exported parts for a horizontal menu bar — menus, triggers, content, items, checkbox/radio items, submenus, groups, separators, and shortcuts — restyled square and monochrome.",
+      "tags": ["component", "ui-primitive", "radix", "menubar", "menu"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/components/ui/navigation-menu.tsx",
+      "type": "file",
+      "name": "navigation-menu.tsx",
+      "filePath": "src/components/ui/navigation-menu.tsx",
+      "summary": "Radix navigation menu primitives (NavigationMenu, List, Item, Content, Trigger, Link, Indicator, Viewport) plus the navigationMenuTriggerStyle cva factory, used for the site's header navigation.",
+      "tags": ["component", "ui-primitive", "radix", "navigation", "header"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/admin/cms/DateField.tsx:DateField",
+      "type": "function",
+      "name": "DateField",
+      "filePath": "src/components/admin/cms/DateField.tsx",
+      "lineRange": [14, 53],
+      "summary": "Controlled date field for CMS forms: validates the YYYY-MM-DD value with a regex, parses it to a Date via parseISO, opens a Popover with a Calendar picker, and emits a formatted yyyy-MM-dd string back through onChange when a day is selected.",
+      "tags": ["component", "form-control", "date-picker", "controlled-input"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "function",
+      "name": "BreadcrumbSeparator",
+      "filePath": "src/components/ui/breadcrumb.tsx",
+      "lineRange": [68, 77],
+      "summary": "Renders the chevron-right separator between breadcrumb items, merging slot props with Tailwind classes.",
+      "tags": ["component", "breadcrumb", "separator", "ui-primitive"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "function",
+      "name": "BreadcrumbEllipsis",
+      "filePath": "src/components/ui/breadcrumb.tsx",
+      "lineRange": [80, 90],
+      "summary": "Renders the more-horizontal ellipsis indicator shown when a breadcrumb trail is collapsed, with an aria-hidden decorative icon.",
+      "tags": ["component", "breadcrumb", "truncation", "ui-primitive"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/calendar.tsx:Calendar",
+      "type": "function",
+      "name": "Calendar",
+      "filePath": "src/components/ui/calendar.tsx",
+      "lineRange": [10, 137],
+      "summary": "Wraps react-day-picker's DayPicker and remaps every calendar sub-element (months, weekdays, days, captions, selections) onto the editorial styles, formatting captions per locale and composing the shared Button variants for navigation controls.",
+      "tags": ["component", "calendar", "date-picker", "class-merging"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/components/ui/calendar.tsx:CalendarDayButton",
+      "type": "function",
+      "name": "CalendarDayButton",
+      "filePath": "src/components/ui/calendar.tsx",
+      "lineRange": [139, 175],
+      "summary": "Day-cell button override that merges day-picker default classes with buttonVariants, auto-focuses the selected cell via a ref and effect for keyboard navigation, and derives aria labels from the day's date.",
+      "tags": ["component", "calendar", "accessibility", "focus-management"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/chart.tsx:ChartStyle",
+      "type": "function",
+      "name": "ChartStyle",
+      "filePath": "src/components/ui/chart.tsx",
+      "lineRange": [64, 91],
+      "summary": "Injects a style tag of CSS custom properties (--color-*) scoped to a data-chart id, deriving colors from each ChartConfig entry for both light and dark themes; returns null when no colors are configured.",
+      "tags": ["component", "chart", "theming", "css-variables"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/chart.tsx:getPayloadConfigFromPayload",
+      "type": "function",
+      "name": "getPayloadConfigFromPayload",
+      "filePath": "src/components/ui/chart.tsx",
+      "lineRange": [299, 322],
+      "summary": "Helper resolving a chart series' config (label, icon, color) from a Recharts payload object, unwrapping nested payload types to locate the matching config key.",
+      "tags": ["utility", "chart", "config-resolution"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/ui/command.tsx:CommandDialog",
+      "type": "function",
+      "name": "CommandDialog",
+      "filePath": "src/components/ui/command.tsx",
+      "lineRange": [26, 36],
+      "summary": "Command palette modal: nests cmdk's Command inside a DialogContent shell with a search header and scrollable list styling.",
+      "tags": ["component", "command-palette", "dialog", "cmdk"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/form.tsx:FormField",
+      "type": "function",
+      "name": "FormField",
+      "filePath": "src/components/ui/form.tsx",
+      "lineRange": [27, 38],
+      "summary": "Thin wrapper around react-hook-form's Controller that clears the field's error on change and supplies FieldContext so nested controls can identify their field.",
+      "tags": ["component", "form", "react-hook-form", "context-provider"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ui/form.tsx:useFormField",
+      "type": "function",
+      "name": "useFormField",
+      "filePath": "src/components/ui/form.tsx",
+      "lineRange": [40, 65],
+      "summary": "Hook that combines react-hook-form's form context with the surrounding FieldContext to expose the field's name, generated id, aria-invalid flag, and error message state to FormItem, FormLabel, FormControl, and FormMessage.",
+      "tags": ["hook", "form-state", "react-hook-form", "accessibility"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "file:src/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "file:src/components/ui/calendar.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "file:src/components/ui/input.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "file:src/components/ui/popover.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/accordion.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/alert.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/avatar.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/breadcrumb.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/calendar.tsx",
+      "target": "file:src/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/calendar.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/card.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/chart.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/command.tsx",
+      "target": "file:src/components/ui/dialog.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/command.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/context-menu.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/dialog.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/drawer.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/dropdown-menu.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/form.tsx",
+      "target": "file:src/components/ui/label.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/form.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/hover-card.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/input-otp.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/label.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/menubar.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/ui/navigation-menu.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "function:src/components/admin/cms/DateField.tsx:DateField",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/breadcrumb.tsx",
+      "target": "function:src/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/breadcrumb.tsx",
+      "target": "function:src/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/calendar.tsx",
+      "target": "function:src/components/ui/calendar.tsx:Calendar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/calendar.tsx",
+      "target": "function:src/components/ui/calendar.tsx:CalendarDayButton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/chart.tsx",
+      "target": "function:src/components/ui/chart.tsx:ChartStyle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/chart.tsx",
+      "target": "function:src/components/ui/chart.tsx:getPayloadConfigFromPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/command.tsx",
+      "target": "function:src/components/ui/command.tsx:CommandDialog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/form.tsx",
+      "target": "function:src/components/ui/form.tsx:FormField",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/ui/form.tsx",
+      "target": "function:src/components/ui/form.tsx:useFormField",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/admin/cms/DateField.tsx",
+      "target": "function:src/components/admin/cms/DateField.tsx:DateField",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/breadcrumb.tsx",
+      "target": "function:src/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/breadcrumb.tsx",
+      "target": "function:src/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/calendar.tsx",
+      "target": "function:src/components/ui/calendar.tsx:Calendar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/calendar.tsx",
+      "target": "function:src/components/ui/calendar.tsx:CalendarDayButton",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/chart.tsx",
+      "target": "function:src/components/ui/chart.tsx:ChartStyle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/command.tsx",
+      "target": "function:src/components/ui/command.tsx:CommandDialog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/form.tsx",
+      "target": "function:src/components/ui/form.tsx:FormField",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/ui/form.tsx",
+      "target": "function:src/components/ui/form.tsx:useFormField",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/ui/calendar.tsx:Calendar",
+      "target": "function:src/components/ui/button.tsx:buttonVariants",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

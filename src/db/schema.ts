@@ -70,7 +70,7 @@ export type LegacyExperienceEntry = {
 export const pages = pgTable("pages", {
   slug: text("slug").primaryKey(), // "overview" | "skills" | "experience" | "certificates"
   title: text("title").notNull(),
-  kind: text("kind", { enum: ["blocks", "skills", "experience", "certificates"] })
+  kind: text("kind", { enum: ["blocks", "skills", "experience", "certificates", "volunteering"] })
     .$type<PageKind>()
     .notNull(),
   published: jsonb("published").$type<PageContent>().notNull(),

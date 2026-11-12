@@ -75,6 +75,7 @@ function OnlymeLayout() {
     { to: "/onlyme/skills", label: "Skills", icon: "🧩" },
     { to: "/onlyme/certificates", label: "Certificates", icon: "🎓" },
     { to: "/onlyme/experience", label: "Experience", icon: "🛠️" },
+    { to: "/onlyme/volunteering", label: "Volunteering", icon: "🤝" },
     { to: "/onlyme/blogs", label: "Blogs", icon: "📝" },
     { to: "/onlyme/media", label: "Media", icon: "🖼️" },
     { to: "/onlyme/export", label: "Backup", icon: "💾" },
