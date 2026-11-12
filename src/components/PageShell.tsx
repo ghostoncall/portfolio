@@ -16,6 +16,7 @@ const MOBILE_NAV_ITEMS: Array<{
   activeWhen?: (pathname: string) => boolean;
 }> = [
   { label: "Overview", href: "/" },
+  { label: "Education", href: "/education" },
   { label: "Projects", href: "/projects", children: [] },
   { label: "Blog", href: "/blog" },
   {
@@ -171,7 +172,7 @@ export function SiteHeader({ site }: { site: SiteIdentity }) {
                       <Link
                         to={baseHref}
                         onClick={closeMenu}
-                        className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
+                        className={`flex items-center gap-3 px-3 py-2.5 whitespace-nowrap font-sans font-bold leading-tight tracking-tight text-[clamp(0.95rem,1rem+0.5vw,1.25rem)] transition-colors ${
                           active
                             ? "text-accent-foreground"
                             : "text-foreground hover:text-accent-foreground"
@@ -198,7 +199,7 @@ export function SiteHeader({ site }: { site: SiteIdentity }) {
                                 onClick={closeMenu}
                                 className={`flex items-center gap-3 px-3 py-2 text-sm transition-colors ${
                                   childActive
-                                    ? "text-accent-foreground underline underline-offset-4"
+                                    ? "text-foreground underline underline-offset-4"
                                     : "text-muted-foreground hover:text-foreground"
                                 }`}
                               >
