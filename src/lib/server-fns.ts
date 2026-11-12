@@ -9,6 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { getAuthUser, getSupabaseServer } from "@/lib/supabase.server";
+import { getEnv } from "@/lib/runtime-config";
 import { createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import {
@@ -29,8 +30,10 @@ import type {
   Project,
   SiteIdentity,
   SkillsPageContent,
+  AwardPageContent,
 } from "@/db/schema";
 import { assertValidContent } from "@/lib/cms-validation";
+import { contactNotificationEmail } from "@/lib/email-templates";
 import {
   normalizeCertificatesPage,
   normalizeExperiencePage,
@@ -227,7 +230,45 @@ export const createItem = createServerFn({ method: "POST", strict: false }).hand
         blocks: [],
       };
     } else if (data.table === "pages") {
-      doc = { kind: "blocks", blocks: [] };
+      const kind = String(data.kind ?? "blocks") as PageKind;
+      if (
+        ![
+          "blocks",
+          "skills",
+          "experience",
+          "certificates",
+          "volunteering",
+          "education",
+          "awards",
+        ].includes(kind)
+      ) {
+        const err: any = new Error(`Unsupported page kind "${kind}"`);
+        err.statusCode = 400;
+        throw err;
+      }
+      const empty: PageContent =
+        kind === "skills"
+          ? { kind: "skills", categories: [], skills: [] }
+          : kind === "certificates"
+            ? { kind: "certificates", certificates: [] }
+            : kind === "experience"
+              ? { kind: "experience", entries: [] }
+              : kind === "volunteering"
+                ? {
+                    kind: "volunteering",
+                    introduction: {},
+                    entries: [],
+                    whyVolunteering: {},
+                    lookingAhead: {},
+                    interests: [],
+                    cta: {},
+                  }
+                : kind === "education"
+                  ? { kind: "education", entries: [] }
+                  : kind === "awards"
+                    ? { kind: "awards", entries: [] }
+                    : { kind: "blocks", blocks: [] };
+      doc = empty;
     } else {
       const err: any = new Error("Unsupported table for creation");
       err.statusCode = 400;
@@ -592,16 +633,39 @@ export const getPublishedSkillsBundle = createServerFn({ method: "GET", strict: 
     const db = getDb();
     const skillsRow = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
     const certsRow = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
+    const awardsRow = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
     const skills = skillsRow[0]
       ? normalizePageContent(skillsRow[0].published.kind, skillsRow[0].published)
       : { kind: "skills", categories: [], skills: [] };
     const certificates = certsRow[0]
       ? normalizePageContent(certsRow[0].published.kind, certsRow[0].published)
       : { kind: "certificates", certificates: [] };
+    const awards = awardsRow[0]
+      ? normalizePageContent(awardsRow[0].published.kind, awardsRow[0].published)
+      : { kind: "awards", entries: [] };
     return {
       skills: skills as SkillsPageContent,
       certificates: certificates as CertificatesPageContent,
+      awards: awards as AwardPageContent,
     };
+  },
+);
+
+export const getPublishedEducation = createServerFn({ method: "GET", strict: false }).handler(
+  async () => {
+    const db = getDb();
+    const row = await db.select().from(pages).where(eq(pages.slug, "education")).limit(1);
+    if (!row[0]) return { kind: "education", entries: [] };
+    return normalizePageContent(row[0].published.kind, row[0].published);
+  },
+);
+
+export const getPublishedAwards = createServerFn({ method: "GET", strict: false }).handler(
+  async () => {
+    const db = getDb();
+    const row = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
+    if (!row[0]) return { kind: "awards", entries: [] };
+    return normalizePageContent(row[0].published.kind, row[0].published);
   },
 );
 
@@ -1310,7 +1374,7 @@ function getClientIp(request?: Request): string {
 
 /** Server-side Cloudflare Turnstile check. Skipped when no secret is configured. */
 async function verifyTurnstile(token: string, ip: string): Promise<void> {
-  const secret = process.env["TURNSTILE_SECRET_KEY"];
+  const secret = getEnv("TURNSTILE_SECRET_KEY");
   if (!secret) return; // not configured yet — don't block real visitors
   if (!token) throw new Error("Please complete the verification challenge.");
 
@@ -1448,12 +1512,12 @@ export const sendContactEmail = createServerFn({ method: "POST", strict: false }
     });
 
     // 8. Notify the owner. Failures are recorded, not thrown.
-    const smtpHost = process.env["SMTP_HOST"];
-    const smtpPort = Number(process.env["SMTP_PORT"] || 587);
-    const smtpUser = process.env["SMTP_USER"];
-    const smtpPass = process.env["SMTP_PASS"];
-    const smtpFrom = process.env["SMTP_FROM"];
-    const smtpTo = process.env["SMTP_TO"];
+    const smtpHost = getEnv("SMTP_HOST");
+    const smtpPort = Number(getEnv("SMTP_PORT") || 587);
+    const smtpUser = getEnv("SMTP_USER");
+    const smtpPass = getEnv("SMTP_PASS");
+    const smtpFrom = getEnv("SMTP_FROM");
+    const smtpTo = getEnv("SMTP_TO");
 
     let deliveryStatus = "skipped";
     if (smtpHost && smtpUser && smtpPass && smtpFrom && smtpTo) {
@@ -1467,93 +1531,31 @@ export const sendContactEmail = createServerFn({ method: "POST", strict: false }
 
         const safeName = escapeHtml(name);
         const safeEmail = escapeHtml(email);
-        const safeSubject = escapeHtml(subjectText);
-        const safeCustom = customSubject ? escapeHtml(customSubject) : "";
-        const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+
+        // Site identity for email branding (matches the website header).
+        const siteRow = await db.select().from(settings).where(eq(settings.id, "site")).limit(1);
+        const site = siteRow[0]?.published ?? {};
+        const siteName = (site as any)?.name ?? "Portfolio";
+        const siteEdition = (site as any)?.edition ?? "2026";
+
+        const { html, text, subject } = contactNotificationEmail({
+          name: safeName,
+          email: safeEmail,
+          subject: subjectText,
+          customSubject,
+          message,
+          siteName,
+          siteEdition,
+        });
 
         await transporter.sendMail({
           from: `Portfolio Contact <${smtpFrom}>`,
           to: smtpTo,
           // Replies go to the visitor, never "From" (protects the verified sender).
           replyTo: `${name.replace(/[\r\n"]/g, " ")} <${email}>`,
-          subject: `[Portfolio Contact] ${subjectText.slice(0, 150)} — ${name.slice(0, 60)}`,
-          text: [
-            "New contact form submission",
-            "",
-            `Name: ${name}`,
-            `Email: ${email}`,
-            `Subject: ${subjectText}`,
-            ...(customSubject ? [`Custom subject: ${customSubject}`] : []),
-            "",
-            "Message:",
-            message,
-          ].join("\n"),
-          html: `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>New Contact Form Submission</title>
-            </head>
-            <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background-color: #f1f5f9; padding: 24px 12px;">
-                <tr>
-                  <td align="center">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 28px;">
-                      <tr>
-                        <td align="center" style="padding-bottom: 20px;">
-                          <h1 style="color: #111827; font-size: 22px; font-weight: 600; margin: 0;">New contact form submission</h1>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
-                          <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
-                            <tr>
-                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Name</td>
-                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">${safeName}</td>
-                            </tr>
-                            <tr>
-                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Email</td>
-                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">
-                                <a href="mailto:${safeEmail}" style="color: #2563eb; text-decoration: none;">${safeEmail}</a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Subject</td>
-                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">${safeSubject}</td>
-                            </tr>
-                            ${
-                              safeCustom
-                                ? `<tr>
-                              <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Custom subject</td>
-                              <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1e293b;">${safeCustom}</td>
-                            </tr>`
-                                : ""
-                            }
-                          </table>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding-top: 20px;">
-                          <div style="color: #64748b; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Message</div>
-                          <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; font-size: 15px; line-height: 1.7; color: #1e293b;">
-                            ${safeMessage}
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding-top: 22px; text-align: center;">
-                          <p style="color: #94a3b8; font-size: 12px; margin: 0;">Sent from your portfolio contact form — reply to this email to answer ${safeName}.</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </body>
-            </html>
-          `,
+          subject,
+          text,
+          html,
         });
 
         deliveryStatus = "sent";

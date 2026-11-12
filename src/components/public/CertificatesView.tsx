@@ -131,7 +131,7 @@ export function CertificatesView({ content }: { content: any }) {
             {/* Expanded media viewer */}
             {expandedOpen && expandedSrc && (
               <Dialog open={expandedOpen} onOpenChange={setExpandedOpen}>
-                <DialogContent className="w-[95vh] max-w-[95vh] h-[90vh] max-h-[90vh] p-0 bg-black">
+                <DialogContent className="w-full max-w-[calc(100vw-2rem)] p-0 bg-black">
                   <DialogTitle className="text-white mb-4">
                     {expandedTitle || "Certificate"}
                   </DialogTitle>
@@ -204,7 +204,7 @@ export function CertificatesView({ content }: { content: any }) {
                     Open PDF
                   </button>
                 </DialogTrigger>
-                <DialogContent className="w-[90vh] max-w-[90vh] h-[80vh]">
+                <DialogContent className="w-full max-w-[calc(100vw-2rem)]">
                   <DialogTitle>{cert.title}</DialogTitle>
                   <DialogDescription>
                     <iframe src={previewSrc} title={cert.title} className="w-full h-full" />

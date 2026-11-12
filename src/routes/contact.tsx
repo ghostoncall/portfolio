@@ -33,7 +33,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 const field =
-  "w-full border border-input bg-background px-3 py-2 text-foreground outline-none focus:border-ring aria-[invalid=true]:border-destructive";
+  "w-full border border-input bg-background px-3 py-2.5 text-foreground outline-none focus:border-ring aria-[invalid=true]:border-destructive";
 
 const SUBJECT_OPTIONS = [
   { value: "general", label: "General Inquiry" },
@@ -365,7 +365,7 @@ function Contact() {
             type="submit"
             disabled={sending}
             aria-busy={sending}
-            className="label-caps bg-primary px-6 py-3 text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="label-caps bg-primary px-6 py-3 min-h-[44px] text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {sending ? "Sending…" : "Send"}
           </button>

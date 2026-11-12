@@ -51,6 +51,8 @@ export type SiteIdentity = {
   edition: string;
   email: string;
   socials: { label: string; href: string }[];
+  /** When false, hides the home-page nav brand text ("engineerthisaryan"). */
+  showHomeBrand?: boolean;
 };
 
 /** Legacy skill group shape (pre-CMS). Kept so old documents still typecheck. */
@@ -70,7 +72,9 @@ export type LegacyExperienceEntry = {
 export const pages = pgTable("pages", {
   slug: text("slug").primaryKey(), // "overview" | "skills" | "experience" | "certificates"
   title: text("title").notNull(),
-  kind: text("kind", { enum: ["blocks", "skills", "experience", "certificates", "volunteering"] })
+  kind: text("kind", {
+    enum: ["blocks", "skills", "experience", "certificates", "volunteering", "education", "awards"],
+  })
     .$type<PageKind>()
     .notNull(),
   published: jsonb("published").$type<PageContent>().notNull(),
@@ -217,6 +221,10 @@ export type {
   SkillsPageContent,
   CertificatesPageContent,
   ExperiencePageContent,
+  EducationEntry,
+  EducationPageContent,
+  Award,
+  AwardPageContent,
   PageContent,
   PageKind,
 } from "@/content/site";

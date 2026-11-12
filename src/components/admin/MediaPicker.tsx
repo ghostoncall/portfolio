@@ -119,11 +119,18 @@ export function MediaPicker({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div
+      data-testid="media-picker"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    >
       <div className="flex max-h-[85vh] w-full max-w-4xl flex-col bg-background shadow-xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h3 className="text-base font-medium text-foreground">{title}</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onClose}
+            aria-label="Close media picker"
+            className="text-muted-foreground hover:text-foreground"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -143,6 +150,7 @@ export function MediaPicker({
             type="file"
             accept={accept === "image" ? "image/*" : undefined}
             className="hidden"
+            data-testid="media-file-input"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) void handleUpload(file);
@@ -151,6 +159,7 @@ export function MediaPicker({
           />
           <button
             type="button"
+            data-testid="media-upload-trigger"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
             className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
@@ -162,7 +171,12 @@ export function MediaPicker({
         </div>
 
         {error && (
-          <p className="border-b border-border px-5 py-2 text-sm text-destructive">{error}</p>
+          <p
+            data-testid="media-error"
+            className="border-b border-border px-5 py-2 text-sm text-destructive"
+          >
+            {error}
+          </p>
         )}
         {uploading && (
           <div className="h-1 w-full bg-muted">
@@ -225,11 +239,16 @@ export function MediaItemFields({
   const [open, setOpen] = useState(false);
   const item = value ?? {};
   return (
-    <div className="space-y-2 border border-border p-3">
+    <div
+      className="space-y-2 border border-border p-3"
+      data-testid="media-item-fields"
+      data-label={label}
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">{label}</span>
         <button
           type="button"
+          data-testid="media-pick"
           onClick={() => setOpen(true)}
           className="text-xs text-link hover:underline"
         >
@@ -238,7 +257,12 @@ export function MediaItemFields({
       </div>
       {item.src && (
         <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-          <img src={item.src} alt={item.alt ?? ""} className="h-full w-full object-cover" />
+          <img
+            src={item.src}
+            alt={item.alt ?? ""}
+            data-testid="media-preview"
+            className="h-full w-full object-cover"
+          />
         </div>
       )}
       <input
@@ -262,6 +286,7 @@ export function MediaItemFields({
       {item.src && (
         <button
           type="button"
+          data-testid="media-remove"
           onClick={() => onChange({ ...item, src: "" })}
           className="text-xs text-destructive hover:underline"
         >

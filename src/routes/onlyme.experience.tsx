@@ -216,6 +216,7 @@ function ExperienceAdmin() {
         variant="ghost"
         size="sm"
         className="h-7 px-2 text-xs"
+        data-testid="experience-edit"
         onClick={() => {
           setEditingId(e.id);
           setEditingDraft({ ...e });
@@ -242,6 +243,7 @@ function ExperienceAdmin() {
         variant="ghost"
         size="sm"
         className="h-7 px-2 text-xs text-destructive"
+        data-testid="experience-delete"
         onClick={() => setDeleteTarget(e)}
       >
         Del.
@@ -340,6 +342,18 @@ function ExperienceAdmin() {
         </Field>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
+        <Field label="Period (display label)">
+          <InputField
+            value={editingDraft?.period ?? ""}
+            placeholder="e.g. 2022–2024"
+            data-testid="experience-period"
+            onChange={(e) =>
+              setEditingDraft((d) => (d ? withKey(d, "period", e.target.value) : d))
+            }
+          />
+        </Field>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
         <DateField
           label="Start date"
           value={editingDraft?.startDate}
@@ -383,6 +397,7 @@ function ExperienceAdmin() {
       <Field label="Overview">
         <textarea
           rows={3}
+          data-testid="experience-overview-input"
           className="w-full border border-input bg-background px-3 py-2 text-foreground outline-none focus:border-ring text-sm"
           value={editingDraft?.overview ?? ""}
           onChange={(e) => setEditingDraft((d) => (d ? { ...d, overview: e.target.value } : d))}

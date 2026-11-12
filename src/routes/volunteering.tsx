@@ -282,21 +282,30 @@ function VolunteeringPage() {
 
       {/* Read more modal */}
       <Dialog open={modalEntry !== null} onOpenChange={(o) => !o && setModalEntry(null)}>
-        <DialogContent className="max-w-3xl p-0">
+        <DialogContent
+          data-testid="volunteering-dialog"
+          className="w-[calc(100%-2rem)] max-w-3xl p-0"
+        >
           {modalEntry && (
-            <>
-              <DialogHeader>
+            <div className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden">
+              <DialogHeader className="shrink-0 border-b border-border px-6 pb-4 pr-14 pt-6">
                 <DialogTitle>{modalEntry.title}</DialogTitle>
                 <DialogDescription>
                   {modalEntry.organisation} · {modalEntry.date} · {modalEntry.location}
                 </DialogDescription>
               </DialogHeader>
-              {modalEntry.media?.length && (
-                <figure className="my-6">
-                  <Media items={modalEntry.media.filter((m: any) => m.src)} ratio="16/9" />
-                </figure>
-              )}
-              <div className="p-6 space-y-4 font-serif text-foreground">
+              <div
+                data-testid="volunteering-dialog-body"
+                data-lenis-prevent
+                tabIndex={0}
+                aria-label="Volunteering entry details"
+                className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-6 font-serif text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {modalEntry.media?.length && (
+                  <figure className="mb-6">
+                    <Media items={modalEntry.media.filter((m: any) => m.src)} ratio="16/9" />
+                  </figure>
+                )}
                 {modalEntry.shortDescription && (
                   <p className="text-lg italic">{modalEntry.shortDescription}</p>
                 )}
@@ -353,10 +362,12 @@ function VolunteeringPage() {
                   </>
                 )}
               </div>
-              <DialogFooter>
-                <Button onClick={() => setModalEntry(null)}>Close</Button>
+              <DialogFooter className="shrink-0 border-t border-border px-6 py-4">
+                <Button data-testid="volunteering-dialog-close" onClick={() => setModalEntry(null)}>
+                  Close
+                </Button>
               </DialogFooter>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

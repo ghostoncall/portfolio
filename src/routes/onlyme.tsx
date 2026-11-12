@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { getAdminUser, getSiteIdentity } from "@/lib/server-fns";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
@@ -31,6 +31,10 @@ function OnlymeLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { site } = Route.useLoaderData() as { site: any };
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  // Mobile-only overlay drawer state (desktop uses sidebarCollapsed instead).
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const htmlRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -40,6 +44,41 @@ function OnlymeLayout() {
       // Ignore storage errors
     }
   }, []);
+
+  // Lock background scroll while the mobile drawer is open.
+  useEffect(() => {
+    const html = document.documentElement;
+    htmlRef.current = html;
+    if (sidebarOpen) {
+      html.style.overflow = "hidden";
+      html.style.touchAction = "none";
+    } else {
+      html.style.overflow = "";
+      html.style.touchAction = "";
+    }
+    return () => {
+      if (!sidebarOpen) {
+        html.style.overflow = "";
+        html.style.touchAction = "";
+      }
+    };
+  }, [sidebarOpen]);
+
+  const handleKeydown = useCallback(
+    (event: KeyboardEvent) => {
+      if (sidebarOpen && event.key === "Escape") {
+        setSidebarOpen(false);
+      }
+    },
+    [sidebarOpen],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeydown);
+    return () => document.removeEventListener("keydown", handleKeydown);
+  }, [sidebarOpen, handleKeydown]);
+
+  const closeDrawer = () => setSidebarOpen(false);
 
   if (pathname === "/onlyme/login") {
     return <Outlet />;
@@ -83,22 +122,45 @@ function OnlymeLayout() {
 
   return (
     <div className="flex min-h-screen bg-background">
+      {/* Mobile drawer backdrop — closes on tap. */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+          onClick={closeDrawer}
+          aria-hidden="true"
+        />
+      )}
       <aside
+        ref={sidebarRef}
         className={`transition-all duration-300 ${
-          sidebarCollapsed ? "w-16 md:w-16" : "hidden w-72 md:flex"
-        } flex-col bg-muted/50 md:flex`}
+          sidebarCollapsed ? "w-16 md:w-16" : "w-72"
+        } flex-col bg-muted/50 ${sidebarOpen ? "fixed inset-y-0 left-0 z-50" : "hidden md:flex"}`}
       >
         <div className="flex-1 p-3 space-y-1">
+          {sidebarOpen && (
+            <div className="flex items-center justify-between px-2 py-2">
+              <span className="sr-only">Navigation</span>
+              <button
+                type="button"
+                aria-label="Close navigation"
+                className="p-2 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                onClick={closeDrawer}
+              >
+                <X className="h-5 w-5 shrink-0" />
+              </button>
+            </div>
+          )}
           <button
             type="button"
             onClick={toggleSidebar}
-            className="flex items-center justify-between px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+            className="flex items-center justify-between px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors min-h-[44px]"
             title="Toggle sidebar"
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {sidebarCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 shrink-0" />
             ) : (
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 shrink-0" />
             )}
           </button>
           <nav className="mt-2 space-y-1">
@@ -108,7 +170,8 @@ function OnlymeLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${
+                  onClick={closeDrawer}
+                  className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors min-h-[44px] ${
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-accent"
@@ -116,11 +179,11 @@ function OnlymeLayout() {
                 >
                   {!sidebarCollapsed && (
                     <>
-                      <span className="text-xl">{item.icon}</span>
+                      <span className="text-xl shrink-0">{item.icon}</span>
                       <span>{item.label}</span>
                     </>
                   )}
-                  {sidebarCollapsed && <span className="text-xl">{item.icon}</span>}
+                  {sidebarCollapsed && <span className="text-xl shrink-0">{item.icon}</span>}
                 </Link>
               );
             })}
@@ -130,18 +193,57 @@ function OnlymeLayout() {
           <button
             type="button"
             onClick={handleSignOut}
-            className="flex items-center gap-2 px-3 py-2 text-xs text-destructive underline hover:bg-destructive/10 transition-colors"
+            className="flex items-center gap-2 px-3 py-3 text-xs text-destructive underline hover:bg-destructive/10 transition-colors min-h-[44px]"
           >
             Sign out
           </button>
         </div>
       </aside>
 
-      <div className="flex-1 p-8">
+      {/* Mobile hamburger to open the drawer — hidden at and above md via CSS. */}
+      <div className="md:hidden flex items-center gap-2 pl-4 pt-3">
+        <button
+          type="button"
+          aria-label="Open navigation"
+          aria-expanded={sidebarOpen}
+          className="flex items-center gap-1 p-3 min-h-[44px] rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <span
+            className="relative inline-block h-5 w-5 transition-all duration-200"
+            aria-hidden="true"
+          >
+            <span
+              className="absolute left-0 top-0 w-full h-[2px] bg-current transition-all duration-200"
+              style={{
+                transform: sidebarOpen
+                  ? "translateY(6px) rotate(45deg)"
+                  : "translateY(0) rotate(0deg)",
+              }}
+            />
+            <span
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-current transition-all duration-200"
+              style={{
+                opacity: sidebarOpen ? 0 : 1,
+              }}
+            />
+            <span
+              className="absolute left-0 bottom-0 w-full h-[2px] bg-current transition-all duration-200"
+              style={{
+                transform: sidebarOpen
+                  ? "translateY(-6px) rotate(-45deg)"
+                  : "translateY(0) rotate(0deg)",
+              }}
+            />
+          </span>
+        </button>
+      </div>
+
+      <div className="flex-1 p-8 md:pr-4">
         <header className="mb-8 flex items-center justify-between">
           <div>
             <p className="text-sm font-serif text-foreground">{site?.edition}</p>
-            <h1 className="text-4xl font-bold text-foreground">Admin</h1>
+            <h1 className="text-heading-1 sm:text-4xl font-bold text-foreground">Admin</h1>
           </div>
         </header>
         <Outlet />

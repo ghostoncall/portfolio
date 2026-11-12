@@ -22,6 +22,7 @@ import { Route as OnlymeIndexRouteImport } from './routes/onlyme.index'
 import { Route as OnlymeBlogSettingsRouteImport } from './routes/onlyme.blog-settings'
 import { Route as OnlymeBlogsRouteImport } from './routes/onlyme.blogs'
 import { Route as OnlymeCertificatesRouteImport } from './routes/onlyme.certificates'
+import { Route as OnlymeEducationRouteImport } from './routes/onlyme.education'
 import { Route as OnlymeExperienceRouteImport } from './routes/onlyme.experience'
 import { Route as OnlymeExportRouteImport } from './routes/onlyme.export'
 import { Route as OnlymeLoginRouteImport } from './routes/onlyme.login'
@@ -30,6 +31,7 @@ import { Route as OnlymePagesRouteImport } from './routes/onlyme.pages'
 import { Route as OnlymeProjectsRouteImport } from './routes/onlyme.projects'
 import { Route as OnlymeSettingsRouteImport } from './routes/onlyme.settings'
 import { Route as OnlymeSkillsRouteImport } from './routes/onlyme.skills'
+import { Route as OnlymeSkillsCertificatesAwardsRouteImport } from './routes/onlyme.skills-certificates-awards'
 import { Route as OnlymeVolunteeringRouteImport } from './routes/onlyme.volunteering'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
@@ -103,6 +105,11 @@ const OnlymeCertificatesRoute = OnlymeCertificatesRouteImport.update({
   path: '/certificates',
   getParentRoute: () => OnlymeRoute,
 } as any)
+const OnlymeEducationRoute = OnlymeEducationRouteImport.update({
+  id: '/education',
+  path: '/education',
+  getParentRoute: () => OnlymeRoute,
+} as any)
 const OnlymeExperienceRoute = OnlymeExperienceRouteImport.update({
   id: '/experience',
   path: '/experience',
@@ -143,6 +150,12 @@ const OnlymeSkillsRoute = OnlymeSkillsRouteImport.update({
   path: '/skills',
   getParentRoute: () => OnlymeRoute,
 } as any)
+const OnlymeSkillsCertificatesAwardsRoute =
+  OnlymeSkillsCertificatesAwardsRouteImport.update({
+    id: '/skills-certificates-awards',
+    path: '/skills-certificates-awards',
+    getParentRoute: () => OnlymeRoute,
+  } as any)
 const OnlymeVolunteeringRoute = OnlymeVolunteeringRouteImport.update({
   id: '/volunteering',
   path: '/volunteering',
@@ -191,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
   '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
   '/onlyme/certificates': typeof OnlymeCertificatesRoute
+  '/onlyme/education': typeof OnlymeEducationRoute
   '/onlyme/experience': typeof OnlymeExperienceRoute
   '/onlyme/export': typeof OnlymeExportRoute
   '/onlyme/login': typeof OnlymeLoginRoute
@@ -199,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
   '/onlyme/settings': typeof OnlymeSettingsRoute
   '/onlyme/skills': typeof OnlymeSkillsRoute
+  '/onlyme/skills-certificates-awards': typeof OnlymeSkillsCertificatesAwardsRoute
   '/onlyme/volunteering': typeof OnlymeVolunteeringRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -220,6 +235,7 @@ export interface FileRoutesByTo {
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
   '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
   '/onlyme/certificates': typeof OnlymeCertificatesRoute
+  '/onlyme/education': typeof OnlymeEducationRoute
   '/onlyme/experience': typeof OnlymeExperienceRoute
   '/onlyme/export': typeof OnlymeExportRoute
   '/onlyme/login': typeof OnlymeLoginRoute
@@ -228,6 +244,7 @@ export interface FileRoutesByTo {
   '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
   '/onlyme/settings': typeof OnlymeSettingsRoute
   '/onlyme/skills': typeof OnlymeSkillsRoute
+  '/onlyme/skills-certificates-awards': typeof OnlymeSkillsCertificatesAwardsRoute
   '/onlyme/volunteering': typeof OnlymeVolunteeringRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog': typeof BlogIndexRoute
@@ -251,6 +268,7 @@ export interface FileRoutesById {
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
   '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
   '/onlyme/certificates': typeof OnlymeCertificatesRoute
+  '/onlyme/education': typeof OnlymeEducationRoute
   '/onlyme/experience': typeof OnlymeExperienceRoute
   '/onlyme/export': typeof OnlymeExportRoute
   '/onlyme/login': typeof OnlymeLoginRoute
@@ -259,6 +277,7 @@ export interface FileRoutesById {
   '/onlyme/projects': typeof OnlymeProjectsRouteWithChildren
   '/onlyme/settings': typeof OnlymeSettingsRoute
   '/onlyme/skills': typeof OnlymeSkillsRoute
+  '/onlyme/skills-certificates-awards': typeof OnlymeSkillsCertificatesAwardsRoute
   '/onlyme/volunteering': typeof OnlymeVolunteeringRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -283,6 +302,7 @@ export interface FileRouteTypes {
     | '/onlyme/blog-settings'
     | '/onlyme/blogs'
     | '/onlyme/certificates'
+    | '/onlyme/education'
     | '/onlyme/experience'
     | '/onlyme/export'
     | '/onlyme/login'
@@ -291,6 +311,7 @@ export interface FileRouteTypes {
     | '/onlyme/projects'
     | '/onlyme/settings'
     | '/onlyme/skills'
+    | '/onlyme/skills-certificates-awards'
     | '/onlyme/volunteering'
     | '/projects/$slug'
     | '/blog/'
@@ -312,6 +333,7 @@ export interface FileRouteTypes {
     | '/onlyme/blog-settings'
     | '/onlyme/blogs'
     | '/onlyme/certificates'
+    | '/onlyme/education'
     | '/onlyme/experience'
     | '/onlyme/export'
     | '/onlyme/login'
@@ -320,6 +342,7 @@ export interface FileRouteTypes {
     | '/onlyme/projects'
     | '/onlyme/settings'
     | '/onlyme/skills'
+    | '/onlyme/skills-certificates-awards'
     | '/onlyme/volunteering'
     | '/projects/$slug'
     | '/blog'
@@ -342,6 +365,7 @@ export interface FileRouteTypes {
     | '/onlyme/blog-settings'
     | '/onlyme/blogs'
     | '/onlyme/certificates'
+    | '/onlyme/education'
     | '/onlyme/experience'
     | '/onlyme/export'
     | '/onlyme/login'
@@ -350,6 +374,7 @@ export interface FileRouteTypes {
     | '/onlyme/projects'
     | '/onlyme/settings'
     | '/onlyme/skills'
+    | '/onlyme/skills-certificates-awards'
     | '/onlyme/volunteering'
     | '/projects/$slug'
     | '/blog/'
@@ -468,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnlymeCertificatesRouteImport
       parentRoute: typeof OnlymeRoute
     }
+    '/onlyme/education': {
+      id: '/onlyme/education'
+      path: '/education'
+      fullPath: '/onlyme/education'
+      preLoaderRoute: typeof OnlymeEducationRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
     '/onlyme/experience': {
       id: '/onlyme/experience'
       path: '/experience'
@@ -522,6 +554,13 @@ declare module '@tanstack/react-router' {
       path: '/skills'
       fullPath: '/onlyme/skills'
       preLoaderRoute: typeof OnlymeSkillsRouteImport
+      parentRoute: typeof OnlymeRoute
+    }
+    '/onlyme/skills-certificates-awards': {
+      id: '/onlyme/skills-certificates-awards'
+      path: '/skills-certificates-awards'
+      fullPath: '/onlyme/skills-certificates-awards'
+      preLoaderRoute: typeof OnlymeSkillsCertificatesAwardsRouteImport
       parentRoute: typeof OnlymeRoute
     }
     '/onlyme/volunteering': {
@@ -616,6 +655,7 @@ interface OnlymeRouteChildren {
   OnlymeBlogSettingsRoute: typeof OnlymeBlogSettingsRoute
   OnlymeBlogsRoute: typeof OnlymeBlogsRouteWithChildren
   OnlymeCertificatesRoute: typeof OnlymeCertificatesRoute
+  OnlymeEducationRoute: typeof OnlymeEducationRoute
   OnlymeExperienceRoute: typeof OnlymeExperienceRoute
   OnlymeExportRoute: typeof OnlymeExportRoute
   OnlymeLoginRoute: typeof OnlymeLoginRoute
@@ -624,6 +664,7 @@ interface OnlymeRouteChildren {
   OnlymeProjectsRoute: typeof OnlymeProjectsRouteWithChildren
   OnlymeSettingsRoute: typeof OnlymeSettingsRoute
   OnlymeSkillsRoute: typeof OnlymeSkillsRoute
+  OnlymeSkillsCertificatesAwardsRoute: typeof OnlymeSkillsCertificatesAwardsRoute
   OnlymeVolunteeringRoute: typeof OnlymeVolunteeringRoute
   OnlymeIndexRoute: typeof OnlymeIndexRoute
   OnlymePreviewSlugRoute: typeof OnlymePreviewSlugRoute
@@ -633,6 +674,7 @@ const OnlymeRouteChildren: OnlymeRouteChildren = {
   OnlymeBlogSettingsRoute: OnlymeBlogSettingsRoute,
   OnlymeBlogsRoute: OnlymeBlogsRouteWithChildren,
   OnlymeCertificatesRoute: OnlymeCertificatesRoute,
+  OnlymeEducationRoute: OnlymeEducationRoute,
   OnlymeExperienceRoute: OnlymeExperienceRoute,
   OnlymeExportRoute: OnlymeExportRoute,
   OnlymeLoginRoute: OnlymeLoginRoute,
@@ -641,6 +683,7 @@ const OnlymeRouteChildren: OnlymeRouteChildren = {
   OnlymeProjectsRoute: OnlymeProjectsRouteWithChildren,
   OnlymeSettingsRoute: OnlymeSettingsRoute,
   OnlymeSkillsRoute: OnlymeSkillsRoute,
+  OnlymeSkillsCertificatesAwardsRoute: OnlymeSkillsCertificatesAwardsRoute,
   OnlymeVolunteeringRoute: OnlymeVolunteeringRoute,
   OnlymeIndexRoute: OnlymeIndexRoute,
   OnlymePreviewSlugRoute: OnlymePreviewSlugRoute,

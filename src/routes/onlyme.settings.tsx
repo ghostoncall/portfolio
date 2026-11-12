@@ -17,6 +17,7 @@ function Settings() {
   const [title, setTitle] = React.useState("");
   const [edition, setEdition] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [showHomeBrand, setShowHomeBrand] = React.useState(true);
   const [socials, setSocials] = React.useState<{ label: string; href?: string }[]>([]);
 
   React.useEffect(() => {
@@ -27,6 +28,7 @@ function Settings() {
       setTitle(staged.title);
       setEdition(staged.edition);
       setEmail(staged.email);
+      setShowHomeBrand(staged.showHomeBrand ?? true);
       setSocials(staged.socials as { label: string; href?: string }[]);
     });
   }, []);
@@ -40,7 +42,7 @@ function Settings() {
         data: {
           table: "settings",
           slug: "site",
-          content: { name, title, edition, email, socials },
+          content: { name, title, edition, email, socials, showHomeBrand },
           kind: "site",
         },
       });
@@ -67,6 +69,7 @@ function Settings() {
       setTitle(staged.title);
       setEdition(staged.edition);
       setEmail(staged.email);
+      setShowHomeBrand(staged.showHomeBrand ?? true);
       setSocials(staged.socials as { label: string; href?: string }[]);
       setStatus("ok");
       setTimeout(() => setStatus("idle"), 2000);
@@ -89,6 +92,7 @@ function Settings() {
       setTitle(staged.title);
       setEdition(staged.edition);
       setEmail(staged.email);
+      setShowHomeBrand(staged.showHomeBrand ?? true);
       setSocials(staged.socials as { label: string; href?: string }[]);
       setStatus("ok");
       setTimeout(() => setStatus("idle"), 2000);
@@ -143,6 +147,17 @@ function Settings() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-input bg-background px-3 py-2 text-foreground focus:border-ring"
             />
+          </label>
+          <label className="block flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showHomeBrand}
+              onChange={(e) => setShowHomeBrand(e.target.checked)}
+              className="size-4 text-primary ring-offset-background focus:ring-primary"
+            />
+            <span className="text-xs font-medium text-muted-foreground">
+              Show home-page nav brand ("engineerthisaryan")
+            </span>
           </label>
           <div className="border-t pt-4">
             <h3 className="text-sm font-medium text-foreground mb-3">Socials</h3>

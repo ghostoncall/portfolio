@@ -39,7 +39,10 @@ function CodeBlock({
             {copied ? "Copied" : "Copy"}
           </button>
         </div>
-        <pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed text-foreground">
+        <pre
+          data-lenis-prevent
+          className="overflow-x-auto p-4 font-mono text-sm leading-relaxed text-foreground"
+        >
           <code>{code}</code>
         </pre>
       </div>
@@ -78,7 +81,7 @@ export function BlockView({ block }: { block: Block }) {
               src={block.src}
               alt={block.alt}
               loading="lazy"
-              className="w-full object-cover"
+              className="w-full object-cover rounded-lg"
               style={{ aspectRatio: block.ratio ?? "16/9" }}
             />
           ) : (

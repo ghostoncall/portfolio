@@ -177,7 +177,7 @@ function Blogs() {
             </form>
           )}
 
-          <div className="border border-border rounded-lg overflow-hidden">
+          <div className="border border-border rounded-lg overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border bg-muted/50">

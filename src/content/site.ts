@@ -246,13 +246,74 @@ export type VolunteeringPageContent = {
   };
 };
 
+/** A single academic qualification (degree / diploma / certificate of study). */
+export type EducationEntry = {
+  id: string;
+  institution: string;
+  degree: string;
+  field?: string;
+  specialization?: string;
+  startDate?: string;
+  endDate?: string;
+  current?: boolean;
+  location?: string;
+  status?: string;
+  logo?: MediaItem;
+  cgpa?: string;
+  gradingScale?: string;
+  distinctions?: string[];
+  scholarships?: string[];
+  coursework: { category: string; courses: string[] }[];
+  research?: Array<{
+    title: string;
+    description?: string;
+    area?: string;
+    technologies?: string[];
+    publications?: string[];
+    projectLinks?: string[];
+    supervisor?: string;
+  }>;
+  visible?: boolean;
+  sort: number;
+};
+
+export type EducationPageContent = {
+  kind: "education";
+  entries: EducationEntry[];
+};
+
+/** An academic award, scholarship, honour, or competition recognition. */
+export type Award = {
+  id: string;
+  title: string;
+  issuer?: string;
+  date?: string;
+  category?: string;
+  description?: string;
+  reason?: string;
+  document?: MediaItem;
+  image?: MediaItem;
+  relatedEducation?: string;
+  relatedProject?: string;
+  referenceUrl?: string;
+  visible?: boolean;
+  sort: number;
+};
+
+export type AwardPageContent = {
+  kind: "awards";
+  entries: Award[];
+};
+
 /** A page body. `kind` tells the admin editor which form shape to render. */
 export type PageContent =
   | { kind: "blocks"; blocks: Block[] }
   | SkillsPageContent
   | CertificatesPageContent
   | ExperiencePageContent
-  | VolunteeringPageContent;
+  | VolunteeringPageContent
+  | EducationPageContent
+  | AwardPageContent;
 
 export type PageKind = PageContent["kind"];
 

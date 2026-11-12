@@ -8,7 +8,11 @@
 // Stable IDs are deterministic so SSR and the client agree without a DB call.
 
 import type {
+  Award,
+  AwardPageContent,
   Certificate,
+  EducationEntry,
+  EducationPageContent,
   ExperienceEntry,
   Project,
   Skill,
@@ -391,6 +395,152 @@ export function normalizeVolunteeringPage(raw: unknown): {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Education page
+// ---------------------------------------------------------------------------
+
+export function normalizeEducationPage(raw: unknown): EducationPageContent {
+  const r = (raw as any) ?? {};
+
+  if (r.kind === "education" && Array.isArray(r.entries)) {
+    return {
+      kind: "education",
+      entries: r.entries.map((e: any, i: number) => ({
+        id:
+          e.id ?? stableId("edu", `${String(e.institution ?? "")} ${String(e.degree ?? "")} ${i}`),
+        institution: String(e.institution ?? ""),
+        degree: String(e.degree ?? ""),
+        ...(e.field ? { field: e.field } : {}),
+        ...(e.specialization ? { specialization: e.specialization } : {}),
+        ...(e.startDate ? { startDate: e.startDate } : {}),
+        ...(e.endDate ? { endDate: e.endDate } : {}),
+        ...(e.current !== undefined ? { current: e.current } : {}),
+        ...(e.location ? { location: e.location } : {}),
+        ...(e.status ? { status: e.status } : {}),
+        ...(e.logo ? { logo: e.logo } : {}),
+        ...(e.cgpa ? { cgpa: e.cgpa } : {}),
+        ...(e.gradingScale ? { gradingScale: e.gradingScale } : {}),
+        distinctions: Array.isArray(e.distinctions) ? e.distinctions.filter(Boolean) : [],
+        scholarships: Array.isArray(e.scholarships) ? e.scholarships.filter(Boolean) : [],
+        coursework: Array.isArray(e.coursework)
+          ? e.coursework.map((c: any) => ({
+              category: String(c.category ?? ""),
+              courses: Array.isArray(c.courses) ? c.courses.filter(Boolean) : [],
+            }))
+          : [],
+        ...(e.research && e.research.length
+          ? {
+              research: e.research.map((res: any) => ({
+                title: String(res.title ?? ""),
+                ...(res.description ? { description: res.description } : {}),
+                ...(res.area ? { area: res.area } : {}),
+                technologies: Array.isArray(res.technologies)
+                  ? res.technologies.filter(Boolean)
+                  : [],
+                publications: Array.isArray(res.publications)
+                  ? res.publications.filter(Boolean)
+                  : [],
+                projectLinks: Array.isArray(res.projectLinks)
+                  ? res.projectLinks.filter(Boolean)
+                  : [],
+                ...(res.supervisor ? { supervisor: res.supervisor } : {}),
+              })),
+            }
+          : {}),
+        visible: e.visible !== false,
+        sort: Number(e.sort ?? i),
+      })),
+    };
+  }
+
+  // Legacy top-level: { entries: [...] } without kind.
+  const entries = Array.isArray(r.entries) ? r.entries : [];
+  return {
+    kind: "education",
+    entries: entries.map((e: any, i: number) => ({
+      id: e.id ?? stableId("edu", `${String(e.institution ?? "")} ${String(e.degree ?? "")} ${i}`),
+      institution: String(e.institution ?? ""),
+      degree: String(e.degree ?? ""),
+      ...(e.field ? { field: e.field } : {}),
+      ...(e.specialization ? { specialization: e.specialization } : {}),
+      ...(e.startDate ? { startDate: e.startDate } : {}),
+      ...(e.endDate ? { endDate: e.endDate } : {}),
+      ...(e.current !== undefined ? { current: e.current } : {}),
+      ...(e.location ? { location: e.location } : {}),
+      ...(e.status ? { status: e.status } : {}),
+      ...(e.logo ? { logo: e.logo } : {}),
+      ...(e.cgpa ? { cgpa: e.cgpa } : {}),
+      ...(e.gradingScale ? { gradingScale: e.gradingScale } : {}),
+      distinctions: Array.isArray(e.distinctions) ? e.distinctions.filter(Boolean) : [],
+      scholarships: Array.isArray(e.scholarships) ? e.scholarships.filter(Boolean) : [],
+      coursework: Array.isArray(e.coursework)
+        ? e.coursework.map((c: any) => ({
+            category: String(c.category ?? ""),
+            courses: Array.isArray(c.courses) ? c.courses.filter(Boolean) : [],
+          }))
+        : [],
+      visible: e.visible !== false,
+      sort: Number(e.sort ?? i),
+    })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Awards page
+// ---------------------------------------------------------------------------
+
+export function normalizeAwardPage(raw: unknown): AwardPageContent {
+  const r = (raw as any) ?? {};
+
+  if (r.kind === "awards" && Array.isArray(r.entries)) {
+    return {
+      kind: "awards",
+      entries: r.entries.map((a: any, i: number) => ({
+        id: a.id ?? stableId("award", `${String(a.title ?? "")} ${i}`),
+        title: String(a.title ?? ""),
+        ...(a.issuer ? { issuer: a.issuer } : {}),
+        ...(a.date ? { date: a.date } : {}),
+        ...(a.category ? { category: a.category } : {}),
+        ...(a.description ? { description: a.description } : {}),
+        ...(a.reason ? { reason: a.reason } : {}),
+        ...(a.document ? { document: a.document } : {}),
+        ...(a.image ? { image: a.image } : {}),
+        ...(a.relatedEducation ? { relatedEducation: a.relatedEducation } : {}),
+        ...(a.relatedProject ? { relatedProject: a.relatedProject } : {}),
+        ...(a.referenceUrl ? { referenceUrl: a.referenceUrl } : {}),
+        visible: a.visible !== false,
+        sort: Number(a.sort ?? i),
+      })),
+    };
+  }
+
+  // Legacy top-level: { entries: [...] } without kind.
+  const entries = Array.isArray(r.entries) ? r.entries : [];
+  return {
+    kind: "awards",
+    entries: entries.map((a: any, i: number) => ({
+      id: a.id ?? stableId("award", `${String(a.title ?? "")} ${i}`),
+      title: String(a.title ?? ""),
+      ...(a.issuer ? { issuer: a.issuer } : {}),
+      ...(a.date ? { date: a.date } : {}),
+      ...(a.category ? { category: a.category } : {}),
+      ...(a.description ? { description: a.description } : {}),
+      ...(a.reason ? { reason: a.reason } : {}),
+      ...(a.document ? { document: a.document } : {}),
+      ...(a.image ? { image: a.image } : {}),
+      ...(a.relatedEducation ? { relatedEducation: a.relatedEducation } : {}),
+      ...(a.relatedProject ? { relatedProject: a.relatedProject } : {}),
+      ...(a.referenceUrl ? { referenceUrl: a.referenceUrl } : {}),
+      visible: a.visible !== false,
+      sort: Number(a.sort ?? i),
+    })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Generic entry point
+// ---------------------------------------------------------------------------
+
 export function normalizePageContent(kind: any, raw: unknown): any {
   switch (kind) {
     case "skills":
@@ -401,7 +551,10 @@ export function normalizePageContent(kind: any, raw: unknown): any {
       return normalizeExperiencePage(raw);
     case "volunteering":
       return normalizeVolunteeringPage(raw);
-    case "blocks":
+    case "education":
+      return normalizeEducationPage(raw);
+    case "awards":
+      return normalizeAwardPage(raw);
     default:
       return {
         kind: "blocks",

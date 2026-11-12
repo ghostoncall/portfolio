@@ -3,6 +3,7 @@
 // Import only from server code (server functions / server entry).
 
 import { createServerClient } from "@supabase/ssr";
+import { getEnv } from "@/lib/runtime-config";
 
 function parseCookieHeader(header: string | null): { name: string; value: string }[] {
   if (!header) return [];
@@ -56,7 +57,7 @@ export async function getAuthUser(request: Request) {
 
     // Optional allowlist: when ADMIN_EMAIL is set, only that account may
     // enter /onlyme (prevents any other Supabase signup from getting in).
-    const allowed = process.env["ADMIN_EMAIL"];
+    const allowed = getEnv("ADMIN_EMAIL");
     if (allowed && (user.email ?? "").toLowerCase() !== allowed.toLowerCase()) {
       return null;
     }

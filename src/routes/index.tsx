@@ -2,18 +2,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Blocks } from "@/components/blocks";
+import { EducationView } from "@/components/public/EducationView";
 import { ProjectSummary } from "@/components/public/ProjectSummary";
-import { getPublishedPage, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
+import {
+  getPublishedPage,
+  getPublishedProjects,
+  getPublishedEducation,
+  getSiteIdentity,
+} from "@/lib/server-fns";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [overviewPage, projects, site] = await Promise.all([
+    const [overviewPage, projects, site, education] = await Promise.all([
       (getPublishedPage as any)({ data: { slug: "overview" } }),
       (getPublishedProjects as any)(),
       (getSiteIdentity as any)(),
+      (getPublishedEducation as any)(),
     ]);
     return {
       overview: overviewPage ?? { kind: "blocks", blocks: [] },
+      education: education ?? { kind: "education", entries: [] },
       featured: (projects as any[])
         .filter((p) => p.status !== "archived")
         .sort(
@@ -50,10 +58,16 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { overview, featured, site } = Route.useLoaderData();
+  const { overview, education, featured, site } = Route.useLoaderData();
   return (
-    <PageShell crumbs={["Overview"]} title={`${site?.name}, ${site?.title}`} site={site}>
+    <PageShell
+      crumbs={["Overview"]}
+      title={`${site?.name}`}
+      site={site}
+      profileImage="/images/profile.jpeg"
+    >
       <Blocks blocks={(overview as any).blocks} />
+      <EducationView content={education} />
       <h2 className="mt-12 mb-2 text-3xl text-foreground">Featured Work</h2>
       <ul className="border-t border-border">
         {featured.map((p) => (

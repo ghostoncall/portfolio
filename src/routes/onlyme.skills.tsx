@@ -23,6 +23,7 @@ import { ConfirmDialog } from "@/components/admin/cms/ConfirmDialog";
 import { EmptyState } from "@/components/admin/cms/EmptyState";
 import { Field, FormSection, InputField, SelectField } from "@/components/admin/cms/FormSection";
 import { SortableList } from "@/components/admin/cms/SortableList";
+import { MediaField } from "@/components/admin/cms/MediaField";
 import { GripVertical, Plus, Search, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/onlyme/skills")({
@@ -313,6 +314,7 @@ function SkillsAdmin() {
           )}
         </div>
       </Field>
+      <MediaField label="Icon" value={editingDraft?.icon} onChange={(icon) => setEditingDraft((d) => (d ? { ...d, icon } : d))} />
       <div className="flex gap-2">
         <Button onClick={saveSkill}>{editingId ? "Apply changes" : "Add skill"}</Button>
         <Button variant="outline" onClick={() => setEditingDraft(null)}>

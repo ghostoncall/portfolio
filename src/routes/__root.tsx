@@ -107,6 +107,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "stylesheet", href: lenisCss },
+      {
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: "Aryan Mehndiratta RSS Feed",
+        href: "/rss.xml",
+      },
     ],
   }),
   shellComponent: RootShell,

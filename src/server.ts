@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { setRuntimeConfig } from "@/lib/runtime-config";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -44,52 +45,10 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
-// Uploaded media lives in public/uploads/ at runtime. Serving it here keeps
-// files created after a production build reachable, and avoids relying on
-// Vite's static watcher in dev.
+// Uploaded media lives in Supabase Storage, not on the local filesystem.
+// public/uploads/ is empty in production, so this is a no-op on Cloudflare Pages.
 async function serveUpload(request: Request): Promise<Response | null> {
-  const { pathname } = new URL(request.url);
-  if (!pathname.startsWith("/uploads/")) return null;
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
-  const name = pathname.slice("/uploads/".length);
-  if (!name || name.includes("/") || name.includes("\\") || name.includes("..")) {
-    return new Response("Not found", { status: 404 });
-  }
-
-  const { readFile } = await import("node:fs/promises");
-  const path = await import("node:path");
-  const filePath = path.join(process.cwd(), "public", "uploads", name);
-
-  try {
-    const data = await readFile(filePath);
-    const ext = name.split(".").pop()?.toLowerCase() ?? "";
-    const types: Record<string, string> = {
-      jpg: "image/jpeg",
-      jpeg: "image/jpeg",
-      png: "image/png",
-      gif: "image/gif",
-      webp: "image/webp",
-      avif: "image/avif",
-      svg: "image/svg+xml",
-      mp4: "video/mp4",
-      webm: "video/webm",
-      mp3: "audio/mpeg",
-      wav: "audio/wav",
-      ogg: "audio/ogg",
-      pdf: "application/pdf",
-    };
-    return new Response(data, {
-      headers: {
-        "content-type": types[ext] ?? "application/octet-stream",
-        "cache-control": "public, max-age=31536000, immutable",
-      },
-    });
-  } catch {
-    return new Response("Not found", { status: 404 });
-  }
+  return null;
 }
 
 // Defense-in-depth: /onlyme pages must never render without a Supabase
@@ -113,6 +72,10 @@ async function guardAdminArea(request: Request): Promise<Response | null> {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // Inject Cloudflare Pages environment variables into the runtime config
+      // so server functions can read DATABASE_URL, ADMIN_EMAIL, SMTP_*, etc.
+      setRuntimeConfig(env as Record<string, string>);
+
       const uploadResponse = await serveUpload(request);
       if (uploadResponse) return uploadResponse;
 

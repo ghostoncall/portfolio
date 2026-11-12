@@ -62,7 +62,12 @@ export function SortableList<T>({
     },
   ) => React.ReactNode;
 }) {
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+  const sensors = useSensors(
+    // Without a distance constraint a plain click on a row's buttons (Edit,
+    // Hide, Del.) is swallowed as a zero-distance drag and never fires onClick.
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;

@@ -682,7 +682,10 @@ function VolunteeringAdmin() {
         open={!!editingDraft || editingId !== null}
         onOpenChange={(o) => !o && setEditingDraft(null)}
       >
-        <SheetContent className="w-full max-w-2xl md:max-w-3xl p-0">
+        <SheetContent
+          className="w-full max-w-2xl md:max-w-3xl p-0 max-h-[calc(100dvh-2rem)] overflow-y-auto"
+          data-lenis-prevent
+        >
           <SheetHeader className="p-6 border-b">
             <SheetTitle>{editingId ? "Edit entry" : "New entry"}</SheetTitle>
           </SheetHeader>

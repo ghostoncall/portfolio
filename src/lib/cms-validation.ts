@@ -7,6 +7,8 @@
 import { z } from "zod";
 import type {
   Certificate,
+  EducationEntry,
+  EducationPageContent,
   ExperienceEmploymentType,
   ExperienceEntry,
   ExperienceWorkMode,
@@ -15,6 +17,8 @@ import type {
   Project,
   ProjectLink,
   ProjectStatus,
+  Award,
+  AwardPageContent,
   Skill,
   SkillCategory,
   SkillLevel,
@@ -295,6 +299,69 @@ export const volunteeringPageSchema = z.object({
     .optional(),
 });
 
+export const educationEntrySchema = z.object({
+  id: z.string().trim().min(1),
+  institution: requiredName,
+  degree: requiredName,
+  field: z.string().trim().optional(),
+  specialization: z.string().trim().optional(),
+  startDate: isoDate.optional(),
+  endDate: isoDate.optional(),
+  current: z.boolean().optional(),
+  location: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  cgpa: z.string().trim().optional(),
+  gradingScale: z.string().trim().optional(),
+  distinctions: z.array(z.string().trim()).default([]),
+  scholarships: z.array(z.string().trim()).default([]),
+  coursework: z
+    .array(
+      z.object({
+        category: z.string().trim().min(1),
+        courses: z.array(z.string().trim()).default([]),
+      }),
+    )
+    .default([]),
+  research: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1),
+        description: z.string().trim().optional(),
+        area: z.string().trim().optional(),
+        technologies: z.array(z.string().trim()).default([]),
+        publications: z.array(z.string().trim()).default([]),
+        projectLinks: z.array(httpOrRelativeUrl).default([]),
+        supervisor: z.string().trim().optional(),
+      }),
+    )
+    .default([]),
+  visible: z.boolean().optional(),
+  sort: z.number().int().min(0).default(0),
+});
+
+export const educationPageSchema = z.object({
+  kind: z.literal("education"),
+  entries: z.array(educationEntrySchema).default([]),
+});
+
+export const awardSchema = z.object({
+  id: z.string().trim().min(1),
+  title: requiredName,
+  issuer: z.string().trim().optional(),
+  date: isoDate.optional(),
+  category: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  reason: z.string().trim().optional(),
+  referenceUrl: httpOrRelativeUrl.optional(),
+  visible: z.boolean().optional(),
+  sort: z.number().int().min(0).default(0),
+});
+
+export const awardPageSchema = z.object({
+  kind: z.literal("awards"),
+  entries: z.array(awardSchema).default([]),
+});
+
 // ---------------------------------------------------------------------------
 // Validation results
 // ---------------------------------------------------------------------------
@@ -333,6 +400,12 @@ export function validatePageDoc(kind: PageKind, doc: unknown): ValidationResult<
       break;
     case "volunteering":
       schema = volunteeringPageSchema;
+      break;
+    case "education":
+      schema = educationPageSchema;
+      break;
+    case "awards":
+      schema = awardPageSchema;
       break;
     case "blocks":
     default:

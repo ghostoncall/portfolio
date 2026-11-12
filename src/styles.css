@@ -104,6 +104,10 @@
 }
 
 @layer base {
+  html {
+    font-size: 15px; /* slightly smaller base type across the whole site */
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -143,6 +147,70 @@
   font-family: var(--font-serif);
   font-size: 1.0625rem;
   line-height: 1.8;
+}
+
+/*
+ * Mobile-first responsive typography scale.
+ *
+ * Each utility clamps between a comfortable mobile minimum and a capped
+ * mobile maximum, then is overridden at larger breakpoints by the existing
+ * text-* classes so desktop sizes are preserved exactly.
+ *
+ * Mobile targets (320px–640px):
+ *   main heading   26–32px   section heading 20–24px   subheading 16–19px
+ *   body           14–16px   secondary       13–14px   meta         12–13px
+ *   nav links      14–15px   buttons         13–15px
+ */
+
+@utility text-heading-1 {
+  /* Main page heading — mobile 26–32px, desktop overridden by text-5xl/6xl */
+  font-size: clamp(1.625rem, 6vw + 0.6rem, 2rem);
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+
+@utility text-heading-2 {
+  /* Section heading — mobile 20–24px */
+  font-size: clamp(1.25rem, 4vw + 0.5rem, 1.5rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+@utility text-heading-3 {
+  /* Subheading — mobile 16–19px */
+  font-size: clamp(1rem, 3.5vw + 0.3rem, 1.1875rem);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+@utility text-body-mobile {
+  /* Body text — mobile 14–16px */
+  font-size: clamp(0.875rem, 3vw + 0.3rem, 1rem);
+  line-height: 1.6;
+}
+
+@utility text-secondary-mobile {
+  /* Secondary descriptions — mobile 13–14px */
+  font-size: clamp(0.8125rem, 2.5vw + 0.25rem, 0.875rem);
+  line-height: 1.5;
+}
+
+@utility text-meta-mobile {
+  /* Metadata and dates — mobile 12–13px */
+  font-size: clamp(0.75rem, 2vw + 0.2rem, 0.8125rem);
+  line-height: 1.4;
+}
+
+@utility text-nav-mobile {
+  /* Navigation links — mobile 14–15px */
+  font-size: clamp(0.875rem, 3vw + 0.2rem, 0.9375rem);
+  line-height: 1.4;
+}
+
+@utility text-button-mobile {
+  /* Buttons — mobile 13–15px */
+  font-size: clamp(0.8125rem, 2.5vw + 0.25rem, 0.9375rem);
+  line-height: 1.4;
 }
 
 /*
