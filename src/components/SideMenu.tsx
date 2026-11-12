@@ -10,6 +10,7 @@ import { NavProjectsContext, type NavProject } from "@/components/nav-projects";
 
 const items = [
   { to: "/", label: "Overview" },
+  { to: "/education", label: "Education" },
   { to: "/projects", label: "Projects", children: true },
   { to: "/blog", label: "Blog" },
   { to: "/skills", label: "Skills, Certificates & Awards", children: true },
@@ -19,7 +20,7 @@ const items = [
 ] as const;
 
 const itemClass =
-  "block py-1.5 font-sans text-xl font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
+  "block py-1.5 font-sans text-[clamp(0.95rem,1rem+0.5vw,1.25rem)] font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
 
 const skillCategoryItems = [
   { label: "Skills", href: "/skills" },
@@ -72,7 +73,7 @@ export function SideMenu() {
                 className={`${itemClass} ${active ? "text-primary-foreground hover:opacity-100" : ""}`}
                 aria-current={active ? "page" : undefined}
               >
-                <span>{item.label}</span>
+                <span className="whitespace-nowrap">{item.label}</span>
                 {hasChildren && (
                   <sup className="ml-1 align-super text-xs font-normal">
                     (+
@@ -101,10 +102,10 @@ export function SideMenu() {
                   ? skillCategoryItems.map((sc) => {
                       const scActive = pathname === sc.href;
                       return (
-                        <li key={sc.label} className="px-3 pb-1 pt-1">
+                        <li key={sc.label} className="px-3 py-1">
                           <a
                             href={sc.href}
-                            className={`text-sm text-muted-foreground hover:text-foreground transition-colors block px-3 py-1 ${
+                            className={`text-sm text-muted-foreground hover:text-foreground ${
                               scActive ? "text-foreground underline underline-offset-4" : ""
                             }`}
                           >
@@ -114,7 +115,7 @@ export function SideMenu() {
                       );
                     })
                   : projectList.map((p) => (
-                      <li key={p.slug}>
+                      <li key={p.slug} className="px-3 py-1">
                         <Link
                           to="/projects/$slug"
                           params={{ slug: p.slug }}
