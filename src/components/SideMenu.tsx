@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// Server-fn `listStaged` is called with `as any` because its strict:false handler
-// returns an untyped result; the public nav gracefully falls back to defaults on 401.
+// Server-fn `getPublishedNavOrder` is publicly readable (no admin session);
+// the public nav gracefully falls back to defaults if the fetch fails.
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -10,7 +10,7 @@ import {
   awards as staticAwards,
 } from "@/content/site";
 import { NavProjectsContext, type NavProject } from "@/components/nav-projects";
-import { listStaged } from "@/lib/server-fns";
+import { getPublishedNavOrder } from "@/lib/server-fns";
 
 /** Canonical default nav order (matches NavReorder / seed). */
 const DEFAULT_NAV: Array<{
@@ -89,7 +89,7 @@ export function SideMenu() {
 
   useEffect(() => {
     let mounted = true;
-    (listStaged as any)({ data: { table: "pages" } })
+    getPublishedNavOrder()
       .then((rows: any[]) => {
         if (!mounted) return;
         const bySlug = new Map(rows.map((r) => [r.slug, r]));
@@ -113,7 +113,6 @@ export function SideMenu() {
         );
         setNavItems(next);
       })
-      // listStaged requires an admin session; on public pages it 401s — keep the default order.
       .catch(() => {
         if (mounted) setNavItems(defaultItems());
       });

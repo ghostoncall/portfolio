@@ -1101,6 +1101,19 @@ export const getPublishedPage = createServerFn({ method: "GET", strict: false })
   },
 );
 
+/** Public read path for the DB-persisted nav order (no admin session required). */
+export const getPublishedNavOrder = createServerFn({ method: "GET", strict: false }).handler(
+  async () => {
+    const db = getDb();
+    const rows = await db
+      .select({ slug: pages.slug, title: pages.title, navOrder: pages.navOrder })
+      .from(pages)
+      .where(eq(pages.isPublic, true))
+      .orderBy(pages.navOrder);
+    return rows;
+  },
+);
+
 export const exportBackup = createServerFn({ method: "GET", strict: false }).handler(
   async ({ context }) => {
     const { request } = context as any;
