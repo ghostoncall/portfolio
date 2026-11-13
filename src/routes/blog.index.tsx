@@ -167,11 +167,19 @@ function CardImage({ post, settings }: { post: Post; settings: BlogSettings }) {
   );
 }
 
-function CardMeta({ post, settings }: { post: Post; settings: BlogSettings }) {
+function CardMeta({
+  post,
+  settings,
+  showTags = true,
+}: {
+  post: Post;
+  settings: BlogSettings;
+  showTags?: boolean;
+}) {
   const parts: string[] = [];
   if (settings.card.showDate) parts.push(formatDate(post.date));
   if (settings.card.showAuthor && post.author) parts.push(post.author);
-  if (settings.card.showTags && post.tags.length) parts.push(post.tags.join(" · "));
+  if (settings.card.showTags && showTags && post.tags.length) parts.push(post.tags.join(" · "));
   if (!parts.length) return null;
   return <span className="label-caps text-muted-foreground">{parts.join(" · ")}</span>;
 }
@@ -201,7 +209,7 @@ function PostCard({
   const body = (
     <>
       <CardImage post={post} settings={settings} />
-      <CardMeta post={post} settings={settings} />
+      <CardMeta post={post} settings={settings} showTags={variant !== "list"} />
       <span className="mt-1 block font-display text-2xl leading-tight text-foreground group-hover:underline">
         {post.title}
       </span>
@@ -224,7 +232,9 @@ function PostCard({
     >
       {variant === "list" ? (
         <>
-          <span className="label-caps pt-1 text-muted-foreground">{formatDate(post.date)}</span>
+          {post.tags.length && (
+            <span className="label-caps pt-1 text-muted-foreground">{post.tags.join(" · ")}</span>
+          )}
           <span className="min-w-0">{body}</span>
         </>
       ) : (
