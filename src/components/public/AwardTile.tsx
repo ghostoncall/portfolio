@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 export function AwardTile({ award }: { award: Award }) {
   return (
     <article
+      data-testid="award-tile"
       className={cn(
         "border border-border bg-background text-foreground rounded-none p-5 group",
         "hover:border-foreground/20 hover:bg-muted/30 transition-colors",

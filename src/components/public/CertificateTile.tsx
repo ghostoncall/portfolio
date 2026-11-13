@@ -22,6 +22,7 @@ const CertificateTile = React.forwardRef<HTMLButtonElement, CertificateTileProps
       <button
         ref={ref}
         type="button"
+        data-testid="certificate-tile"
         className={cn(
           "border border-border bg-background text-foreground rounded-none p-4 text-left align-start",
           "hover:border-foreground/20 hover:bg-muted/30",

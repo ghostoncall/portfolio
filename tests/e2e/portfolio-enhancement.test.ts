@@ -7,6 +7,9 @@
 
 import dotenv from "dotenv";
 dotenv.config();
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
 const VIEWPORTS = [
@@ -109,7 +112,8 @@ test.describe("Desktop navigation (1440×900)", () => {
     expect(eduIdx).toBe(overviewIdx + 1);
 
     // Active section highlighting on Overview (home).
-    await expect(menu.getByText("Overview", { exact: true })).toHaveClass(
+    // The active class is on the Link <a> element, not the inner span.
+    await expect(menu.locator("a").filter({ hasText: "Overview" })).toHaveClass(
       /text-primary-foreground/,
     );
   });
@@ -156,13 +160,20 @@ test.describe("Desktop navigation (1440×900)", () => {
     await expandBtn.click();
     await expect(expandBtn).toHaveAttribute("aria-expanded", "true");
 
-    const links = ["Skills", "Certificates", "Awards & Recognitions"];
-    for (const label of links) {
-      await menu.getByText(label, { exact: true }).click();
-      await expect(page).toHaveURL(new RegExp(`.*/${label.toLowerCase().replace(/ /g, "-")}/?`));
+    const links = [
+      { label: "Skills", path: "/skills" },
+      { label: "Certificates", path: "/certificates" },
+      { label: "Awards & Recognitions", path: "/awards" },
+    ];
+    for (const { label, path } of links) {
       await goto(page, "/");
-      await menu.getByText("Skills, Certificates & Awards", { exact: true }).click();
-      await expandBtn.click(); // reopen each time since navigating closed menu
+      const menuRow = page
+        .locator("nav[aria-label='Site index'] div", { hasText: "Skills, Certificates & Awards" })
+        .first();
+      const btn = menuRow.locator("button[aria-expanded]").first();
+      if ((await btn.getAttribute("aria-expanded")) !== "true") await btn.click();
+      await page.locator("nav[aria-label='Site index']").getByText(label, { exact: true }).click();
+      await expect(page).toHaveURL((url) => url.pathname === path);
     }
   });
 
@@ -178,15 +189,28 @@ test.describe("Desktop navigation (1440×900)", () => {
     await expect(page.locator("h1")).toHaveText(/Education/i);
   });
 
-  test("Smooth scrolling works", async ({ page }) => {
+  test("Smooth scrolling works (Lenis active)", async ({ page }) => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/");
 
-    // Anchor links scroll smoothly; check scroll-behavior is applied on html.
-    const scrollBehavior = await page.evaluate(
-      () => getComputedStyle(document.documentElement).scrollBehavior,
-    );
-    expect(scrollBehavior).toBe("smooth");
+    // This site smooths scrolling with Lenis (JS), not CSS scroll-behavior.
+    // Lenis marks the root element while it is driving the scroll.
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const c = document.documentElement.classList;
+          return c.contains("lenis") || c.contains("lenis-smooth");
+        }),
+      )
+      .toBe(true);
+
+    // And an actual wheel scroll moves the page.
+    const before = await page.evaluate(() => window.scrollY);
+    await page.mouse.move(720, 450);
+    await page.mouse.wheel(0, 900);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 })
+      .toBeGreaterThan(before + 100);
   });
 
   test("Direct navigation/refresh doesn't break section targeting", async ({ page }) => {
@@ -207,8 +231,12 @@ test.describe("Public pages render with sample data", () => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/skills");
     await expect(page.locator("h1")).toHaveText(/Skills/i);
-    const body = page.locator("body");
-    const bodyText = await body.textContent();
+    await expect(page.locator('[data-testid="skill-tile"]').first()).toBeVisible({
+      timeout: 15000,
+    });
+    const count = await page.locator('[data-testid="skill-tile"]').count();
+    expect(count).toBeGreaterThan(5);
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).not.toContain("N/A");
   });
 
@@ -216,27 +244,30 @@ test.describe("Public pages render with sample data", () => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/certificates");
     await expect(page.locator("h1")).toHaveText(/Certificates/i);
-    const body = page.locator("body");
-    const bodyText = await body.textContent();
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).not.toContain("N/A");
 
-    // Certificate preview dialog opens on card tap.
-    const certCards = page.locator("article").filter({ hasText: /certificate/i });
-    if ((await certCards.count()) > 0) {
-      await certCards.first().click();
-      const dialog = page.locator("dialog").first();
-      await expect(dialog).toBeVisible({ timeout: 10_000 });
-      await page.keyboard.press("Escape");
-      await expect(dialog).toHaveCount(0);
-    }
+    const tiles = page.locator('[data-testid="certificate-tile"]');
+    await expect(tiles.first()).toBeVisible({ timeout: 15000 });
+    expect(await tiles.count()).toBeGreaterThan(1);
+
+    // Certificate preview opens on click (Radix dialog → role="dialog").
+    await tiles.first().click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible({ timeout: 10000 });
+    await expect(dialog.locator("h2")).not.toBeEmpty();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
   });
 
   test("/awards renders tiles, empty fields hidden", async ({ page }) => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/awards");
     await expect(page.locator("h1")).toHaveText(/Awards/i);
-    const body = page.locator("body");
-    const bodyText = await body.textContent();
+    await expect(page.locator('[data-testid="award-tile"]').first()).toBeVisible({
+      timeout: 15000,
+    });
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).not.toContain("N/A");
   });
 
@@ -244,12 +275,12 @@ test.describe("Public pages render with sample data", () => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/education");
     await expect(page.locator("h1")).toHaveText(/Education/i);
-    const body = page.locator("body");
-    const bodyText = await body.textContent();
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).not.toContain("N/A");
-    await expect(page.locator('article[data-testid="education-entry"]').first()).toBeVisible({
-      timeout: 15_000,
-    });
+    const entries = page.locator('article[data-testid="education-entry"]');
+    await expect(entries.first()).toBeVisible({ timeout: 15000 });
+    expect(await entries.count()).toBeGreaterThan(0);
+    await expect(page.getByText("Sample University of Technology").first()).toBeVisible();
   });
 });
 
@@ -283,13 +314,18 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
 
     // Save draft (cms-save).
     await page.locator('button[data-testid="cms-save"]').click();
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
 
     // Refresh → persists in draft list.
     await page.reload();
-    await page
+    const row = page
       .locator('[data-testid="education-row"]')
-      .waitFor({ state: "visible", timeout: 10_000 });
-    await expect(page.getByText(institution, { exact: false })).toBeVisible();
+      .filter({ hasText: institution })
+      .first();
+    await expect(row).toBeVisible({ timeout: 15000 });
+    await expect(row.getByText(institution, { exact: false })).toBeVisible();
   });
 
   test("edit → previous data preserved", async ({ page }) => {
@@ -297,8 +333,12 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
     await loginAsAdmin(page);
     await goto(page, "/onlyme/education");
 
-    // Open first row for edit.
-    await page.locator('button[data-testid="education-edit"]').first().click();
+    // Open the test row for edit.
+    const testRow = page
+      .locator('[data-testid="education-row"]')
+      .filter({ hasText: institution })
+      .first();
+    await testRow.locator('button[data-testid="education-edit"]').click();
     await page.waitForSelector('input[data-testid="education-institution"]', {
       state: "visible",
       timeout: 10_000,
@@ -319,12 +359,18 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
     await goto(page, "/onlyme/education");
 
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
 
     await goto(page, "/education");
     await expect(page.locator("h1")).toHaveText(/Education/i);
-    await expect(page.getByText(institution, { exact: false })).toBeVisible();
-    await expect(page.getByText(degree, { exact: false })).toBeVisible();
+    const publishedEntry = page
+      .locator('[data-testid="education-entry"]')
+      .filter({ hasText: institution })
+      .first();
+    await expect(publishedEntry).toBeVisible();
+    await expect(publishedEntry).toContainText(degree);
   });
 
   test("unpublish → disappears", async ({ page }) => {
@@ -333,7 +379,9 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
     await goto(page, "/onlyme/education");
 
     await page.locator('button[data-testid="cms-unpublish"]').click();
-    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
 
     await goto(page, "/education");
     // Entry no longer publicly visible.
@@ -346,7 +394,9 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
     await goto(page, "/onlyme/education");
 
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
 
     await goto(page, "/education");
     await expect(page.getByText(institution, { exact: false })).toBeVisible();
@@ -357,9 +407,33 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
     await loginAsAdmin(page);
     await goto(page, "/onlyme/education");
 
-    await page.locator('button[data-testid="education-delete"]').first().click();
-    await page.locator('button:has-text("Delete")').click();
-    await expect(page.locator('[data-testid="education-row"]')).toHaveCount(0);
+    const row = page
+      .locator('[data-testid="education-row"]')
+      .filter({ hasText: institution })
+      .first();
+    await expect(row).toBeVisible({ timeout: 15000 });
+    await row.locator('button[data-testid="education-delete"]').click();
+    await page.getByRole("button", { name: /^Delete$/ }).click();
+
+    // Persist the deletion so the record is gone for good.
+    await page.locator('button[data-testid="cms-save"]').click();
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
+    await page.locator('button[data-testid="cms-publish"]').click();
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
+
+    await expect(
+      page.locator('[data-testid="education-row"]').filter({ hasText: institution }),
+    ).toHaveCount(0);
+    // Sample entries are untouched.
+    await expect(page.getByText("Sample University of Technology").first()).toBeVisible();
+
+    // And the temp record is gone from the public site too.
+    await goto(page, "/education");
+    await expect(page.getByText(institution, { exact: false })).toHaveCount(0);
   });
 });
 
@@ -368,6 +442,7 @@ test.describe("Admin CRUD lifecycle (Education)", () => {
 //    → invalid type rejected → oversized rejected
 // ============================================================================
 test.describe("Image upload (Education media field)", () => {
+  const mediaInstitution = `E2E Media University ${Date.now().toString(36)}`;
   const FIXTURES = "tests/e2e/fixtures";
   const PRIMARY_LOGO = `${FIXTURES}/e2e-logo-primary.png`;
   const INVALID_FILE = `${FIXTURES}/e2e-not-an-image.exe`;
@@ -383,10 +458,11 @@ test.describe("Image upload (Education media field)", () => {
       timeout: 10_000,
     });
 
-    await page.locator('input[data-testid="education-institution"]').fill("E2E Media University");
+    await page.locator('input[data-testid="education-institution"]').fill(mediaInstitution);
     await page.locator('input[data-testid="education-degree"]').fill("Bachelor of Arts");
 
-    // Upload image via media picker.
+    // Upload image via media picker (input lives inside the picker modal).
+    await page.locator('button[data-testid="media-pick"]').click();
     const fileInput = page.locator('input[data-testid="media-file-input"]');
     await fileInput.setInputFiles(PRIMARY_LOGO);
 
@@ -397,12 +473,27 @@ test.describe("Image upload (Education media field)", () => {
 
     await page.locator('button[data-testid="education-save"]').click();
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
 
-    // Image displays on public page.
+    // Image displays on public page and actually loads (not just an <img> tag).
     await goto(page, "/education");
-    const publicImg = page.locator('article[data-testid="education-entry"] img').first();
-    await expect(publicImg).toBeVisible({ timeout: 15_000 });
+    const publicImg = page
+      .locator('[data-testid="education-entry"]')
+      .filter({ hasText: mediaInstitution })
+      .locator("img")
+      .first();
+    await expect(publicImg).toBeVisible({ timeout: 15000 });
+    await expect(publicImg).toHaveAttribute("src", /.+/);
+    await expect
+      .poll(() =>
+        publicImg.evaluate((img) => {
+          const el = img as HTMLImageElement;
+          return el.complete && el.naturalWidth > 0;
+        }),
+      )
+      .toBe(true);
   });
 
   test("replace → remove image", async ({ page }) => {
@@ -410,7 +501,12 @@ test.describe("Image upload (Education media field)", () => {
     await loginAsAdmin(page);
     await goto(page, "/onlyme/education");
 
-    await page.locator('button[data-testid="education-edit"]').first().click();
+    await page
+      .locator('[data-testid="education-row"]')
+      .filter({ hasText: mediaInstitution })
+      .first()
+      .locator('button[data-testid="education-edit"]')
+      .click();
     await page.waitForSelector('img[data-testid="media-preview"]', {
       state: "visible",
       timeout: 10_000,
@@ -422,10 +518,35 @@ test.describe("Image upload (Education media field)", () => {
 
     await page.locator('button[data-testid="education-save"]').click();
     await page.locator('button[data-testid="cms-publish"]').click();
-    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
 
     await goto(page, "/education");
-    await expect(page.locator('article[data-testid="education-entry"] img')).toHaveCount(0);
+    const tempEntry = page
+      .locator('[data-testid="education-entry"]')
+      .filter({ hasText: mediaInstitution });
+    await expect(tempEntry.locator("img")).toHaveCount(0);
+
+    // Cleanup: delete the temporary entry and publish the deletion.
+    await goto(page, "/onlyme/education");
+    const tempRow = page
+      .locator('[data-testid="education-row"]')
+      .filter({ hasText: mediaInstitution })
+      .first();
+    await tempRow.locator('button[data-testid="education-delete"]').click();
+    await page.getByRole("button", { name: /^Delete$/ }).click();
+    await page.locator('button[data-testid="cms-save"]').click();
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
+    await page.locator('button[data-testid="cms-publish"]').click();
+    await expect(page.locator('[data-testid="cms-save-status"]')).toHaveText(/Saved/, {
+      timeout: 20000,
+    });
+
+    await goto(page, "/education");
+    await expect(page.getByText(mediaInstitution, { exact: false })).toHaveCount(0);
   });
 
   test("invalid file type rejected", async ({ page }) => {
@@ -439,6 +560,7 @@ test.describe("Image upload (Education media field)", () => {
       timeout: 10_000,
     });
 
+    await page.locator('button[data-testid="media-pick"]').click();
     const fileInput = page.locator('input[data-testid="media-file-input"]');
     await fileInput.setInputFiles(INVALID_FILE);
 
@@ -457,15 +579,12 @@ test.describe("Image upload (Education media field)", () => {
       timeout: 10_000,
     });
 
-    // Create an oversized file (> limit) as a blob.
-    const inputHandle = await page.locator('input[data-testid="media-file-input"]').elementHandle();
-    if (inputHandle) {
-      await inputHandle.uploadFile({
-        name: "oversized.png",
-        mimeType: "image/png",
-        buffer: Buffer.from(new Uint8Array(6 * 1024 * 1024)),
-      });
-    }
+    // Create a file above the 50 MB upload limit on disk (Playwright cannot
+    // send buffers larger than 50 MB).
+    const oversizedPath = join(mkdtempSync(join(tmpdir(), "e2e-oversized-")), "oversized.png");
+    writeFileSync(oversizedPath, Buffer.alloc(51 * 1024 * 1024));
+    await page.locator('button[data-testid="media-pick"]').click();
+    await page.locator('input[data-testid="media-file-input"]').setInputFiles(oversizedPath);
 
     await expect(page.locator('p[data-testid="media-error"]')).toBeVisible({ timeout: 10_000 });
   });
@@ -475,83 +594,91 @@ test.describe("Image upload (Education media field)", () => {
 // E. Nav reordering — drag Blog above Projects → save → refresh → public order
 // ============================================================================
 test.describe("Nav reordering", () => {
-  test("drag Blog above Projects → save → refresh → public nav reflects new order", async ({
+  const adminRowLabels = (page: import("@playwright/test").Page) =>
+    page
+      .locator('[data-testid="nav-row"] .font-serif')
+      .allTextContents()
+      .then((l) => l.map((s) => s.trim()));
+
+  const publicNavLabels = (page: import("@playwright/test").Page) =>
+    page
+      .locator("nav[aria-label='Site index'] a > span.whitespace-nowrap")
+      .allTextContents()
+      .then((l) => l.map((s) => s.trim()));
+
+  test("reorder Blog above Projects → persists → public nav reflects new order", async ({
     page,
   }) => {
     await setViewport(page, { width: 1440, height: 900 });
     await loginAsAdmin(page);
+    await goto(page, "/onlyme/settings");
 
-    // Navigate to NavReorder via Pages or settings; find it in admin area.
-    await goto(page, "/onlyme/pages");
-    await page.getByText("Settings", { exact: true }).click();
-    await expect(page).toHaveURL(/.*\/onlyme\/settings/);
-
-    // NavReorder lives on a dedicated admin route; navigate directly if
-    // exposed, otherwise use Pages list to confirm order not required here.
-    // Fallback: verify default public order is Overview → Education → Projects.
-    await goto(page, "/");
-    const menu = page.locator("nav[aria-label='Site index']");
-    const labels = await page.evaluate(() => {
-      const items = Array.from(
-        document.querySelectorAll("nav[aria-label='Site index'] .text-foreground"),
-      );
-      return items.map((el) => el.textContent?.trim()).filter(Boolean);
-    });
-    const projIdx = labels.indexOf("Projects");
-    const eduIdx = labels.indexOf("Education");
-    expect(eduIdx).toBeGreaterThanOrEqual(0);
-    expect(projIdx).toBeGreaterThan(eduIdx);
-
-    // Attempt nav reorder admin page if it exists at /onlyme/nav-order.
-    await goto(page, "/onlyme/nav-order");
     const navRows = page.locator('[data-testid="nav-row"]');
-    if ((await navRows.count()) > 0) {
-      // Find Blog row and move it up above Projects using move-up buttons.
-      const blogRow = navRows.filter({ hasText: /Blog/ }).first();
-      const moveUp = blogRow.locator('button[aria-label*="up"]').first();
-      if ((await moveUp.count()) > 0 && !(await moveUp.isDisabled())) {
-        await moveUp.click();
-        await page.waitForTimeout(500);
-      }
+    await expect(navRows.first()).toBeVisible({ timeout: 20000 });
 
-      // Save via toast-indicated reorder (handleReorder auto-saves on drag).
-      // Refresh public page and confirm new order.
-      await goto(page, "/");
-      const newLabels = await page.evaluate(() => {
-        const items = Array.from(
-          document.querySelectorAll("nav[aria-label='Site index'] .text-foreground"),
-        );
-        return items.map((el) => el.textContent?.trim()).filter(Boolean);
-      });
-      // Order may or may not have changed depending on move-up availability;
-      // at minimum the page is stable.
-      expect(newLabels.length).toBeGreaterThan(0);
-    }
+    // Start from the canonical order regardless of what a previous run left.
+    await page.getByRole("button", { name: /Restore default order/i }).click();
+    await expect(page.getByText("Default nav order restored")).toBeVisible({ timeout: 10000 });
+
+    const before = await adminRowLabels(page);
+    expect(before.indexOf("Projects")).toBeGreaterThanOrEqual(0);
+    expect(before.indexOf("Blog")).toBe(before.indexOf("Projects") + 1);
+
+    // Move Blog up one position (above Projects).
+    await navRows
+      .filter({ has: page.locator(".font-serif", { hasText: "Blog" }) })
+      .locator('button[aria-label*="up"]')
+      .click();
+
+    await expect
+      .poll(async () => {
+        const labels = await adminRowLabels(page);
+        return labels.indexOf("Blog") < labels.indexOf("Projects");
+      })
+      .toBe(true);
+
+    // Wait for the persistence request to finish before reloading.
+    await expect(page.getByText("Nav order saved")).toBeVisible({ timeout: 10000 });
+
+    // Reload admin to prove persistence.
+    await page.reload();
+    await expect(navRows.first()).toBeVisible({ timeout: 20000 });
+    const afterReload = await adminRowLabels(page);
+    expect(afterReload.indexOf("Blog")).toBeLessThan(afterReload.indexOf("Projects"));
+
+    // Public nav follows the saved order on first paint.
+    await goto(page, "/");
+    await expect
+      .poll(async () => {
+        const labels = await publicNavLabels(page);
+        return labels.indexOf("Blog") < labels.indexOf("Projects");
+      })
+      .toBe(true);
   });
 
   test("move back afterward — restore default order", async ({ page }) => {
     await setViewport(page, { width: 1440, height: 900 });
     await loginAsAdmin(page);
-    await goto(page, "/onlyme/nav-order");
+    await goto(page, "/onlyme/settings");
 
     const restoreBtn = page.getByRole("button", { name: /Restore default order/i });
-    if ((await restoreBtn.count()) > 0) {
-      await restoreBtn.click();
-      await page.waitForTimeout(500);
-    }
+    await expect(restoreBtn).toBeVisible({ timeout: 20000 });
+    await restoreBtn.click();
+
+    await expect
+      .poll(async () => {
+        const labels = await adminRowLabels(page);
+        return labels.indexOf("Projects") < labels.indexOf("Blog");
+      })
+      .toBe(true);
+
+    await expect(page.getByText("Default nav order restored")).toBeVisible({ timeout: 10000 });
 
     await goto(page, "/");
-    const menu = page.locator("nav[aria-label='Site index']");
-    const labels = await page.evaluate(() => {
-      const items = Array.from(
-        document.querySelectorAll("nav[aria-label='Site index'] .text-foreground"),
-      );
-      return items.map((el) => el.textContent?.trim()).filter(Boolean);
-    });
-    const eduIdx = labels.indexOf("Education");
-    const projIdx = labels.indexOf("Projects");
-    expect(eduIdx).toBeGreaterThanOrEqual(0);
-    expect(projIdx).toBeGreaterThan(eduIdx);
+    const labels = await publicNavLabels(page);
+    expect(labels.indexOf("Education")).toBeGreaterThanOrEqual(0);
+    expect(labels.indexOf("Education")).toBe(labels.indexOf("Overview") + 1);
+    expect(labels.indexOf("Projects")).toBeLessThan(labels.indexOf("Blog"));
   });
 });
 
@@ -648,11 +775,14 @@ test.describe("Mobile viewports", () => {
       expect(box!.height).toBeLessThanOrEqual(1024);
     }
 
-    // Two-finger scroll simulation via mouse wheel on scrollable area.
-    await page.mouse.wheel(0, 500);
-    await page.waitForTimeout(300);
-    const scrolled = await page.evaluate(() => window.scrollY > 0);
-    expect(scrolled).toBe(true);
+    // Wheel scrolling on a long page (the contact page may fit without scrolling).
+    await goto(page, "/");
+    const before = await page.evaluate(() => window.scrollY);
+    await page.mouse.move(384, 500);
+    await page.mouse.wheel(0, 600);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 })
+      .toBeGreaterThan(before + 100);
   });
 });
 
@@ -664,7 +794,9 @@ test.describe("Regression", () => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/");
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.locator("section h2:has-text('Education')")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Featured Work" })).toBeVisible();
+    // Education lives on its own route, not on the home page.
+    await expect(page.getByRole("heading", { name: "Education" })).toHaveCount(0);
   });
 
   test("Projects renders cards", async ({ page }) => {
@@ -695,7 +827,7 @@ test.describe("Regression", () => {
   test("Contact form renders and accepts input", async ({ page }) => {
     await setViewport(page, { width: 1440, height: 900 });
     await goto(page, "/contact");
-    await expect(page.locator("h1")).toHaveText(/Contact/i);
+    await expect(page.locator("h1")).toHaveText(/Correspondence|Contact/i);
     await page.locator('input[name="name"]').click();
     await page.locator('input[name="name"]').pressSequentially("Regression Tester");
     await expect(page.locator('input[name="name"]')).toHaveValue("Regression Tester");

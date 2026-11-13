@@ -79,6 +79,28 @@ export function useCmsDraft<T>({
   const saveRef = useRef<{ id: number }>({ id: 0 });
   const mountedRef = useRef(false);
 
+  // Always-current snapshot of the draft. Save/publish read from here instead of
+  // a closure value, so a click handler can never write an older version of the
+  // document than the one on screen.
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
+  // Serialize staged writes (and publish) so an older request can never land
+  // after a newer one and clobber it.
+  const writeChain = useRef<Promise<unknown>>(Promise.resolve());
+  const enqueue = useCallback(<R>(fn: () => Promise<R>): Promise<R> => {
+    const run = writeChain.current.then(fn);
+    writeChain.current = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
+  }, []);
+  const writeStaged = useCallback(
+    (content: T) => enqueue(() => (updateStaged as any)({ data: { table, slug, content } })),
+    [enqueue, table, slug],
+  );
+
   const doc = data ? (data.staged ?? normalizeRef.current({})) : normalizeRef.current({});
 
   const load = useCallback(async () => {
@@ -134,17 +156,16 @@ export function useCmsDraft<T>({
 
   const save = useCallback(
     async (options?: { silent?: boolean }): Promise<boolean> => {
-      if (!data) return false;
+      const current = dataRef.current;
+      if (!current) return false;
       const nextId = (saveRef.current.id += 1);
       const myId = nextId;
       setSaving(true);
       setError(null);
       try {
-        await (updateStaged as any)({
-          data: { table, slug, content: data.staged },
-        });
+        await writeStaged(current.staged);
         if (myId !== saveRef.current.id) return false; // superseded
-        baselineRef.current = data.staged;
+        baselineRef.current = current.staged;
         setDirty(false);
         setLastSaved(new Date());
         if (!options?.silent) {
@@ -163,16 +184,13 @@ export function useCmsDraft<T>({
         if (myId === saveRef.current.id) setSaving(false);
       }
     },
-    [data, table, slug],
+    [writeStaged],
   );
 
   // Debounced autosave to staged.
   useEffect(() => {
     if (!dirty || !mountedRef.current) return;
-    const id = (saveRef.current.id += 1);
-    const myId = id;
     const timer = setTimeout(async () => {
-      if (myId !== saveRef.current.id) return;
       await save({ silent: true });
     }, autosaveMs);
     return () => {
@@ -181,29 +199,26 @@ export function useCmsDraft<T>({
   }, [dirty, autosaveMs, save]);
 
   const publish = useCallback(async (): Promise<boolean> => {
-    if (!data) return false;
-    const saved = await save({ silent: true });
-    if (!saved) {
-      setNotice({ kind: "error", text: "Publish blocked — fix the save error first" });
-      notify("Publish blocked — fix the save error first", "error");
-      return false;
-    }
+    const current = dataRef.current;
+    if (!current) return false;
+    // Publish the document currently on screen. The server writes staged and
+    // published together, so the live snapshot can never lag behind the editor.
+    const content = current.staged;
     try {
       setSaving(true);
-      await (publishItem as any)({ data: { table, slug } });
-      if (data) {
-        setData((prev) =>
-          prev
-            ? {
-                ...prev,
-                published: data.staged,
-                isPublic: true,
-                publishedAt: new Date().toISOString(),
-              }
-            : null,
-        );
-      }
-      baselineRef.current = data.staged;
+      setError(null);
+      const res: any = await enqueue(() => (publishItem as any)({ data: { table, slug, content } }));
+      baselineRef.current = content;
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              published: content,
+              isPublic: true,
+              publishedAt: res?.publishedAt ?? new Date().toISOString(),
+            }
+          : null,
+      );
       setDirty(false);
       setLastSaved(new Date());
       setNotice({ kind: "ok", text: "Published" });
@@ -218,7 +233,7 @@ export function useCmsDraft<T>({
     } finally {
       setSaving(false);
     }
-  }, [data, table, slug, save]);
+  }, [enqueue, table, slug]);
 
   const unpublish = useCallback(async (): Promise<boolean> => {
     if (!data) return false;

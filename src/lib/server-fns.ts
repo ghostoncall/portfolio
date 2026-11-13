@@ -397,8 +397,14 @@ export const publishItem = createServerFn({ method: "POST", strict: false }).han
       }
       when = parsed;
     }
+    // When the client sends its current draft, write staged + published in the
+    // same UPDATE. This makes the published snapshot exactly what the editor
+    // sees, and removes any window where a slow/overlapping autosave could
+    // publish an older staged version.
+    const content = data.content === undefined ? row[0]["staged"] : data.content;
     const setValues: any = {
-      published: row[0]["staged"],
+      staged: content,
+      published: content,
       publishedAt: when,
       updatedAt: now,
     };
@@ -575,10 +581,23 @@ export const reorderNav = createServerFn({ method: "POST", strict: false }).hand
     const { request } = context;
     await requireAdmin(request);
     const db = getDb();
-    const slugs: string[] = Array.isArray(data?.slugs) ? data.slugs.map(String) : [];
+    const known = new Set<string>(NAV_SLUGS);
+    const slugs: string[] = (Array.isArray(data?.slugs) ? data.slugs.map(String) : []).filter(
+      (s: string) => known.has(s),
+    );
     if (!slugs.length) return { ok: true, count: 0 };
     const now = new Date();
+    const value = { order: slugs };
     await db.transaction(async (tx) => {
+      // Single source of truth for the complete public nav order.
+      await tx
+        .insert(settings)
+        .values({ id: "nav", published: value as any, staged: value as any, updatedAt: now })
+        .onConflictDoUpdate({
+          target: settings.id,
+          set: { published: value as any, staged: value as any, updatedAt: now },
+        });
+      // Mirror onto pages.navOrder for backward compatibility.
       for (let i = 0; i < slugs.length; i++) {
         await tx
           .update(pages)
@@ -1101,16 +1120,34 @@ export const getPublishedPage = createServerFn({ method: "GET", strict: false })
   },
 );
 
-/** Public read path for the DB-persisted nav order (no admin session required). */
+/** Top-level sections that participate in nav reordering. */
+export const NAV_SLUGS = [
+  "overview",
+  "education",
+  "projects",
+  "blog",
+  "skills",
+  "experience",
+  "volunteering",
+  "contact",
+] as const;
+
+/**
+ * Public read path for the DB-persisted nav order (no admin session required).
+ *
+ * The full order — including sections that have no `pages` row (projects/blog/
+ * contact) — is stored in the dedicated `settings` row id="nav". An empty array
+ * means "no saved order yet": the public menu then uses its canonical default
+ * (Overview, Education, Projects, …) so it is always deterministic.
+ */
 export const getPublishedNavOrder = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
     const db = getDb();
-    const rows = await db
-      .select({ slug: pages.slug, title: pages.title, navOrder: pages.navOrder })
-      .from(pages)
-      .where(eq(pages.isPublic, true))
-      .orderBy(pages.navOrder);
-    return rows;
+    const navRow = await db.select().from(settings).where(eq(settings.id, "nav")).limit(1);
+    const stored = (navRow[0]?.published as any)?.order;
+    if (!Array.isArray(stored) || stored.length === 0) return [];
+    const known = new Set<string>(NAV_SLUGS);
+    return stored.map(String).filter((s) => known.has(s));
   },
 );
 

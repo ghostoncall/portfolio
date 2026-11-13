@@ -10,16 +10,18 @@ const NAV_BRAND_HOME = "engineerthisaryan";
 /** Navigation destinations mirrored from SideMenu so the mobile drawer
  *  offers the same hierarchy as the desktop aside. */
 const MOBILE_NAV_ITEMS: Array<{
+  slug: string;
   label: string;
   href: string;
   children?: Array<{ label: string; href: string }>;
   activeWhen?: (pathname: string) => boolean;
 }> = [
-  { label: "Overview", href: "/" },
-  { label: "Education", href: "/education" },
-  { label: "Projects", href: "/projects", children: [] },
-  { label: "Blog", href: "/blog" },
+  { slug: "overview", label: "Overview", href: "/" },
+  { slug: "education", label: "Education", href: "/education" },
+  { slug: "projects", label: "Projects", href: "/projects", children: [] },
+  { slug: "blog", label: "Blog", href: "/blog" },
   {
+    slug: "skills",
     label: "Skills, Certificates & Awards",
     href: "/skills",
     children: [
@@ -28,18 +30,32 @@ const MOBILE_NAV_ITEMS: Array<{
       { label: "Awards & Recognitions", href: "/awards" },
     ],
   },
-  { label: "Experience", href: "/experience" },
-  { label: "Volunteering", href: "/volunteering" },
-  { label: "Contact", href: "/contact" },
+  { slug: "experience", label: "Experience", href: "/experience" },
+  { slug: "volunteering", label: "Volunteering", href: "/volunteering" },
+  { slug: "contact", label: "Contact", href: "/contact" },
 ];
 
-export function SiteHeader({ site }: { site: SiteIdentity }) {
+/** Apply the admin-saved nav order to the mobile drawer, mirroring SideMenu. */
+function orderMobileItems(
+  items: typeof MOBILE_NAV_ITEMS,
+  order: string[] | null,
+): typeof MOBILE_NAV_ITEMS {
+  if (!order || order.length === 0) return items;
+  const rank = new Map(order.map((slug, i) => [slug, i]));
+  return [...items].sort(
+    (a, b) =>
+      (rank.get(a.slug) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.slug) ?? Number.MAX_SAFE_INTEGER),
+  );
+}
+
+export function SiteHeader({ site, navOrder }: { site: SiteIdentity; navOrder?: string[] }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
   const navBrand = isHome ? NAV_BRAND_HOME : site.name;
   const showHomeBrand = site.showHomeBrand ?? true;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const mobileItems = orderMobileItems(MOBILE_NAV_ITEMS, navOrder ?? null);
   const menuRef = useRef<HTMLDivElement>(null);
   const htmlRef = useRef<HTMLElement | null>(null);
 
@@ -91,7 +107,7 @@ export function SiteHeader({ site }: { site: SiteIdentity }) {
         type="button"
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         aria-expanded={isMenuOpen}
-        className="md:hidden flex items-center gap-1 p-3 min-h-[44px] rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
+        className="md:hidden flex items-center justify-center gap-1 p-3 min-h-[44px] min-w-[44px] rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
         onClick={() => setIsMenuOpen((prev) => !prev)}
       >
         <span
@@ -149,7 +165,7 @@ export function SiteHeader({ site }: { site: SiteIdentity }) {
               className="flex-1 overflow-y-auto px-6 py-4 space-y-1"
               aria-label="Mobile navigation"
             >
-              {MOBILE_NAV_ITEMS.map((item) => {
+              {mobileItems.map((item) => {
                 const baseHref = item.href.split("#")[0]!;
                 const active = item.activeWhen
                   ? item.activeWhen(pathname)

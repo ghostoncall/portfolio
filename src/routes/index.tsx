@@ -2,7 +2,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Blocks } from "@/components/blocks";
-import { EducationView } from "@/components/public/EducationView";
 import { ProjectSummary } from "@/components/public/ProjectSummary";
 import { getPublishedPage, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
 

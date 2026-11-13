@@ -6,7 +6,7 @@ import {
   certificates as staticCertificates,
   awards as staticAwards,
 } from "@/content/site";
-import { NavProjectsContext, type NavProject } from "@/components/nav-projects";
+import { NavOrderContext, NavProjectsContext, type NavProject } from "@/components/nav-projects";
 
 /** Canonical default nav order (matches NavReorder / seed).
  *  Kept synchronous (no async fetch) so the nav never flickers or reorders
@@ -60,6 +60,18 @@ function defaultItems(): NavItem[] {
   }));
 }
 
+/** Apply the admin-saved order on top of the defaults. Deterministic: unknown
+ *  slugs keep their default position after the ordered ones. */
+function orderItems(items: NavItem[], order: string[] | null): NavItem[] {
+  if (!order || order.length === 0) return items;
+  const rank = new Map(order.map((slug, i) => [slug, i]));
+  return [...items].sort(
+    (a, b) =>
+      (rank.get(a.slug) ?? Number.MAX_SAFE_INTEGER) -
+        (rank.get(b.slug) ?? Number.MAX_SAFE_INTEGER) || a.navOrder - b.navOrder,
+  );
+}
+
 const itemClass =
   "block py-1.5 font-sans text-[clamp(0.95rem,1rem+0.5vw,1.25rem)] font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
 
@@ -84,7 +96,8 @@ export function SideMenu() {
   const awardsList = staticAwards.entries.filter((a) => a.visible !== false);
   const skillsCount = skillsList.length + certsList.length + awardsList.length;
 
-  const items = defaultItems();
+  const navOrder = useContext(NavOrderContext);
+  const items = orderItems(defaultItems(), navOrder);
 
   return (
     <nav aria-label="Site index" className="border-t border-foreground/30">

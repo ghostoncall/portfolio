@@ -10,7 +10,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { listStaged, reorderNav } from "@/lib/server-fns";
+import { getPublishedNavOrder, reorderNav } from "@/lib/server-fns";
 import { Button } from "@/components/ui/button";
 import { GripVertical } from "lucide-react";
 import { SortableList } from "@/components/admin/cms/SortableList";
@@ -42,14 +42,13 @@ export function NavReorder() {
   );
 
   const refresh = React.useCallback(async () => {
-    const rows = (await (listStaged as any)({
-      data: { table: "pages" },
-    })) as { slug: string; navOrder: number }[];
-    const orderBySlug = new Map(rows.map((r) => [r.slug, Number(r.navOrder ?? 0)]));
+    const saved = ((await (getPublishedNavOrder as any)()) as string[]) ?? [];
+    const rank = new Map(saved.map((slug, i) => [slug, i]));
     const next = DEFAULT_NAV.map((s) => ({
       slug: s.slug,
       label: s.label,
-      navOrder: orderBySlug.get(s.slug) ?? defaultIndexBySlug.get(s.slug) ?? 0,
+      navOrder:
+        rank.get(s.slug) ?? Number.MAX_SAFE_INTEGER - 100 + (defaultIndexBySlug.get(s.slug) ?? 0),
     }));
     next.sort(
       (a, b) =>

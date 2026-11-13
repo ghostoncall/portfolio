@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export function SkillTile({ skill }: { skill: Skill }) {
   return (
     <article
+      data-testid="skill-tile"
       className={cn(
         "border border-border group flex flex-col min-h-[260px] p-5",
         "hover:bg-muted/50 transition-colors",

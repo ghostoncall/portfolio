@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getStaged, updateStaged, publishItem, revertItem } from "@/lib/server-fns";
+import { NavReorder } from "@/components/admin/cms/NavReorder";
 import type { SiteIdentity } from "@/db/schema";
 
 export const Route = createFileRoute("/onlyme/settings")({
@@ -59,7 +60,8 @@ function Settings() {
   async function handlePublish() {
     setSaving(true);
     try {
-      await (publishItem as any)({ data: { table: "settings", slug: "site" } });
+      const content = { name, title, edition, email, socials, showHomeBrand, kind: "site" };
+      await (publishItem as any)({ data: { table: "settings", slug: "site", content } });
       setStatus("ok");
       setTimeout(() => setStatus("idle"), 2000);
       const d = await (getStaged as any)({ data: { table: "settings", slug: "site" } });
@@ -199,6 +201,10 @@ function Settings() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="border border-border rounded-lg p-6">
+        <NavReorder />
       </div>
 
       <div className="flex items-center gap-3">

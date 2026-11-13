@@ -35,7 +35,8 @@ export const Route = createFileRoute("/education")({
   component: EducationPage,
 });
 
-function EducationPage({ education, site }: { education: any; site: any }) {
+function EducationPage() {
+  const { site, education } = Route.useLoaderData() as { site: any; education: any };
   return (
     <PageShell crumbs={["Education"]} title="Education" site={site}>
       <EducationView content={education ?? { kind: "education", entries: [] }} />
