@@ -96,6 +96,7 @@ export const listStaged = createServerFn({ method: "GET", strict: false }).handl
       published: r.published,
       staged: r.staged,
       sort: r.sort,
+      navOrder: r.navOrder ?? 0,
       isPublic: r.isPublic ?? false,
       publishedAt: r.publishedAt ?? null,
       updatedAt: r.updatedAt ?? null,
@@ -722,7 +723,9 @@ export const publishAll = createServerFn({ method: "POST", strict: false }).hand
     await requireAdmin(request);
     const db = getDb();
     const now = new Date();
-    await db.update(pages).set({ published: pages.staged, publishedAt: now, updatedAt: now });
+    await db
+      .update(pages)
+      .set({ published: pages.staged, publishedAt: now, updatedAt: now, isPublic: true });
     await db.update(projects).set({ published: projects.staged, publishedAt: now, updatedAt: now });
     await db.update(posts).set({ published: posts.staged, publishedAt: now, updatedAt: now });
     await db.update(settings).set({ published: settings.staged, updatedAt: now });

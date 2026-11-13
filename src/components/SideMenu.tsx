@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Server-fn `listStaged` is called with `as any` because its strict:false handler
+// returns an untyped result; the public nav gracefully falls back to defaults on 401.
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   projects as staticProjects,
   skills as staticSkills,
@@ -7,17 +10,55 @@ import {
   awards as staticAwards,
 } from "@/content/site";
 import { NavProjectsContext, type NavProject } from "@/components/nav-projects";
+import { listStaged } from "@/lib/server-fns";
 
-const items = [
-  { to: "/", label: "Overview" },
-  { to: "/education", label: "Education" },
-  { to: "/projects", label: "Projects", children: true },
-  { to: "/blog", label: "Blog" },
-  { to: "/skills", label: "Skills, Certificates & Awards", children: true },
-  { to: "/experience", label: "Experience" },
-  { to: "/volunteering", label: "Volunteering" },
-  { to: "/contact", label: "Contact" },
+/** Canonical default nav order (matches NavReorder / seed). */
+const DEFAULT_NAV: Array<{
+  slug: string;
+  label: string;
+  to: string;
+  order: number;
+  hasChildren: boolean;
+}> = [
+  { slug: "overview", label: "Overview", to: "/", order: 0, hasChildren: false },
+  { slug: "education", label: "Education", to: "/education", order: 1, hasChildren: false },
+  { slug: "projects", label: "Projects", to: "/projects", order: 2, hasChildren: true },
+  { slug: "blog", label: "Blog", to: "/blog", order: 3, hasChildren: false },
+  {
+    slug: "skills",
+    label: "Skills, Certificates & Awards",
+    to: "/skills",
+    order: 4,
+    hasChildren: true,
+  },
+  { slug: "experience", label: "Experience", to: "/experience", order: 7, hasChildren: false },
+  {
+    slug: "volunteering",
+    label: "Volunteering",
+    to: "/volunteering",
+    order: 8,
+    hasChildren: false,
+  },
+  { slug: "contact", label: "Contact", to: "/contact", order: 9, hasChildren: false },
 ] as const;
+
+type NavItem = {
+  slug: string;
+  label: string;
+  to: string;
+  navOrder: number;
+  hasChildren: boolean;
+};
+
+function defaultItems(): NavItem[] {
+  return DEFAULT_NAV.map((d) => ({
+    slug: d.slug,
+    label: d.label,
+    to: d.to,
+    navOrder: d.order,
+    hasChildren: d.hasChildren,
+  }));
+}
 
 const itemClass =
   "block py-1.5 font-sans text-[clamp(0.95rem,1rem+0.5vw,1.25rem)] font-bold leading-tight tracking-tight text-foreground transition-opacity hover:opacity-60";
@@ -43,11 +84,51 @@ export function SideMenu() {
   const awardsList = staticAwards.entries.filter((a) => a.visible !== false);
   const skillsCount = skillsList.length + certsList.length + awardsList.length;
 
+  /** Nav items merged from `pages.navOrder` (DB) with non-pages sections at default positions. */
+  const [navItems, setNavItems] = useState<NavItem[]>(defaultItems());
+
+  useEffect(() => {
+    let mounted = true;
+    (listStaged as any)({ data: { table: "pages" } })
+      .then((rows: any[]) => {
+        if (!mounted) return;
+        const bySlug = new Map(rows.map((r) => [r.slug, r]));
+        const next = DEFAULT_NAV.map((d) => {
+          const row = bySlug.get(d.slug);
+          // Sections WITH a pages row use DB title/navOrder; sections without (projects, blog,
+          // contact) keep their fallback label and default position.
+          return {
+            slug: d.slug,
+            label: (row?.title ?? d.label) as string,
+            to: d.to,
+            navOrder: row != null ? Number(row.navOrder ?? d.order) : d.order,
+            hasChildren: d.hasChildren,
+          };
+        });
+        next.sort(
+          (a, b) =>
+            a.navOrder - b.navOrder ||
+            DEFAULT_NAV.findIndex((d) => d.slug === a.slug) -
+              DEFAULT_NAV.findIndex((d) => d.slug === b.slug),
+        );
+        setNavItems(next);
+      })
+      // listStaged requires an admin session; on public pages it 401s — keep the default order.
+      .catch(() => {
+        if (mounted) setNavItems(defaultItems());
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const items = navItems;
+
   return (
     <nav aria-label="Site index" className="border-t border-foreground/30">
       {items.map((item) => {
         const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
-        const hasChildren = "children" in item;
+        const hasChildren = item.hasChildren;
         const isSkillsSection = item.label === "Skills, Certificates & Awards";
         const isOpen = isSkillsSection ? skillsOpen : projectsOpen;
         const toggleOpen = () => {
