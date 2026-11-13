@@ -130,7 +130,10 @@ export function SideMenu() {
               {hasChildren && (
                 <button
                   type="button"
-                  onClick={toggleOpen}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleOpen();
+                  }}
                   aria-expanded={isOpen}
                   aria-label={isOpen ? `Collapse ${item.label}` : `Expand ${item.label}`}
                   className={`px-1 text-xl font-light leading-none ${active ? "text-primary-foreground/80 hover:text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
