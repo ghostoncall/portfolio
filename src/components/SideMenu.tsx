@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// Server-fn `getPublishedNavOrder` is publicly readable (no admin session);
-// the public nav gracefully falls back to defaults if the fetch fails.
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   projects as staticProjects,
   skills as staticSkills,
@@ -10,9 +7,12 @@ import {
   awards as staticAwards,
 } from "@/content/site";
 import { NavProjectsContext, type NavProject } from "@/components/nav-projects";
-import { getPublishedNavOrder } from "@/lib/server-fns";
 
-/** Canonical default nav order (matches NavReorder / seed). */
+/** Canonical default nav order (matches NavReorder / seed).
+ *  Kept synchronous (no async fetch) so the nav never flickers or reorders
+ *  under the user's cursor. Drag-and-drop reordering is managed in the admin
+ *  panel via NavReorder; this public menu renders the stable default order.
+ */
 const DEFAULT_NAV: Array<{
   slug: string;
   label: string;
@@ -84,44 +84,7 @@ export function SideMenu() {
   const awardsList = staticAwards.entries.filter((a) => a.visible !== false);
   const skillsCount = skillsList.length + certsList.length + awardsList.length;
 
-  /** Nav items merged from `pages.navOrder` (DB) with non-pages sections at default positions. */
-  const [navItems, setNavItems] = useState<NavItem[]>(defaultItems());
-
-  useEffect(() => {
-    let mounted = true;
-    getPublishedNavOrder()
-      .then((rows: any[]) => {
-        if (!mounted) return;
-        const bySlug = new Map(rows.map((r) => [r.slug, r]));
-        const next = DEFAULT_NAV.map((d) => {
-          const row = bySlug.get(d.slug);
-          // Sections WITH a pages row use DB title/navOrder; sections without (projects, blog,
-          // contact) keep their fallback label and default position.
-          return {
-            slug: d.slug,
-            label: (row?.title ?? d.label) as string,
-            to: d.to,
-            navOrder: row != null ? Number(row.navOrder ?? d.order) : d.order,
-            hasChildren: d.hasChildren,
-          };
-        });
-        next.sort(
-          (a, b) =>
-            a.navOrder - b.navOrder ||
-            DEFAULT_NAV.findIndex((d) => d.slug === a.slug) -
-              DEFAULT_NAV.findIndex((d) => d.slug === b.slug),
-        );
-        setNavItems(next);
-      })
-      .catch(() => {
-        if (mounted) setNavItems(defaultItems());
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const items = navItems;
+  const items = defaultItems();
 
   return (
     <nav aria-label="Site index" className="border-t border-foreground/30">
