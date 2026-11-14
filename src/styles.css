@@ -375,3 +375,8 @@
   padding: 0.5rem 0.75rem;
   text-align: left;
 }
+
+/* Hide Netlify attribution badge */
+#nl-badge-frame {
+  display: none !important;
+}
