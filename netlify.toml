@@ -2,13 +2,8 @@
   command = "npm run build"
   publish = ".output/public"
 
-[functions]
-  # Netlify Starter free tier: 10s function timeout.
-  # Suitable for a portfolio; long-running admin actions stay well under this.
-  timeout = 10
-
 [[redirects]]
-  # Ensure trailing-slash consistency and SPA fallback for client-side routes.
+  # SPA fallback for client-side routes.
   source = "/*"
   destination = "/index.html"
   status = 200
