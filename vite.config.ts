@@ -55,6 +55,29 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       ignoreOutdatedRequests: true,
     },
     plugins: [
+      // Browser-only packages must never enter the server bundle: Workers has
+      // no DOM, and Rollup can hoist their module-scope DOM access into a chunk
+      // that server code (drizzle/nodemailer) imports on every request.
+      {
+        name: "koenig-server-stub",
+        enforce: "pre" as const,
+        applyToEnvironment(environment) {
+          return environment.config.consumer === "server";
+        },
+        resolveId(id: string) {
+          if (id === "@tryghost/koenig-lexical") return "\0koenig-ssr-stub";
+          return null;
+        },
+        load(id: string) {
+          if (id === "\0koenig-ssr-stub") {
+            return `export const KoenigComposer = () => null;
+export const KoenigEditor = () => null;
+export const HtmlOutputPlugin = () => null;
+export default {};`;
+          }
+          return null;
+        },
+      },
       tailwindcss(),
       tsconfigPaths({ projects: ["./tsconfig.json"] }),
       tanstackStart({
@@ -66,7 +89,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         },
       }),
       // Build-time server bundling, same as the removed wrapper's default.
-      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-module" })] : []),
+      ...(command === "build" ? [nitro({ defaultPreset: "netlify" })] : []),
       react(),
     ],
   };

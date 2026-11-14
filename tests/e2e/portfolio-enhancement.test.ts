@@ -21,8 +21,8 @@ const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
 ];
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "abc@gmail.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "hello@123abc";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@example.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "changeme";
 
 async function setViewport(page: Page, vp) {
   await page.setViewportSize({ width: vp.width, height: vp.height });

@@ -69,7 +69,7 @@ Unified expandable page: three sections (Skills, Certificates, Awards), each wit
 - Regression-test existing Projects, Experience, Overview, Skills, Certificates
 
 ## Open Question for User
-Your `site.email` in `src/content/site.ts` is `"you@example.com"` (placeholder) while SMTP uses the real `engineerthisaryan@gmail.com`. For the Education section branding/header, should the email templates and site identity use `site.name`/`site.edition` (currently "Your Name" / "Portfolio 2026" placeholders), or do you want those updated to your real name/identity? (This affects the education page header and any email subject lines.)
+Your `site.email` in `src/content/site.ts` is `"you@example.com"` (placeholder) while SMTP uses the real `you@example.com`. For the Education section branding/header, should the email templates and site identity use `site.name`/`site.edition` (currently "Your Name" / "Portfolio 2026" placeholders), or do you want those updated to your real name/identity? (This affects the education page header and any email subject lines.)
 
 ---
 

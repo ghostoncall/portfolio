@@ -5,7 +5,7 @@
 **Size:** Project (reusable template system)
 
 ## Intent & Why
-Emails sent by the portfolio (currently only contact-form notifications to engineerthisaryan@gmail.com) use generic corporate HTML with system fonts, blue links, gray backgrounds, and rounded corners. They do not match the website's editorial design language. The goal is to make every email look like it was designed by the same person who designed the site: ink on near-white paper, serif display type, hairline rules, square corners, no gradients, restrained spacing.
+Emails sent by the portfolio (currently only contact-form notifications to you@example.com) use generic corporate HTML with system fonts, blue links, gray backgrounds, and rounded corners. They do not match the website's editorial design language. The goal is to make every email look like it was designed by the same person who designed the site: ink on near-white paper, serif display type, hairline rules, square corners, no gradients, restrained spacing.
 
 ## Goals
 - Reusable email template system in `src/lib/email-templates.ts` so future email types share branding/components.
@@ -44,4 +44,4 @@ Emails sent by the portfolio (currently only contact-form notifications to engin
 
 ## What's left to builder
 - Implement templates and wire into `sendContactEmail`.
-- Submit a real contact form; verify delivery to engineerthisaryan@gmail.com; check plain-text + mobile rendering.
+- Submit a real contact form; verify delivery to you@example.com; check plain-text + mobile rendering.

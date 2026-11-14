@@ -40,8 +40,8 @@ async function goto(page: Page, path: string) {
 async function loginAsAdmin(page: Page) {
   await goto(page, "/onlyme/login");
   await page.locator("input[type=email]").waitFor({ state: "visible", timeout: 15_000 });
-  const adminEmail = process.env.ADMIN_EMAIL ?? "abc@gmail.com";
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "hello@123abc";
+  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@example.com";
+  const adminPassword = process.env.ADMIN_PASSWORD ?? "changeme";
   await page.locator("input[type=email]").click();
   await page.locator("input[type=email]").pressSequentially(adminEmail, { delay: 50 });
   await page.locator("input[type=password]").click();

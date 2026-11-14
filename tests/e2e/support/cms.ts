@@ -16,8 +16,8 @@ import postgres from "postgres";
 
 export const ROOT = process.cwd();
 
-export const ADMIN_EMAIL = "abc@gmail.com";
-export const ADMIN_PASSWORD = "hello@123abc";
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@example.com";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "changeme";
 
 /** Every fixture uploaded by the experience logo suite starts with this. */
 export const TEST_MEDIA_PREFIX = "e2e-logo-";
