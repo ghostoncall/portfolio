@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
 import { getPublishedAwards } from "@/lib/server-fns";
 import { AwardsView } from "@/components/public/AwardsView";
 
 export const Route = createFileRoute("/awards")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [site, awards] = await Promise.all([
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
       (getPublishedAwards as any)(),
     ]);
     return { site, awards };

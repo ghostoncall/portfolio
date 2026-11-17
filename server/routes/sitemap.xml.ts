@@ -4,7 +4,7 @@ import { defineEventHandler } from "h3";
 import { getDb } from "../../src/db/client";
 import { getEnv } from "../../src/lib/runtime-config";
 import { pages, posts, projects, settings } from "../../src/db/schema";
-import { and, eq, isNull, lte, or } from "drizzle-orm";
+import { and, eq, isNull, lte, ne, or } from "drizzle-orm";
 
 const SITE_NAME = "Aryan Mehndiratta";
 
@@ -15,12 +15,36 @@ export default defineEventHandler(async () => {
   // Get site URL from env
   const siteUrl = getEnv("VITE_SITE_URL") || "https://example.com";
 
-  // Get site identity for lastmod reference
-  const siteRow = await db
-    .select({ published: settings.published, updatedAt: settings.updatedAt })
-    .from(settings)
-    .where(eq(settings.id, "site"))
-    .limit(1);
+  // Independent queries — run them concurrently rather than back-to-back.
+  const [siteRow, postRows, projectRows, pageRows] = await Promise.all([
+    // Site identity for lastmod reference
+    db
+      .select({ updatedAt: settings.updatedAt })
+      .from(settings)
+      .where(eq(settings.id, "site"))
+      .limit(1),
+    // Published blog posts
+    db
+      .select({ slug: posts.slug, updatedAt: posts.updatedAt })
+      .from(posts)
+      .where(
+        and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
+      )
+      .orderBy(posts.updatedAt),
+    // Published projects
+    db
+      .select({ slug: projects.slug, updatedAt: projects.updatedAt })
+      .from(projects)
+      .where(eq(projects.isPublic, true))
+      .orderBy(projects.updatedAt),
+    // Published pages (skills, experience, certificates, volunteering, …).
+    // "overview" is served at "/", which corePages already lists.
+    db
+      .select({ slug: pages.slug, updatedAt: pages.updatedAt })
+      .from(pages)
+      .where(and(eq(pages.isPublic, true), ne(pages.slug, "overview")))
+      .orderBy(pages.updatedAt),
+  ]);
   const siteUpdatedAt = siteRow[0]?.updatedAt ?? now;
 
   const siteLastMod = new Date(siteUpdatedAt ?? Date.now()).toISOString();
@@ -37,37 +61,15 @@ export default defineEventHandler(async () => {
     { url: `${siteUrl}/blog`, updated: siteLastMod },
   ];
 
-  // Published blog posts
-  const postRows = await db
-    .select({ slug: posts.slug, updatedAt: posts.updatedAt })
-    .from(posts)
-    .where(
-      and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
-    )
-    .orderBy(posts.updatedAt);
-
   const blogItems = postRows.map((r) => ({
     url: `${siteUrl}/blog/${r.slug}`,
     updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
   }));
 
-  // Published projects
-  const projectRows = await db
-    .select({ slug: projects.slug, updatedAt: projects.updatedAt })
-    .from(projects)
-    .where(eq(projects.isPublic, true))
-    .orderBy(projects.updatedAt);
-
   const projectItems = projectRows.map((r) => ({
     url: `${siteUrl}/projects/${r.slug}`,
     updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
   }));
-
-  // Published pages (skills, experience, certificates, volunteering)
-  const pageRows = await db
-    .select({ slug: pages.slug, updatedAt: pages.updatedAt })
-    .from(pages)
-    .orderBy(pages.updatedAt);
 
   const pageItems = pageRows.map((r) => ({
     url: `${siteUrl}/${r.slug}`,
@@ -99,7 +101,12 @@ ${urls}
 </urlset>`;
 
   return new Response(xml, {
-    headers: { "content-type": "application/xml; charset=utf-8" },
+    headers: {
+      "content-type": "application/xml; charset=utf-8",
+      "cache-control": "public, max-age=0, must-revalidate",
+      // Crawlers don't need second-level freshness; serve from Netlify's CDN.
+      "netlify-cdn-cache-control": "public, durable, s-maxage=3600, stale-while-revalidate=86400",
+    },
   });
 });
 

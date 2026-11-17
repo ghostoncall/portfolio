@@ -3,17 +3,18 @@
 import type { CSSProperties } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getBlogSettings, getPublishedPosts, getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
+import { getBlogSettings, getPublishedPosts } from "@/lib/server-fns";
 import { blogThemeVars } from "@/lib/blog-settings";
 import type { BlogSettings } from "@/lib/blog-settings";
 import type { Post } from "@/content/site";
 import { formatDate } from "@/lib/format-date";
 
 export const Route = createFileRoute("/blog/")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [posts, site, settings] = await Promise.all([
       (getPublishedPosts as any)(),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
       (getBlogSettings as any)(),
     ]);
     return { posts: posts as Post[], site, settings: settings as BlogSettings };

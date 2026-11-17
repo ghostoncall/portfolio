@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getPublishedPage, getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
+import { getPublishedPage } from "@/lib/server-fns";
 import { ExperienceView } from "@/components/public/ExperienceView";
 import { normalizePageContent } from "@/lib/cms-normalize";
 
 export const Route = createFileRoute("/experience")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [raw, site] = await Promise.all([
       (getPublishedPage as any)({ data: { slug: "experience" } }),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
     ]);
     if (!raw) throw notFound();
     const content = normalizePageContent("experience", raw);

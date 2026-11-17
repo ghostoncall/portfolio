@@ -46,13 +46,17 @@ function createClient() {
     prepare: viaHyperdrive,
     fetch_types: false, // no array types in this schema — saves a round-trip
     ssl: viaHyperdrive ? false : "require", // Hyperdrive terminates origin TLS
-    // One connection per request: a single SSR render fans out several
-    // queries, and Hyperdrive/Supabase poolers drop sockets when a Worker
-    // floods them with parallel connections. With `max_pipeline: 1` queries
-    // are serialized anyway, so extra connections only add pressure.
-    max: 1,
+    // Workers + Hyperdrive: one connection per request — Hyperdrive drops
+    // sockets when a Worker floods it with parallel connections.
+    // Node (Netlify / local): the client is a process-wide singleton reused by
+    // warm invocations, and an SSR render fans out 3–5 independent queries
+    // (root + page loaders via Promise.all). With a single connection and
+    // `max_pipeline: 1` those run back-to-back, each paying a full round trip
+    // to the database; a small pool lets them overlap.
+    max: viaHyperdrive ? 1 : 4,
     max_pipeline: 1, // one query at a time per connection — prevents concurrent-query stalls
     queue_timeout: 10, // fail fast instead of hanging when pool is exhausted
+    connect_timeout: 10, // seconds — a cold start should fail fast, not hang the function
   });
   return { db: drizzle(pool, { schema }), pool };
 }
@@ -69,19 +73,12 @@ let nodeCached: DbClient | null = null;
 
 /** True inside Cloudflare's workerd runtime. */
 function isWorkersRuntime(): boolean {
-  return (
-    typeof navigator !== "undefined" &&
-    navigator.userAgent === "Cloudflare-Workers"
-  );
+  return typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
 }
-
 
 /** Server-side database handle for the current request (lazy). */
 export function getDb() {
   const scope = requestDbScope.getStore();
-  console.log(
-    `[getdb] scoped=${Boolean(scope)} hd=${Boolean(getBinding("HYPERDRIVE"))}`,
-  );
   if (scope) {
     scope.client ??= createClient();
     return scope.client.db;

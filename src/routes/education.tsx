@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
 import { getPublishedEducation } from "@/lib/server-fns";
 import { EducationView } from "@/components/public/EducationView";
 
 export const Route = createFileRoute("/education")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [site, education] = await Promise.all([
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
       (getPublishedEducation as any)(),
     ]);
     return { site, education };

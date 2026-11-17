@@ -2,12 +2,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { PageShell } from "@/components/PageShell";
-import { getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
 import { sendContactEmail } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/contact")({
-  loader: async () => {
-    const site = await (getSiteIdentity as any)();
+  loader: async ({ parentMatchPromise }) => {
+    const site = await siteFromRoot(parentMatchPromise);
     return { site };
   },
   head: ({ loaderData }) => {

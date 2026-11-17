@@ -3,16 +3,17 @@
 import type { CSSProperties } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
+import { siteFromRoot } from "@/lib/root-data";
 import { BlogRenderer } from "@/components/admin/BlogRenderer";
-import { getBlogSettings, getPublishedPost, getSiteIdentity } from "@/lib/server-fns";
+import { getBlogSettings, getPublishedPost } from "@/lib/server-fns";
 import { blogThemeVars } from "@/lib/blog-settings";
 import { formatDate } from "@/lib/format-date";
 
 export const Route = createFileRoute("/blog/$slug")({
-  loader: async ({ params }) => {
+  loader: async ({ params, parentMatchPromise }) => {
     const [post, site, settings] = await Promise.all([
       (getPublishedPost as any)({ data: { slug: params.slug } }),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
       (getBlogSettings as any)(),
     ]);
     if (!post) throw notFound();

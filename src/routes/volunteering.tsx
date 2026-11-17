@@ -7,7 +7,8 @@
 import React from "react";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getPublishedPage, getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
+import { getPublishedPage } from "@/lib/server-fns";
 import { normalizeVolunteeringPage } from "@/lib/cms-normalize";
 import { Media } from "@/components/media";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +23,10 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/volunteering")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [raw, site] = await Promise.all([
       (getPublishedPage as any)({ data: { slug: "volunteering" } }),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
     ]);
     if (!raw) throw notFound();
     const content = normalizeVolunteeringPage(raw);

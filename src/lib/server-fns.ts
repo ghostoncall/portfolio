@@ -6,7 +6,7 @@
 // context along with the Request for session verification.
 
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { getAuthUser, getSupabaseServer } from "@/lib/supabase.server";
 import { getEnv } from "@/lib/runtime-config";
@@ -44,6 +44,7 @@ import {
 } from "@/lib/cms-normalize";
 import { planPageReferenceCleanup, planProjectDelete, planProjectRename } from "@/lib/cms-server";
 import { mergeBlogSettings } from "@/lib/blog-settings";
+import { mergePage, mergeProjects, SITE_FALLBACK, SEED_POSTS } from "@/lib/merge-additions";
 
 /** Verify the Supabase session on a Request. Throws 401 if invalid. */
 async function requireAdmin(request: Request): Promise<void> {
@@ -673,56 +674,84 @@ export const ensureContentPage = createServerFn({ method: "POST", strict: false 
   },
 );
 
+/**
+ * Public read of page rows: only the columns the public site needs. The
+ * `staged` JSONB (often as large as `published`) is never sent over the wire.
+ */
+function selectPublicPages(slugs: string[]) {
+  return getDb()
+    .select({ slug: pages.slug, published: pages.published, isPublic: pages.isPublic })
+    .from(pages)
+    .where(slugs.length === 1 ? eq(pages.slug, slugs[0]!) : inArray(pages.slug, slugs));
+}
+
 export const getPublishedSkillsBundle = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const skillsRow = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
-    const certsRow = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
-    const awardsRow = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
-    const skills =
-      skillsRow[0] && skillsRow[0].isPublic
-        ? normalizePageContent(skillsRow[0].published.kind, skillsRow[0].published)
-        : { kind: "skills", categories: [], skills: [] };
-    const certificates =
-      certsRow[0] && certsRow[0].isPublic
-        ? normalizePageContent(certsRow[0].published.kind, certsRow[0].published)
-        : { kind: "certificates", certificates: [] };
-    const awards =
-      awardsRow[0] && awardsRow[0].isPublic
-        ? normalizePageContent(awardsRow[0].published.kind, awardsRow[0].published)
-        : { kind: "awards", entries: [] };
-    return {
-      skills: skills as SkillsPageContent,
-      certificates: certificates as CertificatesPageContent,
-      awards: awards as AwardPageContent,
-    };
+    try {
+      // One round trip instead of three sequential ones.
+      const rows = await selectPublicPages(["skills", "certificates", "awards"]);
+      const bySlug = new Map(rows.map((r) => [r.slug, r]));
+      const resolve = (slug: string) => {
+        const row = bySlug.get(slug);
+        return row && row.isPublic
+          ? normalizePageContent(row.published.kind, mergePage(slug, row.published))
+          : mergePage(slug, null);
+      };
+      const skills = resolve("skills");
+      const certificates = resolve("certificates");
+      const awards = resolve("awards");
+      return {
+        skills: skills as SkillsPageContent,
+        certificates: certificates as CertificatesPageContent,
+        awards: awards as AwardPageContent,
+      };
+    } catch (err) {
+      console.error("[getPublishedSkillsBundle] db unavailable, using additions only", err);
+      return {
+        skills: mergePage("skills", null, true),
+        certificates: mergePage("certificates", null, true),
+        awards: mergePage("awards", null, true),
+      };
+    }
   },
 );
 
 export const getPublishedEducation = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const row = await db.select().from(pages).where(eq(pages.slug, "education")).limit(1);
-    if (!row[0] || !row[0].isPublic) return { kind: "education", entries: [] };
-    return normalizePageContent(row[0].published.kind, row[0].published);
+    try {
+      const row = await selectPublicPages(["education"]);
+      if (!row[0] || !row[0].isPublic) return mergePage("education", null);
+      return normalizePageContent(row[0].published.kind, mergePage("education", row[0].published));
+    } catch (err) {
+      console.error("[getPublishedEducation] db unavailable, using additions only", err);
+      return mergePage("education", null, true);
+    }
   },
 );
 
 export const getPublishedAwards = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const row = await db.select().from(pages).where(eq(pages.slug, "awards")).limit(1);
-    if (!row[0] || !row[0].isPublic) return { kind: "awards", entries: [] };
-    return normalizePageContent(row[0].published.kind, row[0].published);
+    try {
+      const row = await selectPublicPages(["awards"]);
+      if (!row[0] || !row[0].isPublic) return mergePage("awards", null);
+      return normalizePageContent(row[0].published.kind, mergePage("awards", row[0].published));
+    } catch (err) {
+      console.error("[getPublishedAwards] db unavailable, using additions only", err);
+      return mergePage("awards", null, true);
+    }
   },
 );
 
 export const getPublishedSkills = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const row = await db.select().from(pages).where(eq(pages.slug, "skills")).limit(1);
-    if (!row[0] || !row[0].isPublic) return { kind: "skills", categories: [], skills: [] };
-    return normalizePageContent(row[0].published.kind, row[0].published);
+    try {
+      const row = await selectPublicPages(["skills"]);
+      if (!row[0] || !row[0].isPublic) return mergePage("skills", null);
+      return normalizePageContent(row[0].published.kind, mergePage("skills", row[0].published));
+    } catch (err) {
+      console.error("[getPublishedSkills] db unavailable, using additions only", err);
+      return mergePage("skills", null, true);
+    }
   },
 );
 
@@ -730,10 +759,14 @@ export const getPublishedCertificates = createServerFn({
   method: "GET",
   strict: false,
 }).handler(async () => {
-  const db = getDb();
-  const row = await db.select().from(pages).where(eq(pages.slug, "certificates")).limit(1);
-  if (!row[0] || !row[0].isPublic) return { kind: "certificates", certificates: [] };
-  return normalizePageContent(row[0].published.kind, row[0].published);
+  try {
+    const row = await selectPublicPages(["certificates"]);
+    if (!row[0] || !row[0].isPublic) return mergePage("certificates", null);
+    return normalizePageContent(row[0].published.kind, mergePage("certificates", row[0].published));
+  } catch (err) {
+    console.error("[getPublishedCertificates] db unavailable, using additions only", err);
+    return mergePage("certificates", null, true);
+  }
 });
 
 export const publishAll = createServerFn({ method: "POST", strict: false }).handler(
@@ -758,17 +791,26 @@ export const publishAll = createServerFn({ method: "POST", strict: false }).hand
 
 export const getSiteIdentity = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const row = await db.select().from(settings).where(eq(settings.id, "site")).limit(1);
-    return (
-      row[0]?.published ?? {
-        name: "Portfolio",
-        title: "AI Engineer",
-        edition: "2026",
-        email: "",
-        socials: [],
-      }
-    );
+    try {
+      const db = getDb();
+      const row = await db
+        .select({ published: settings.published })
+        .from(settings)
+        .where(eq(settings.id, "site"))
+        .limit(1);
+      return (
+        row[0]?.published ?? {
+          name: "Portfolio",
+          title: "AI Engineer",
+          edition: "2026",
+          email: "",
+          socials: [],
+        }
+      );
+    } catch (err) {
+      console.error("[getSiteIdentity] db unavailable, using additions only", err);
+      return SITE_FALLBACK;
+    }
   },
 );
 
@@ -778,9 +820,14 @@ export const getSiteIdentity = createServerFn({ method: "GET", strict: false }).
 
 export const getBlogSettings = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const row = await db.select().from(blogSettings).where(eq(blogSettings.id, "blog")).limit(1);
-    return mergeBlogSettings(row[0]?.value ?? {});
+    try {
+      const db = getDb();
+      const row = await db.select().from(blogSettings).where(eq(blogSettings.id, "blog")).limit(1);
+      return mergeBlogSettings(row[0]?.value ?? {});
+    } catch (err) {
+      console.error("[getBlogSettings] db unavailable, using seed content", err);
+      return mergeBlogSettings({});
+    }
   },
 );
 
@@ -803,29 +850,47 @@ export const saveBlogSettings = createServerFn({ method: "POST", strict: false }
 
 export const getPublishedPosts = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const now = new Date();
-    const rows = await db
-      .select()
-      .from(posts)
-      .where(
-        and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
-      )
-      .orderBy(posts.sort);
-    return rows.map((r) => r.published).filter((p) => (p.visibility ?? "public") === "public");
+    try {
+      const db = getDb();
+      const now = new Date();
+      const rows = await db
+        .select({ published: posts.published })
+        .from(posts)
+        .where(
+          and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
+        )
+        .orderBy(posts.sort);
+      return rows.map((r) => r.published).filter((p) => (p.visibility ?? "public") === "public");
+    } catch (err) {
+      console.error("[getPublishedPosts] db unavailable, using seed content", err);
+      return SEED_POSTS.filter((p: any) => (p.visibility ?? "public") === "public");
+    }
   },
 );
 
 export const getPublishedPost = createServerFn({ method: "GET", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const row = await db.select().from(posts).where(eq(posts.slug, data.slug)).limit(1);
-    if (!row[0] || !row[0].isPublic) return null;
-    // Scheduled posts stay hidden until their publish time.
-    if (row[0].publishedAt && row[0].publishedAt.getTime() > Date.now()) return null;
-    const post = row[0].published;
-    if ((post.visibility ?? "public") === "private") return null;
-    return post;
+    try {
+      const db = getDb();
+      const row = await db
+        .select({
+          published: posts.published,
+          isPublic: posts.isPublic,
+          publishedAt: posts.publishedAt,
+        })
+        .from(posts)
+        .where(eq(posts.slug, data.slug))
+        .limit(1);
+      if (!row[0] || !row[0].isPublic) return null;
+      // Scheduled posts stay hidden until their publish time.
+      if (row[0].publishedAt && row[0].publishedAt.getTime() > Date.now()) return null;
+      const post = row[0].published;
+      if ((post.visibility ?? "public") === "private") return null;
+      return post;
+    } catch (err) {
+      console.error("[getPublishedPost] db unavailable, using seed content", err);
+      return SEED_POSTS.find((p: any) => p.slug === data.slug) ?? null;
+    }
   },
 );
 
@@ -855,8 +920,9 @@ export const getPostPreview = createServerFn({ method: "GET", strict: false }).h
 
 export const searchPosts = createServerFn({ method: "GET", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const rows: any[] = await db.execute(sql`
+    try {
+      const db = getDb();
+      const rows: any[] = await db.execute(sql`
       select * from search_blog_posts(
         ${data?.query ?? null},
         ${data?.tag ?? null},
@@ -867,59 +933,78 @@ export const searchPosts = createServerFn({ method: "GET", strict: false }).hand
         ${data?.perPage ?? 10}
       )
     `);
-    return {
-      posts: rows.map((r) => ({
-        slug: r.slug,
-        title: r.title,
-        dek: r.dek,
-        date: r.date,
-        tags: r.tags,
-        cover: r.cover,
-        readTime: r.read_time,
-        author: r.author,
-        featured: r.featured,
-        publishedAt: r.published_at,
-      })),
-      rank: rows.map((r) => r.rank),
-      headline: rows.map((r) => r.headline),
-      total: rows.length ? Number(rows[0].total) : 0,
-    };
+      return {
+        posts: rows.map((r) => ({
+          slug: r.slug,
+          title: r.title,
+          dek: r.dek,
+          date: r.date,
+          tags: r.tags,
+          cover: r.cover,
+          readTime: r.read_time,
+          author: r.author,
+          featured: r.featured,
+          publishedAt: r.published_at,
+        })),
+        rank: rows.map((r) => r.rank),
+        headline: rows.map((r) => r.headline),
+        total: rows.length ? Number(rows[0].total) : 0,
+      };
+    } catch (err) {
+      console.error("[searchPosts] db unavailable, using seed content", err);
+      return { posts: [], rank: [], headline: [], total: 0 };
+    }
   },
 );
 
 export const searchSuggest = createServerFn({ method: "GET", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const rows: any[] = await db.execute(sql`
+    try {
+      const db = getDb();
+      const rows: any[] = await db.execute(sql`
       select * from search_blog_suggest(${data?.query ?? ""}, ${data?.limit ?? 6})
     `);
-    return rows;
+      return rows;
+    } catch (err) {
+      console.error("[searchSuggest] db unavailable, using seed content", err);
+      return [];
+    }
   },
 );
 
 export const getBlogTags = createServerFn({ method: "GET", strict: false }).handler(async () => {
-  const db = getDb();
-  return await db.execute(sql`select * from get_blog_tags()`);
+  try {
+    const db = getDb();
+    return await db.execute(sql`select * from get_blog_tags()`);
+  } catch (err) {
+    console.error("[getBlogTags] db unavailable, using seed content", err);
+    return [];
+  }
 });
 
 export const getRelatedPosts = createServerFn({ method: "GET", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const rows: any[] = await db.execute(sql`
+    try {
+      const db = getDb();
+      const rows: any[] = await db.execute(sql`
       select * from get_related_posts(${data?.slug ?? ""}, ${data?.limit ?? 3})
     `);
-    return rows.map((r) => ({
-      slug: r.out_slug,
-      title: r.out_title,
-      dek: r.out_dek,
-      date: r.out_date,
-      tags: r.out_tags,
-      cover: r.out_cover,
-      readTime: r.out_read_time,
-      author: r.out_author,
-      featured: r.out_featured,
-      publishedAt: r.out_published_at,
-    }));
+      return rows.map((r) => ({
+        slug: r.out_slug,
+        title: r.out_title,
+        dek: r.out_dek,
+        date: r.out_date,
+        tags: r.out_tags,
+        cover: r.out_cover,
+        readTime: r.out_read_time,
+        author: r.out_author,
+        featured: r.out_featured,
+        publishedAt: r.out_published_at,
+      }));
+    } catch (err) {
+      console.error("[getRelatedPosts] db unavailable, using seed content", err);
+      return [];
+    }
   },
 );
 
@@ -929,9 +1014,14 @@ export const getRelatedPosts = createServerFn({ method: "GET", strict: false }).
 
 export const recordPostView = createServerFn({ method: "POST", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const row: any = await db.execute(sql`select record_post_view(${data?.slug ?? ""}) as views`);
-    return { views: row[0]?.views ?? null };
+    try {
+      const db = getDb();
+      const row: any = await db.execute(sql`select record_post_view(${data?.slug ?? ""}) as views`);
+      return { views: row[0]?.views ?? null };
+    } catch (err) {
+      console.error("[recordPostView] db unavailable, using seed content", err);
+      return { views: null };
+    }
   },
 );
 
@@ -1092,31 +1182,49 @@ export const markContactRead = createServerFn({ method: "POST", strict: false })
 
 export const getPublishedProjects = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const rows = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.isPublic, true))
-      .orderBy(projects.sort);
-    return rows.map((r) => r.published);
+    try {
+      const db = getDb();
+      const rows = await db
+        .select({ published: projects.published })
+        .from(projects)
+        .where(eq(projects.isPublic, true))
+        .orderBy(projects.sort);
+      return mergeProjects(rows.map((r) => r.published));
+    } catch (err) {
+      console.error("[getPublishedProjects] db unavailable, using additions only", err);
+      return mergeProjects([], true);
+    }
   },
 );
 
 export const getPublishedProject = createServerFn({ method: "GET", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const row = await db.select().from(projects).where(eq(projects.slug, data.slug)).limit(1);
-    if (!row[0]) return null;
-    return row[0].published;
+    try {
+      const db = getDb();
+      const row = await db
+        .select({ published: projects.published })
+        .from(projects)
+        .where(eq(projects.slug, data.slug))
+        .limit(1);
+      if (!row[0]) return mergeProjects([]).find((p: any) => p.slug === data.slug) ?? null;
+      return row[0].published;
+    } catch (err) {
+      console.error("[getPublishedProject] db unavailable, using additions only", err);
+      return mergeProjects([], true).find((p: any) => p.slug === data.slug) ?? null;
+    }
   },
 );
 
 export const getPublishedPage = createServerFn({ method: "GET", strict: false }).handler(
   async ({ data }: any) => {
-    const db = getDb();
-    const row = await db.select().from(pages).where(eq(pages.slug, data.slug)).limit(1);
-    if (!row[0] || !row[0].isPublic) return null;
-    return row[0].published;
+    try {
+      const row = await selectPublicPages([String(data.slug)]);
+      if (!row[0] || !row[0].isPublic) return mergePage(data.slug, null);
+      return mergePage(data.slug, row[0].published);
+    } catch (err) {
+      console.error("[getPublishedPage] db unavailable, using additions only", err);
+      return mergePage(data.slug, null, true);
+    }
   },
 );
 
@@ -1142,12 +1250,21 @@ export const NAV_SLUGS = [
  */
 export const getPublishedNavOrder = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
-    const db = getDb();
-    const navRow = await db.select().from(settings).where(eq(settings.id, "nav")).limit(1);
-    const stored = (navRow[0]?.published as any)?.order;
-    if (!Array.isArray(stored) || stored.length === 0) return [];
-    const known = new Set<string>(NAV_SLUGS);
-    return stored.map(String).filter((s) => known.has(s));
+    try {
+      const db = getDb();
+      const navRow = await db
+        .select({ published: settings.published })
+        .from(settings)
+        .where(eq(settings.id, "nav"))
+        .limit(1);
+      const stored = (navRow[0]?.published as any)?.order;
+      if (!Array.isArray(stored) || stored.length === 0) return [];
+      const known = new Set<string>(NAV_SLUGS);
+      return stored.map(String).filter((s) => known.has(s));
+    } catch (err) {
+      console.error("[getPublishedNavOrder] db unavailable, using additions only", err);
+      return [];
+    }
   },
 );
 

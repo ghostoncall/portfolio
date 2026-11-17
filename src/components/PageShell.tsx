@@ -7,6 +7,10 @@ import { SideMenu } from "@/components/SideMenu";
 
 const NAV_BRAND_HOME = "engineerthisaryan";
 
+// Social icons below are 18px images on a third-party host and use
+// loading="lazy": React 19 otherwise emits <link rel=preload> for them ahead
+// of the profile photo (the LCP element), and they'd compete for bandwidth.
+
 /** Navigation destinations mirrored from SideMenu so the mobile drawer
  *  offers the same hierarchy as the desktop aside. */
 const MOBILE_NAV_ITEMS: Array<{
@@ -288,16 +292,20 @@ export function SiteHeader({ site, navOrder }: { site: SiteIdentity; navOrder?: 
                   <img
                     src="https://img.icons8.com/ios-filled/50/000000/linkedin.png"
                     alt="LinkedIn"
-                    width="20"
-                    height="20"
+                    width="18"
+                    height="18"
+                    loading="lazy"
+                    decoding="async"
                     className="shrink-0"
                   />
                 ) : s.label === "GitHub" ? (
                   <img
                     src="https://img.icons8.com/fluent/50/000000/github.png"
                     alt="GitHub"
-                    width="20"
-                    height="20"
+                    width="18"
+                    height="18"
+                    loading="lazy"
+                    decoding="async"
                     className="shrink-0"
                   />
                 ) : null}
@@ -349,16 +357,20 @@ export function PageShell({
         ))}
       </nav>
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-start lg:items-center">
-        <div className="flex-1">
-          <h1 className="mt-2 text-heading-1 sm:text-5xl md:text-6xl leading-tight text-foreground">
+        <div className="flex-1 w-full">
+          <h1 className="mt-2 text-center lg:text-left text-heading-1 sm:text-5xl md:text-6xl leading-tight text-foreground">
             {title}
           </h1>
         </div>
         {profileImage && (
-          <div className="shrink-0">
+          <div className="shrink-0 self-center lg:self-auto">
             <img
               src={profileImage}
               alt="Profile"
+              width={200}
+              height={200}
+              decoding="async"
+              fetchPriority="high"
               className="w-[160px] h-[160px] md:w-[200px] md:h-[200px] rounded-[20px] object-cover border border-border"
             />
           </div>

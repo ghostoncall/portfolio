@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
 import { getPublishedCertificates } from "@/lib/server-fns";
 import { CertificatesView } from "@/components/public/CertificatesView";
 
 export const Route = createFileRoute("/certificates")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [site, certificates] = await Promise.all([
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
       (getPublishedCertificates as any)(),
     ]);
     return { site, certificates };

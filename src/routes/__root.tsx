@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ReactLenis } from "lenis/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -10,13 +9,11 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import lenisCss from "lenis/dist/lenis.css?url";
 import { SiteHeader, SiteFooter } from "../components/PageShell";
 import { NavOrderContext, NavProjectsContext, type NavProject } from "../components/nav-projects";
-import { Toaster } from "../components/ui/sonner";
 import { getPublishedNavOrder, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
 
 function NotFoundComponent() {
@@ -88,6 +85,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       .map((p) => ({ slug: p.slug, title: p.title }));
     return { site, navProjects, navOrder: (navOrder as string[]) ?? [] };
   },
+  // Site identity, nav order and the project list change only when the admin
+  // publishes. Public client-side navigations reuse the copy loaded with the
+  // page instead of re-requesting all three; child loaders read `site` from it
+  // too (see siteFromRoot). Inside /onlyme the default staleness rules apply so
+  // the editor still sees fresh data, and leaving /onlyme invalidates it.
+  shouldReload: ({ location }) => (location.pathname.startsWith("/onlyme") ? undefined : false),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -100,14 +103,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // Fonts are self-hosted (src/fonts.css, public/fonts/). Preload only the
+      // two faces used by above-the-fold text — the body serif (LCP paragraph)
+      // and Lato 400 — so they arrive with the CSS and the swap barely shifts.
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono&family=Lato:wght@400;700&family=Libre+Baskerville:ital@0;1&display=swap",
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        href: "/fonts/libre-baskerville-normal-latin-3eb80fbc.woff2",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        href: "/fonts/lato-normal-latin-918b7dc3.woff2",
+        crossOrigin: "anonymous",
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "stylesheet", href: lenisCss },
       {
         rel: "alternate",
         type: "application/rss+xml",
@@ -136,21 +149,6 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function SmoothScroll({ children }: { children: ReactNode }) {
-  const [smooth, setSmooth] = useState(true);
-
-  // Honor the OS "reduced motion" setting: those users scroll natively.
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setSmooth(!mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  return smooth ? <ReactLenis root>{children}</ReactLenis> : <>{children}</>;
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { site, navProjects, navOrder } = Route.useLoaderData() as {
@@ -161,7 +159,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SmoothScroll>
+      <>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <SiteHeader site={site} navOrder={navOrder ?? []} />
         <NavOrderContext.Provider value={navOrder ?? []}>
@@ -170,8 +168,7 @@ function RootComponent() {
           </NavProjectsContext.Provider>
         </NavOrderContext.Provider>
         <SiteFooter site={site} />
-      </SmoothScroll>
-      <Toaster />
+      </>
     </QueryClientProvider>
   );
 }

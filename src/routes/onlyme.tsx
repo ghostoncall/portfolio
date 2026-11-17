@@ -1,9 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  Link,
+  redirect,
+  useRouter,
+  useRouterState,
+} from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { getAdminUser, getSiteIdentity } from "@/lib/server-fns";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
+// Toasts are only used inside the admin area, so the toast library is loaded
+// with this route chunk rather than shipped to every public visitor.
+import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/onlyme")({
   // Server-enforced guard: every /onlyme page requires a Supabase session.
@@ -35,6 +45,16 @@ function OnlymeLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const htmlRef = useRef<HTMLElement | null>(null);
+  const router = useRouter();
+
+  // Public pages reuse the root loader's data (site identity, nav order,
+  // projects) across navigations. Edits made here may have changed it, so
+  // refresh it once on the way out of the admin area.
+  useEffect(() => {
+    return () => {
+      void router.invalidate({ filter: (match) => match.routeId === "__root__" });
+    };
+  }, [router]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -81,7 +101,12 @@ function OnlymeLayout() {
   const closeDrawer = () => setSidebarOpen(false);
 
   if (pathname === "/onlyme/login") {
-    return <Outlet />;
+    return (
+      <>
+        <Outlet />
+        <Toaster />
+      </>
+    );
   }
 
   async function handleSignOut() {
@@ -248,6 +273,7 @@ function OnlymeLayout() {
         </header>
         <Outlet />
       </div>
+      <Toaster />
     </div>
   );
 }

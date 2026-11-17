@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
+import { siteFromRoot } from "@/lib/root-data";
 import { Blocks } from "@/components/blocks";
 import { ProjectSummary } from "@/components/public/ProjectSummary";
-import { getPublishedPage, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
+import { getPublishedPage, getPublishedProjects } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [overviewPage, projects, site] = await Promise.all([
       (getPublishedPage as any)({ data: { slug: "overview" } }),
       (getPublishedProjects as any)(),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
     ]);
     return {
       overview: overviewPage ?? { kind: "blocks", blocks: [] },
@@ -56,7 +57,9 @@ function Index() {
       crumbs={["Overview"]}
       title={`${site?.name}`}
       site={site}
-      profileImage="/images/profile.jpeg"
+      // 400×400 WebP (2× the 200px display size) — 23 KB vs 67 KB for the
+      // original profile.jpeg, which stays in public/ for external links.
+      profileImage="/images/profile.webp"
     >
       <Blocks blocks={(overview as any).blocks} />
       <h2 className="mt-12 mb-2 text-3xl text-foreground">Featured Work</h2>

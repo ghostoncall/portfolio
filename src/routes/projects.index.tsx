@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
+import { getPublishedProjects } from "@/lib/server-fns";
 import { ProjectSummary } from "@/components/public/ProjectSummary";
 
 export const Route = createFileRoute("/projects/")({
-  loader: async () => {
+  loader: async ({ parentMatchPromise }) => {
     const [projects, site] = await Promise.all([
       (getPublishedProjects as any)(),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
     ]);
     return { projects, site };
   },

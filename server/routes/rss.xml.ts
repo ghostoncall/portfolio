@@ -12,25 +12,29 @@ export default defineEventHandler(async () => {
   const db = getDb();
   const now = new Date();
 
-  // Get site identity for the channel title and URL
-  const siteRow = await db
-    .select({ published: settings.published })
-    .from(settings)
-    .where(eq(settings.id, "site"))
-    .limit(1);
+  // Site identity (channel title) and posts are independent — fetch together.
+  const [siteRow, rows] = await Promise.all([
+    db
+      .select({ published: settings.published })
+      .from(settings)
+      .where(eq(settings.id, "site"))
+      .limit(1),
+    db
+      .select({ published: posts.published, slug: posts.slug, updatedAt: posts.updatedAt })
+      .from(posts)
+      .where(
+        and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
+      )
+      .orderBy(posts.updatedAt),
+  ]);
   const siteIdentity = siteRow[0]?.published as any;
   const siteTitle = siteIdentity?.name || SITE_NAME;
   const siteUrl = getEnv("VITE_SITE_URL") || "https://example.com";
 
-  const rows = await db
-    .select({ published: posts.published, slug: posts.slug, updatedAt: posts.updatedAt })
-    .from(posts)
-    .where(
-      and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
-    )
-    .orderBy(posts.updatedAt);
-
   const items = rows
+    // Same rule as the blog index (getPublishedPosts): unlisted and private
+    // posts are reachable only by direct link, never advertised in the feed.
+    .filter((r) => (r.published.visibility ?? "public") === "public")
     .map((r) => {
       const p = r.published;
       const url = `${siteUrl}/blog/${p.slug}`;
@@ -60,7 +64,12 @@ export default defineEventHandler(async () => {
 </rss>`;
 
   return new Response(xml, {
-    headers: { "content-type": "application/rss+xml; charset=utf-8" },
+    headers: {
+      "content-type": "application/rss+xml; charset=utf-8",
+      "cache-control": "public, max-age=0, must-revalidate",
+      // Feed readers poll; serve them from Netlify's CDN, refreshed every 10 min.
+      "netlify-cdn-cache-control": "public, durable, s-maxage=600, stale-while-revalidate=86400",
+    },
   });
 });
 

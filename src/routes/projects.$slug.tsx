@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { getPublishedProject, getPublishedSkillsBundle, getSiteIdentity } from "@/lib/server-fns";
+import { siteFromRoot } from "@/lib/root-data";
+import { getPublishedProject, getPublishedSkillsBundle } from "@/lib/server-fns";
 import { ProjectView } from "@/components/public/ProjectView";
 
 export const Route = createFileRoute("/projects/$slug")({
-  loader: async ({ params }) => {
+  loader: async ({ params, parentMatchPromise }) => {
     const [project, skillsBundle, site] = await Promise.all([
       (getPublishedProject as any)({ data: { slug: params.slug } }),
       (getPublishedSkillsBundle as any)(),
-      (getSiteIdentity as any)(),
+      siteFromRoot(parentMatchPromise),
     ]);
     if (!project) throw notFound();
     return { project, skills: skillsBundle.skills.skills, site };

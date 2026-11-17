@@ -165,6 +165,7 @@ function OfficeSlot({ item, ext }: { item: MediaItem; ext: string }) {
   return (
     <iframe
       src={viewer}
+      loading="lazy"
       title={item.title ?? fileName(item.src ?? "")}
       className={`${fill} border border-border bg-background`}
     />
@@ -197,6 +198,7 @@ function Slot({
           src={src}
           alt={item.alt ?? item.caption ?? ""}
           loading="lazy"
+          decoding="async"
           className={`${fill} ${objectFit} bg-muted`}
         />
       );
@@ -225,7 +227,12 @@ function Slot({
       );
     case "pdf":
       return (
-        <iframe src={src} title={title} className={`${fill} border border-border bg-background`} />
+        <iframe
+          src={src}
+          loading="lazy"
+          title={title}
+          className={`${fill} border border-border bg-background`}
+        />
       );
     case "office":
       return <OfficeSlot item={item} ext={ext} />;
@@ -233,6 +240,7 @@ function Slot({
       return (
         <iframe
           src={youtubeEmbedUrl(src)}
+          loading="lazy"
           title={title}
           className={fill}
           allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
@@ -243,6 +251,7 @@ function Slot({
       return (
         <iframe
           src={vimeoEmbedUrl(src)}
+          loading="lazy"
           title={title}
           className={fill}
           allow="fullscreen; picture-in-picture"
@@ -253,6 +262,7 @@ function Slot({
       return (
         <iframe
           src={src}
+          loading="lazy"
           title={title}
           className={`${fill} border border-border`}
           allowFullScreen
