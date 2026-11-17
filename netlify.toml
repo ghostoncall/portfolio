@@ -2,6 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # SMTP_TO is the public contact address, which the site shows anyway and which
+  # is also the fallback in src/lib/merge-additions.ts. The scanner would
+  # otherwise block every deploy on it. Real SMTP credentials are not omitted.
+  SECRETS_SCAN_OMIT_KEYS = "SMTP_TO"
+
 [[redirects]]
   # SPA fallback for client-side routes.
   source = "/*"
