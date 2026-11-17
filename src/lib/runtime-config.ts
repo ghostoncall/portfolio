@@ -11,6 +11,18 @@ type RuntimeScope = { env: Record<string, unknown> };
 
 const scope = new AsyncLocalStorage<RuntimeScope>();
 
+/** Include the bindings Nitro attaches to requests on Cloudflare Pages. */
+export function resolveRuntimeEnv(request: Request, env?: unknown): Record<string, unknown> {
+  const runtimeRequest = request as Request & {
+    runtime?: { cloudflare?: { env?: Record<string, unknown> } };
+  };
+  return {
+    ...process.env,
+    ...runtimeRequest.runtime?.cloudflare?.env,
+    ...(env && typeof env === "object" ? env : {}),
+  };
+}
+
 // Kept for code that runs outside a request (Node dev server boot, CLI
 // scripts). Never used to serve a request.
 let outsideRequestConfig: Record<string, unknown> | undefined;

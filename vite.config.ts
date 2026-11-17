@@ -92,7 +92,7 @@ export default {};`;
         },
       }),
       // Build-time server bundling, same as the removed wrapper's default.
-      ...(command === "build" ? [nitro({ defaultPreset: "netlify" })] : []),
+      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-pages" })] : []),
       react(),
     ],
   };

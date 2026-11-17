@@ -121,17 +121,37 @@ node scripts/e2e-dbcheck.mjs '{"slug":"skills","column":"published","needles":["
 
 ## Deployment
 
-TanStack Start is Nitro-based and deploys to Vercel/Cloudflare/Node hosting. The default build targets `cloudflare-module`; on Vercel set `NITRO_PRESET=vercel` (or `preset: "vercel"` in the nitro config). Custom domain attaches at the host's dashboard with SSL auto-provisioning.
+The default build targets Cloudflare Pages, including a server-rendering Worker in `dist/_worker.js`.
+
+### Cloudflare Pages with GitHub integration
+
+In Cloudflare, open **Workers & Pages**, create a **Pages** application and import `ghostoncall/portfolio` from GitHub. Configure the project with the following values.
+
+| Setting | Value |
+|---|---|
+| Project name | `ghostoncall-portfolio` |
+| Production branch | `v0.9-optimized` |
+| Framework preset | None |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | Repository root |
+| `NODE_VERSION` environment variable | `26.8.1` |
+
+Set the environment variables below before the first build. `VITE_*` values must be available during the build. Store private values as secrets in Cloudflare. Set `VITE_SITE_URL` to the public deployment URL or custom domain.
+
+`wrangler.json` configures `nodejs_compat` and the existing `HYPERDRIVE` binding. Verify that its Hyperdrive ID belongs to the selected Cloudflare account and connects to the portfolio database. Nitro passes these bindings through the request runtime, and both TanStack pages and Nitro server routes use request-scoped database clients.
+
+After the initial deployment, pushes to `v0.9-optimized` trigger production deployments automatically. Configure the same bindings and variables for preview deployments if enabling other branches.
 
 ### Environment variables
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | Yes | Supabase transaction pooler connection string |
+| `DATABASE_URL` | Without Hyperdrive | Supabase transaction pooler connection string for local development or a runtime without the `HYPERDRIVE` binding |
 | `VITE_SUPABASE_URL` | Yes | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anon/public key |
 | `ADMIN_EMAIL` | No | When set, only this email may access `/onlyme` |
-| `ADMIN_PASSWORD` | Yes | Password typed at `/onlyme` login (not a DB credential) |
+| `VITE_SITE_URL` | Yes | Public deployment URL or custom domain, also available at runtime for RSS and sitemap |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | No | Outbound mail server (Gmail: use an App Password) |
 | `SMTP_FROM`, `SMTP_TO` | No | Verified sender + inbox that receives contact submissions |
 | `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | No | Cloudflare Turnstile keys; leave blank to run without the challenge |
