@@ -6,6 +6,7 @@
 // "media" block. Leave `items` empty for placeholders; add as many items as
 // you like and it becomes a carousel automatically.
 
+import type { HeadingStyle } from "@/lib/typography";
 import type { MediaItem } from "@/components/media";
 
 export type { MediaItem };
@@ -22,7 +23,14 @@ export type Block =
       credit?: string;
     }
   | { type: "text"; body: string }
-  | { type: "heading"; text: string }
+  | {
+      type: "heading";
+      text: string;
+      /** 2 (default) or 3. */
+      level?: 2 | 3 | undefined;
+      /** Font / bold / italic for this heading only (see src/lib/typography.ts). */
+      style?: HeadingStyle | undefined;
+    }
   | { type: "list"; items: string[]; ordered?: boolean }
   | {
       type: "image";
@@ -282,8 +290,30 @@ export type EducationPageContent = {
   entries: EducationEntry[];
 };
 
+/**
+ * An uploaded, optimized image: `src` is the full-size WebP, `thumb` a small
+ * listing variant. Pixel sizes are recorded so pages can reserve space.
+ */
+export type ImageAsset = {
+  src: string;
+  width?: number | undefined;
+  height?: number | undefined;
+  thumb?: string | undefined;
+  thumbWidth?: number | undefined;
+  thumbHeight?: number | undefined;
+  alt?: string | undefined;
+  /**
+   * The thumbnail's crop of the full image, as fractions of its width/height
+   * (may extend past 0..1 when zoomed out to show the whole image). Lets the
+   * admin re-adjust the crop later without re-uploading.
+   */
+  crop?: { x: number; y: number; w: number; h: number } | undefined;
+};
+
 /** An academic award, scholarship, honour, or competition recognition. */
 export type Award = {
+  /** Optional photo/certificate image: thumbnail in the list, full size on expand. */
+  thumbnail?: ImageAsset;
   id: string;
   title: string;
   issuer?: string;
@@ -307,7 +337,13 @@ export type AwardPageContent = {
 
 /** A page body. `kind` tells the admin editor which form shape to render. */
 export type PageContent =
-  | { kind: "blocks"; blocks: Block[] }
+  | {
+      kind: "blocks";
+      blocks: Block[];
+      /** Set once the git-tracked additions were folded into this page (the
+       *  admin then owns them: they're no longer appended on every read). */
+      additionsApplied?: boolean | undefined;
+    }
   | SkillsPageContent
   | CertificatesPageContent
   | ExperiencePageContent
@@ -791,6 +827,20 @@ export type Post = {
   /** public = listed and readable; unlisted = readable by URL; private = admin only. */
   visibility?: PostVisibility;
   seo: PostSEO | undefined;
+  /** Optional small image shown beside the post on the blog index. */
+  thumbnail?: ImageAsset;
+  /** "auto" (default): reading time is computed from the content. */
+  readTimeMode?: "auto" | "manual";
+  /** Per-image layout in the body, keyed by the image's src. */
+  imageLayouts?: Record<string, PostImageLayout>;
+  /** External links open in a new tab (default true). */
+  externalLinksNewTab?: boolean;
+};
+
+export type PostImageLayout = {
+  align: "center" | "left" | "right" | "full";
+  /** Width for floated/centered images. */
+  size?: "s" | "m" | "l" | undefined;
 };
 
 export const posts: Post[] = [

@@ -35,6 +35,7 @@ import type {
   SkillsPageContent,
 } from "@/content/site";
 import type { BlogSettings } from "@/lib/blog-settings";
+import type { SiteTypography } from "@/lib/typography";
 
 /** Postgres tsvector. Maintained by a database trigger, never written by the app. */
 const tsvector = customType<{ data: string; driverData: string }>({
@@ -53,6 +54,8 @@ export type SiteIdentity = {
   socials: { label: string; href: string }[];
   /** When false, hides the home-page nav brand text ("engineerthisaryan"). */
   showHomeBrand?: boolean;
+  /** Site-wide heading font/bold/italic (see src/lib/typography.ts). */
+  typography?: SiteTypography | undefined;
 };
 
 /** Legacy skill group shape (pre-CMS). Kept so old documents still typecheck. */

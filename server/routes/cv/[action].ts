@@ -53,7 +53,11 @@ export default defineEventHandler(async (event) => {
     "content-type": "application/pdf",
     "content-disposition": disposition,
     "x-content-type-options": "nosniff",
-    "cache-control": "public, max-age=0, must-revalidate",
+    // Browser: a versioned URL never changes content (a new upload gets a new
+    // ?v=), so it is kept for good — returning visitors don't re-download.
+    "cache-control": versioned
+      ? "public, max-age=31536000, immutable"
+      : "public, max-age=0, must-revalidate",
     "netlify-cdn-cache-control": versioned
       ? "public, durable, s-maxage=3600"
       : "public, durable, s-maxage=60",

@@ -24,7 +24,8 @@ const field =
   "w-full border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring";
 const caption = "mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground";
 
-export function BlogSettingsPage() {
+// Not exported, so the route component can be code-split out of the entry.
+function BlogSettingsPage() {
   const [settings, setSettings] = useState<BlogSettings>(DEFAULT_BLOG_SETTINGS);
   const [saved, setSaved] = useState<string>(JSON.stringify(DEFAULT_BLOG_SETTINGS));
   const [loading, setLoading] = useState(true);

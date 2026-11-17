@@ -344,8 +344,20 @@ export const educationPageSchema = z.object({
   entries: z.array(educationEntrySchema).default([]),
 });
 
+/** Optional optimized image (see ImageAsset in src/content/site.ts). */
+const imageAssetSchema = z.object({
+  src: httpOrRelativeUrl,
+  thumb: httpOrRelativeUrl.optional(),
+  width: z.number().positive().optional(),
+  height: z.number().positive().optional(),
+  thumbWidth: z.number().positive().optional(),
+  thumbHeight: z.number().positive().optional(),
+  alt: z.string().max(300).optional(),
+});
+
 export const awardSchema = z.object({
   id: z.string().trim().min(1),
+  thumbnail: imageAssetSchema.optional(),
   title: requiredName,
   issuer: z.string().trim().optional(),
   date: isoDate.optional(),

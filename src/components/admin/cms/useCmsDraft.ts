@@ -22,6 +22,8 @@ export interface UseCmsDraftOptions<T> {
   slug: string;
   normalize: (raw: unknown) => T;
   autosaveMs?: number;
+  /** A missing row is a normal empty state (data = null), not an error. */
+  allowMissing?: boolean;
 }
 
 export interface UseCmsDraftReturn<T> {
@@ -57,6 +59,7 @@ export function useCmsDraft<T>({
   slug,
   normalize,
   autosaveMs = 2000,
+  allowMissing = false,
 }: UseCmsDraftOptions<T>): UseCmsDraftReturn<T> {
   const [data, setData] = useState<{
     published: T;
@@ -109,6 +112,10 @@ export function useCmsDraft<T>({
     try {
       const rows = await (listStaged as any)({ data: { table } });
       const row = Array.isArray(rows) ? rows.find((r: any) => r.slug === slug) : undefined;
+      if (!row && allowMissing) {
+        setData(null);
+        return;
+      }
       if (!row) {
         throw new Error(`Row not found for slug ${slug}`);
       }
@@ -129,7 +136,7 @@ export function useCmsDraft<T>({
     } finally {
       setLoading(false);
     }
-  }, [table, slug]);
+  }, [table, slug, allowMissing]);
 
   // Load once on mount. table/slug are stable strings so this effect does not
   // re-run on subsequent renders.
@@ -207,7 +214,9 @@ export function useCmsDraft<T>({
     try {
       setSaving(true);
       setError(null);
-      const res: any = await enqueue(() => (publishItem as any)({ data: { table, slug, content } }));
+      const res: any = await enqueue(() =>
+        (publishItem as any)({ data: { table, slug, content } }),
+      );
       baselineRef.current = content;
       setData((prev) =>
         prev

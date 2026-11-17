@@ -147,8 +147,13 @@ export function useMediaUpload() {
       setProgress(0);
       const results: { url: string; fileName?: string }[] = [];
       try {
+        // Blog images are resized/re-encoded (WebP, ≤2000px edge) before upload.
+        const { optimizeImage } = await import("@/lib/image-optimize");
         for (let index = 0; index < list.length; index += 1) {
-          const file = list[index]!;
+          const original = list[index]!;
+          const file = original.type.startsWith("image/")
+            ? (await optimizeImage(original, { maxEdge: 2000, quality: 0.82 })).file
+            : original;
           const asset = await uploadFileToLibrary(file, {
             onProgress: (percent) =>
               setProgress(Math.round(((index + percent / 100) / list.length) * 100)),

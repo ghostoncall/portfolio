@@ -127,11 +127,19 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1,
+  /* Admin-customizable (Settings → Headings, src/lib/typography.ts); the
+     fallbacks are the original design. */
+  h1 {
+    font-family: var(--title-font, var(--font-display));
+    font-weight: var(--title-weight, 400);
+    font-style: var(--title-style, normal);
+    letter-spacing: -0.01em;
+  }
   h2,
   h3 {
-    font-family: var(--font-display);
-    font-weight: 400;
+    font-family: var(--heading-font, var(--font-display));
+    font-weight: var(--heading-weight, 400);
+    font-style: var(--heading-style, normal);
     letter-spacing: -0.01em;
   }
   ::selection {
@@ -334,6 +342,125 @@
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* ── Per-image layouts chosen in the editor (src/lib/blog-html.ts) ─────────
+   Floats only from 640px up; below that every image stacks full width, so
+   text never squeezes into a narrow column on phones. */
+.blog-theme .kg-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.blog-theme .kg-content h2,
+.blog-theme .kg-content h3,
+.blog-theme .kg-content hr,
+.blog-theme .kg-content .kg-layout-full,
+.blog-theme .kg-content .kg-layout-center,
+.blog-theme .kg-content .kg-embed-card,
+.blog-theme .kg-content .kg-facade {
+  clear: both;
+}
+.blog-theme .kg-content .kg-size-s {
+  --kg-img-width: 34%;
+}
+.blog-theme .kg-content .kg-size-m {
+  --kg-img-width: 45%;
+}
+.blog-theme .kg-content .kg-size-l {
+  --kg-img-width: 58%;
+}
+.blog-theme .kg-content figure.kg-layout-center {
+  width: var(--kg-img-width, 72%);
+  margin-inline: auto;
+}
+.blog-theme .kg-content figure.kg-layout-full {
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .blog-theme .kg-content figure.kg-layout-left {
+    float: left;
+    width: var(--kg-img-width, 45%);
+    margin: 0.35rem 1.75rem 1rem 0;
+  }
+  .blog-theme .kg-content figure.kg-layout-right {
+    float: right;
+    width: var(--kg-img-width, 45%);
+    margin: 0.35rem 0 1rem 1.75rem;
+  }
+}
+@media (max-width: 639px) {
+  .blog-theme .kg-content figure.kg-layout-center {
+    width: 100%;
+  }
+}
+
+/* ── Click-to-play video placeholder ───────────────────────────────────── */
+.blog-theme .kg-content .kg-facade {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: var(--blog-image-spacing) 0;
+  overflow: hidden;
+  background: #111;
+}
+.blog-theme .kg-content .kg-facade img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.88;
+  transition: opacity 0.2s ease;
+}
+.blog-theme .kg-content .kg-facade:hover img {
+  opacity: 1;
+}
+.blog-theme .kg-content .kg-facade__play {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background: transparent;
+}
+.blog-theme .kg-content .kg-facade__play::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 68px;
+  height: 48px;
+  translate: -50% -50%;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 0.72);
+  transition: background 0.2s ease;
+}
+.blog-theme .kg-content .kg-facade__play::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -35% -50%;
+  border-style: solid;
+  border-width: 10px 0 10px 17px;
+  border-color: transparent transparent transparent #fff;
+}
+.blog-theme .kg-content .kg-facade__play:hover::before,
+.blog-theme .kg-content .kg-facade__play:focus-visible::before {
+  background: rgb(0 0 0 / 0.9);
+}
+.blog-theme .kg-content .kg-facade__play:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -6px;
+}
+.blog-theme .kg-content .kg-facade iframe,
+.blog-theme .kg-content .kg-embed-card iframe {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+.blog-theme .kg-content .kg-facade iframe {
+  position: absolute;
+  inset: 0;
 }
 
 .blog-theme .kg-content figure {

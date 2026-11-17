@@ -43,7 +43,7 @@ function SkillsPage() {
   };
   return (
     <PageShell crumbs={["Skills"]} title="Skills" site={site}>
-      <SkillsView skills={skills?.skills ?? []} />
+      <SkillsView skills={skills?.skills ?? []} categories={skills?.categories ?? []} />
     </PageShell>
   );
 }

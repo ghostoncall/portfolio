@@ -14,6 +14,7 @@ import type {
   EducationEntry,
   EducationPageContent,
   ExperienceEntry,
+  ImageAsset,
   Project,
   Skill,
   SkillCategory,
@@ -489,6 +490,24 @@ export function normalizeEducationPage(raw: unknown): EducationPageContent {
 // Awards page
 // ---------------------------------------------------------------------------
 
+/** Keep an optional optimized image only if it is well-formed. */
+export function normalizeImageAsset(raw: unknown): ImageAsset | undefined {
+  const r = raw as Partial<ImageAsset> | null | undefined;
+  if (!r || typeof r.src !== "string" || !/^(https:\/\/|\/)/.test(r.src)) return undefined;
+  const num = (v: unknown) =>
+    typeof v === "number" && Number.isFinite(v) && v > 0 ? v : undefined;
+  const str = (v: unknown) => (typeof v === "string" && /^(https:\/\/|\/)/.test(v) ? v : undefined);
+  return {
+    src: r.src,
+    ...(str(r.thumb) ? { thumb: str(r.thumb) } : {}),
+    ...(num(r.width) ? { width: num(r.width), height: num(r.height) } : {}),
+    ...(num(r.thumbWidth)
+      ? { thumbWidth: num(r.thumbWidth), thumbHeight: num(r.thumbHeight) }
+      : {}),
+    ...(typeof r.alt === "string" ? { alt: r.alt.slice(0, 300) } : {}),
+  };
+}
+
 export function normalizeAwardPage(raw: unknown): AwardPageContent {
   const r = (raw as any) ?? {};
 
@@ -505,6 +524,9 @@ export function normalizeAwardPage(raw: unknown): AwardPageContent {
         ...(a.reason ? { reason: a.reason } : {}),
         ...(a.document ? { document: a.document } : {}),
         ...(a.image ? { image: a.image } : {}),
+        ...(normalizeImageAsset(a.thumbnail)
+          ? { thumbnail: normalizeImageAsset(a.thumbnail) }
+          : {}),
         ...(a.relatedEducation ? { relatedEducation: a.relatedEducation } : {}),
         ...(a.relatedProject ? { relatedProject: a.relatedProject } : {}),
         ...(a.referenceUrl ? { referenceUrl: a.referenceUrl } : {}),
@@ -528,6 +550,7 @@ export function normalizeAwardPage(raw: unknown): AwardPageContent {
       ...(a.reason ? { reason: a.reason } : {}),
       ...(a.document ? { document: a.document } : {}),
       ...(a.image ? { image: a.image } : {}),
+      ...(normalizeImageAsset(a.thumbnail) ? { thumbnail: normalizeImageAsset(a.thumbnail) } : {}),
       ...(a.relatedEducation ? { relatedEducation: a.relatedEducation } : {}),
       ...(a.relatedProject ? { relatedProject: a.relatedProject } : {}),
       ...(a.referenceUrl ? { referenceUrl: a.referenceUrl } : {}),
@@ -559,6 +582,7 @@ export function normalizePageContent(kind: any, raw: unknown): any {
       return {
         kind: "blocks",
         blocks: Array.isArray((raw as any)?.blocks) ? (raw as any).blocks : [],
+        ...((raw as any)?.additionsApplied === true ? { additionsApplied: true } : {}),
       };
   }
 }

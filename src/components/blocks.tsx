@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Block } from "@/content/site";
 import { Media } from "@/components/media";
+import { headingInlineStyle } from "@/lib/typography";
 
 function Placeholder({ label, ratio = "16/9" }: { label: string; ratio?: string | undefined }) {
   return (
@@ -60,7 +61,16 @@ export function BlockView({ block }: { block: Block }) {
     case "text":
       return <p className="prose-editorial my-5 text-foreground">{block.body}</p>;
     case "heading":
-      return <h2 className="mt-12 mb-4 text-3xl text-foreground">{block.text}</h2>;
+      // Per-heading style overrides the site-wide heading defaults.
+      return block.level === 3 ? (
+        <h3 className="mt-10 mb-3 text-2xl text-foreground" style={headingInlineStyle(block.style)}>
+          {block.text}
+        </h3>
+      ) : (
+        <h2 className="mt-12 mb-4 text-3xl text-foreground" style={headingInlineStyle(block.style)}>
+          {block.text}
+        </h2>
+      );
     case "list": {
       const Tag = block.ordered ? "ol" : "ul";
       return (

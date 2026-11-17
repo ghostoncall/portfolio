@@ -3,6 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { getStaged, updateStaged, publishItem, revertItem } from "@/lib/server-fns";
 import { NavReorder } from "@/components/admin/cms/NavReorder";
 import type { SiteIdentity } from "@/db/schema";
+import { HeadingStyleControls } from "@/components/admin/cms/HeadingStyleControls";
+import { cleanHeadingStyle, type SiteTypography } from "@/lib/typography";
 
 export const Route = createFileRoute("/onlyme/settings")({
   component: Settings,
@@ -20,6 +22,12 @@ function Settings() {
   const [email, setEmail] = React.useState("");
   const [showHomeBrand, setShowHomeBrand] = React.useState(true);
   const [socials, setSocials] = React.useState<{ label: string; href?: string }[]>([]);
+  const [typography, setTypography] = React.useState<SiteTypography>({});
+  // Only known fonts / booleans are ever stored (see cleanHeadingStyle).
+  const cleanTypography = (): SiteTypography => ({
+    titles: cleanHeadingStyle(typography.titles),
+    headings: cleanHeadingStyle(typography.headings),
+  });
 
   React.useEffect(() => {
     (getStaged as any)({ data: { table: "settings", slug: "site" } }).then((d: any) => {
@@ -30,6 +38,7 @@ function Settings() {
       setEdition(staged.edition);
       setEmail(staged.email);
       setShowHomeBrand(staged.showHomeBrand ?? true);
+      setTypography(staged.typography ?? {});
       setSocials(staged.socials as { label: string; href?: string }[]);
     });
   }, []);
@@ -43,7 +52,15 @@ function Settings() {
         data: {
           table: "settings",
           slug: "site",
-          content: { name, title, edition, email, socials, showHomeBrand },
+          content: {
+            name,
+            title,
+            edition,
+            email,
+            socials,
+            showHomeBrand,
+            typography: cleanTypography(),
+          },
           kind: "site",
         },
       });
@@ -60,7 +77,16 @@ function Settings() {
   async function handlePublish() {
     setSaving(true);
     try {
-      const content = { name, title, edition, email, socials, showHomeBrand, kind: "site" };
+      const content = {
+        name,
+        title,
+        edition,
+        email,
+        socials,
+        showHomeBrand,
+        typography: cleanTypography(),
+        kind: "site",
+      };
       await (publishItem as any)({ data: { table: "settings", slug: "site", content } });
       setStatus("ok");
       setTimeout(() => setStatus("idle"), 2000);
@@ -72,6 +98,7 @@ function Settings() {
       setEdition(staged.edition);
       setEmail(staged.email);
       setShowHomeBrand(staged.showHomeBrand ?? true);
+      setTypography(staged.typography ?? {});
       setSocials(staged.socials as { label: string; href?: string }[]);
       setStatus("ok");
       setTimeout(() => setStatus("idle"), 2000);
@@ -95,6 +122,7 @@ function Settings() {
       setEdition(staged.edition);
       setEmail(staged.email);
       setShowHomeBrand(staged.showHomeBrand ?? true);
+      setTypography(staged.typography ?? {});
       setSocials(staged.socials as { label: string; href?: string }[]);
       setStatus("ok");
       setTimeout(() => setStatus("idle"), 2000);
@@ -161,6 +189,29 @@ function Settings() {
               Show home-page nav brand ("engineerthisaryan")
             </span>
           </label>
+          <div className="border-t pt-4 space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-foreground">Headings</h3>
+              <p className="text-xs text-muted-foreground">
+                Applies across the whole site. Individual headings in the page editor can override
+                this.
+              </p>
+            </div>
+            <HeadingStyleControls
+              label="Page titles"
+              sample={name || "Page title"}
+              level="h1"
+              value={typography.titles}
+              onChange={(titles) => setTypography((t) => ({ ...t, titles }))}
+            />
+            <HeadingStyleControls
+              label="Section headings"
+              sample="Featured Work"
+              level="h2"
+              value={typography.headings}
+              onChange={(headings) => setTypography((t) => ({ ...t, headings }))}
+            />
+          </div>
           <div className="border-t pt-4">
             <h3 className="text-sm font-medium text-foreground mb-3">Socials</h3>
             <div className="space-y-2">

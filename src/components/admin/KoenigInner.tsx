@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { HtmlOutputPlugin, KoenigComposer, KoenigEditor } from "@tryghost/koenig-lexical";
 import "@tryghost/koenig-lexical/style.css";
 import { KOENIG_FILE_TYPES, useMediaUpload } from "@/lib/media-upload";
+import { fetchEmbedData } from "@/lib/server-fns";
 
 export type KoenigValue = {
   lexical: Record<string, unknown>;
@@ -118,6 +119,12 @@ export default function KoenigInner({
     renderLabels: false,
     feature: { transistor: false },
     post: { displayName: "post", visibility: "public" },
+    // Paste a YouTube/Vimeo link → video embed; any other URL (GitHub, docs…)
+    // → bookmark card. Resolved server-side (src/lib/server-fns.ts).
+    fetchEmbed: (url: string, options: { type?: string } = {}) =>
+      (fetchEmbedData as unknown as (args: { data: unknown }) => Promise<unknown>)({
+        data: { url, type: options.type },
+      }),
   };
 
   const style = {

@@ -18,6 +18,7 @@ import { ReactLenis } from "lenis/react";
 import "../styles.css";
 import { SiteHeader, SiteFooter } from "../components/PageShell";
 import { BackToTop } from "../components/BackToTop";
+import { typographyCss } from "@/lib/typography";
 import { NavOrderContext, NavProjectsContext, type NavProject } from "../components/nav-projects";
 import { getPublishedNavOrder, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
 
@@ -96,7 +97,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   // too (see siteFromRoot). Inside /onlyme the default staleness rules apply so
   // the editor still sees fresh data, and leaving /onlyme invalidates it.
   shouldReload: ({ location }) => (location.pathname.startsWith("/onlyme") ? undefined : false),
-  head: () => ({
+  head: ({ loaderData }) => ({
+    // Admin heading styles (Settings → Headings) as CSS variables, in <head>
+    // so the first paint already uses them.
+    styles: (() => {
+      const css = typographyCss((loaderData as any)?.site?.typography);
+      return css ? [{ children: css }] : [];
+    })(),
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -114,14 +121,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "preload",
         as: "font",
         type: "font/woff2",
-        href: "/fonts/libre-baskerville-normal-latin-3eb80fbc.woff2",
+        href: "/fonts/libre-baskerville-normal-400-latin-3eb80fbc.woff2",
         crossOrigin: "anonymous",
       },
       {
         rel: "preload",
         as: "font",
         type: "font/woff2",
-        href: "/fonts/lato-normal-latin-918b7dc3.woff2",
+        href: "/fonts/lato-normal-400-latin-918b7dc3.woff2",
         crossOrigin: "anonymous",
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },

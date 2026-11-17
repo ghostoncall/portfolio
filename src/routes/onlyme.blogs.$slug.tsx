@@ -8,7 +8,7 @@
 // Legacy posts (Block[]) are converted to HTML on first open and written to
 // `staged` only, so the published copy keeps rendering until the author
 // explicitly publishes the converted body.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Maximize, Minimize, ImageIcon, Loader2, X } from "lucide-react";
 import {
@@ -27,7 +27,10 @@ import { BlogRenderer } from "@/components/admin/BlogRenderer";
 import type { MediaItem } from "@/components/media";
 import { blocksToHtml } from "@/lib/blocks-to-html";
 import { blogThemeVars, DEFAULT_BLOG_SETTINGS } from "@/lib/blog-settings";
-import type { Post, PostBody, PostVisibility } from "@/content/site";
+import type { ImageAsset, Post, PostBody, PostImageLayout, PostVisibility } from "@/content/site";
+import { ImageAssetField } from "@/components/admin/cms/ImageAssetField";
+import { readingMinutes } from "@/lib/reading-time";
+import { bodyImages } from "@/lib/blog-html";
 
 export const Route = createFileRoute("/onlyme/blogs/$slug")({
   component: PostEditor,
@@ -56,6 +59,11 @@ type Form = {
   canonical: string;
   socialImage: string;
   body: PostBody | null;
+  thumbnail: ImageAsset | undefined;
+  /** Automatic reading time is the default; manual keeps `readTime`. */
+  readTimeAuto: boolean;
+  imageLayouts: Record<string, PostImageLayout>;
+  externalLinksNewTab: boolean;
 };
 
 function toForm(post: Post): Form {
@@ -75,6 +83,10 @@ function toForm(post: Post): Form {
     canonical: post.seo?.canonical ?? "",
     socialImage: post.seo?.socialImage ?? "",
     body: post.body ?? null,
+    thumbnail: post.thumbnail,
+    readTimeAuto: post.readTimeMode !== "manual",
+    imageLayouts: post.imageLayouts ?? {},
+    externalLinksNewTab: post.externalLinksNewTab !== false,
   };
 }
 
@@ -104,9 +116,25 @@ function buildDoc(form: Form, base: Post, slug: string): Post {
     cover: (form.cover?.src ? form.cover : undefined) as MediaItem | undefined,
     seo: Object.keys(seo).length ? seo : undefined,
   };
-  if (form.readTime.trim()) doc.readTime = form.readTime.trim();
-  else delete doc.readTime;
   if (form.body) doc.body = form.body;
+  // Reading time: computed from the content unless the author overrides it.
+  if (form.readTimeAuto || !form.readTime.trim()) {
+    doc.readTimeMode = "auto";
+    doc.readTime = `${readingMinutes(doc)} min read`;
+  } else {
+    doc.readTimeMode = "manual";
+    doc.readTime = form.readTime.trim();
+  }
+  if (form.thumbnail?.src) doc.thumbnail = form.thumbnail;
+  else delete doc.thumbnail;
+  // Keep layouts only for images still in the body.
+  const present = new Set(bodyImages(form.body?.html ?? "").map((i) => i.src));
+  const layouts = Object.fromEntries(
+    Object.entries(form.imageLayouts).filter(([src]) => present.has(src)),
+  );
+  if (Object.keys(layouts).length) doc.imageLayouts = layouts;
+  else delete doc.imageLayouts;
+  doc.externalLinksNewTab = form.externalLinksNewTab;
   return doc;
 }
 
@@ -145,7 +173,9 @@ function StatusBadge({ isPublic, publishedAt }: { isPublic: boolean; publishedAt
   );
 }
 
-export function PostEditor() {
+// Not exported: an exported route component can't be code-split, which kept
+// this whole editor in every public page's entry bundle.
+function PostEditor() {
   const params = Route.useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState<Form | null>(null);
@@ -291,6 +321,13 @@ export function PostEditor() {
     setForm((prev) => (prev ? { ...prev, ...next } : prev));
     setDirty(true);
   };
+
+  // What the preview renders: exactly the document that would be saved
+  // (tags as an array, computed reading time, image layouts, thumbnail).
+  const previewPost = useMemo(
+    () => (form && base ? buildDoc(form, base, form.slug || base.slug) : null),
+    [form, base],
+  );
 
   const save = useCallback(
     async (options: { applySlug?: boolean; silent?: boolean } = {}) => {
@@ -670,7 +707,7 @@ export function PostEditor() {
                       : "max-w-3xl"
                 }`}
               >
-                <BlogRenderer post={form as unknown as Post} themeVars={vars} />
+                <BlogRenderer post={previewPost ?? (form as unknown as Post)} themeVars={vars} />
               </div>
             </div>
           </div>
@@ -768,7 +805,7 @@ export function PostEditor() {
                         : "max-w-3xl"
                   }`}
                 >
-                  <BlogRenderer post={form as unknown as Post} themeVars={vars} />
+                  <BlogRenderer post={previewPost ?? (form as unknown as Post)} themeVars={vars} />
                 </div>
               </div>
             </div>
@@ -934,15 +971,34 @@ export function PostEditor() {
                         className={field}
                       />
                     </label>
-                    <label className="block">
+                    <div className="block">
                       <span className={label}>Read time</span>
-                      <input
-                        value={form.readTime}
-                        onChange={(e) => patch({ readTime: e.target.value })}
-                        placeholder="6 min read"
-                        className={field}
-                      />
-                    </label>
+                      {form.readTimeAuto ? (
+                        <p className={`${field} bg-muted/40`} aria-live="polite">
+                          {readingMinutes({
+                            body: form.body ?? undefined,
+                            blocks: base?.blocks ?? [],
+                          })}{" "}
+                          min read
+                        </p>
+                      ) : (
+                        <input
+                          value={form.readTime}
+                          onChange={(e) => patch({ readTime: e.target.value })}
+                          placeholder="6 min read"
+                          aria-label="Read time (manual)"
+                          className={field}
+                        />
+                      )}
+                      <label className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <input
+                          type="checkbox"
+                          checked={form.readTimeAuto}
+                          onChange={(e) => patch({ readTimeAuto: e.target.checked })}
+                        />
+                        Calculate from content
+                      </label>
+                    </div>
                   </div>
 
                   <label className="block">
@@ -977,6 +1033,40 @@ export function PostEditor() {
                     />
                     Feature on the blog index
                   </label>
+                </section>
+
+                <section className="space-y-3 border border-border p-4">
+                  <h3 className="text-sm font-medium text-foreground">Blog index thumbnail</h3>
+                  <ImageAssetField
+                    label="Thumbnail"
+                    hint="Small 4:3 image beside the post on /blog. Saved as optimized WebP. Without one, an image cover or a lettered tile is shown."
+                    value={form.thumbnail}
+                    onChange={(thumbnail) => patch({ thumbnail })}
+                    thumbEdge={360}
+                    fullEdge={1200}
+                  />
+                </section>
+
+                <ImageLayoutPanel
+                  html={form.body?.html ?? ""}
+                  layouts={form.imageLayouts}
+                  onChange={(imageLayouts) => patch({ imageLayouts })}
+                />
+
+                <section className="space-y-2 border border-border p-4">
+                  <h3 className="text-sm font-medium text-foreground">Links</h3>
+                  <label className="flex items-center gap-2 text-sm text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={form.externalLinksNewTab}
+                      onChange={(e) => patch({ externalLinksNewTab: e.target.checked })}
+                    />
+                    Open external links in a new tab
+                  </label>
+                  <p className="text-[11px] text-muted-foreground">
+                    Select text and press Ctrl/⌘+K (or the link button) to add, edit or remove a
+                    link. Paste a YouTube, Vimeo or GitHub URL on an empty line to embed it.
+                  </p>
                 </section>
 
                 <section className="space-y-3 border border-border p-4">
@@ -1148,5 +1238,123 @@ function ImageField({
         }
       />
     </div>
+  );
+}
+
+const LAYOUT_OPTIONS: { value: PostImageLayout["align"] | "default"; label: string }[] = [
+  { value: "default", label: "Default" },
+  { value: "left", label: "Left" },
+  { value: "right", label: "Right" },
+  { value: "center", label: "Center" },
+  { value: "full", label: "Full" },
+];
+
+/**
+ * Per-image layout for images in the body. Koenig's own image card covers
+ * regular/wide/full widths; this adds text-wrapping floats and centered
+ * sizing, stored on the post (keyed by image src) and applied at render.
+ * Floats stack full-width on phones automatically.
+ */
+function ImageLayoutPanel({
+  html,
+  layouts,
+  onChange,
+}: {
+  html: string;
+  layouts: Record<string, PostImageLayout>;
+  onChange: (next: Record<string, PostImageLayout>) => void;
+}) {
+  const images = bodyImages(html);
+  if (!images.length) return null;
+
+  const set = (src: string, next: PostImageLayout | null) => {
+    const copy = { ...layouts };
+    if (next) copy[src] = next;
+    else delete copy[src];
+    onChange(copy);
+  };
+
+  return (
+    <section className="space-y-3 border border-border p-4">
+      <h3 className="text-sm font-medium text-foreground">Image layout</h3>
+      <p className="text-[11px] text-muted-foreground">
+        Left/Right wrap the text around the image (stacked on phones). Center and Full use the
+        article width.
+      </p>
+      <ul className="space-y-3">
+        {images.map(({ src, alt }) => {
+          const current = layouts[src];
+          const align = current?.align ?? "default";
+          const sized = align === "left" || align === "right" || align === "center";
+          return (
+            <li key={src} className="flex gap-3">
+              <img
+                src={src}
+                alt={alt}
+                loading="lazy"
+                className="h-12 w-16 shrink-0 border border-border bg-muted object-cover"
+              />
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <div
+                  className="flex flex-wrap gap-1"
+                  role="group"
+                  aria-label={`Layout for ${alt || "image"}`}
+                >
+                  {LAYOUT_OPTIONS.map((o) => (
+                    <button
+                      key={o.value}
+                      type="button"
+                      aria-pressed={align === o.value}
+                      onClick={() =>
+                        set(
+                          src,
+                          o.value === "default"
+                            ? null
+                            : {
+                                align: o.value,
+                                size: o.value === "full" ? undefined : (current?.size ?? "m"),
+                              },
+                        )
+                      }
+                      className={`border px-2 py-1 text-[11px] ${
+                        align === o.value
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+                {sized && current && (
+                  <div
+                    className="flex items-center gap-1 text-[11px]"
+                    role="group"
+                    aria-label="Size"
+                  >
+                    <span className="text-muted-foreground">Size</span>
+                    {(["s", "m", "l"] as const).map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        aria-pressed={(current.size ?? "m") === s}
+                        onClick={() => set(src, { ...current, size: s })}
+                        className={`border px-2 py-0.5 uppercase ${
+                          (current.size ?? "m") === s
+                            ? "border-foreground text-foreground"
+                            : "border-border text-muted-foreground"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

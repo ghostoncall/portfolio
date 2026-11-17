@@ -35,6 +35,7 @@ import { EmptyState } from "@/components/admin/cms/EmptyState";
 import { Field, FormSection, InputField } from "@/components/admin/cms/FormSection";
 import { DateField } from "@/components/admin/cms/DateField";
 import { MediaField } from "@/components/admin/cms/MediaField";
+import { ImageAssetField } from "@/components/admin/cms/ImageAssetField";
 import { TagInput } from "@/components/admin/cms/TagInput";
 import { SortableList } from "@/components/admin/cms/SortableList";
 import { Plus, Search, Trash2, GripVertical } from "lucide-react";
@@ -523,6 +524,12 @@ function SkillsCertificatesAwardsAdmin() {
               }
             />
           </Field>
+          <ImageAssetField
+            label="Image thumbnail"
+            hint="Shown as a small thumbnail; visitors can click it to see the full image. Saved as optimized WebP (thumbnail + full size). Leave empty if there's no image."
+            value={editingDraft?.thumbnail}
+            onChange={(thumbnail) => setEditingDraft((d: any) => (d ? { ...d, thumbnail } : d))}
+          />
           <MediaField
             label="Supporting document or image"
             value={editingDraft?.document ?? editingDraft?.image}
@@ -554,7 +561,10 @@ function SkillsCertificatesAwardsAdmin() {
               Featured
             </label>
           </div>
-          <Field label="Related education" hint="Optional — links this award to an education entry.">
+          <Field
+            label="Related education"
+            hint="Optional — links this award to an education entry."
+          >
             <InputField
               value={editingDraft?.relatedEducation ?? ""}
               placeholder="e.g. Bachelor of Science"

@@ -4,6 +4,7 @@
 
 import React, { useState } from "react";
 import type { Block } from "@/content/site";
+import { HeadingStyleControls } from "@/components/admin/cms/HeadingStyleControls";
 
 type BlockEditorProps = {
   blocks: Block[];
@@ -544,7 +545,53 @@ export function BlockEditor({ blocks, onChange }: BlockEditorProps) {
           case "text":
             return simpleEditor(block, index, blocks, onChange, "text", "body", "Body");
           case "heading":
-            return simpleEditor(block, index, blocks, onChange, "heading", "text", "Text");
+            return (
+              <div
+                key={index}
+                className="p-4 border border-border rounded-lg bg-muted/50 space-y-3"
+              >
+                <div className="flex justify-between items-start">
+                  <span className="label-caps text-muted-foreground">Heading block</span>
+                  <button
+                    onClick={() => deleteBlock(index, blocks, onChange)}
+                    className="text-xs text-destructive underline"
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div>
+                  {label("Text")}
+                  {input(block.text ?? "", (e) =>
+                    updateBlock(blocks, index, { text: e.target.value }, onChange),
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted-foreground">Level</span>
+                  {([2, 3] as const).map((lvl) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      aria-pressed={(block.level ?? 2) === lvl}
+                      onClick={() => updateBlock(blocks, index, { level: lvl }, onChange)}
+                      className={`border px-2 py-0.5 ${
+                        (block.level ?? 2) === lvl
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
+                      H{lvl}
+                    </button>
+                  ))}
+                </div>
+                <HeadingStyleControls
+                  label="Style (overrides the site default for this heading)"
+                  sample={block.text || "Heading"}
+                  level={block.level === 3 ? "h3" : "h2"}
+                  value={block.style}
+                  onChange={(style) => updateBlock(blocks, index, { style }, onChange)}
+                />
+              </div>
+            );
           case "list": {
             const ordered = (block as any).ordered ?? false;
             return (

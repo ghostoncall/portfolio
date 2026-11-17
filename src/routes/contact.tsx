@@ -201,13 +201,30 @@ function Contact() {
 
   return (
     <PageShell crumbs={["Contact"]} title="Correspondence" site={site}>
-      <p className="prose-editorial">
-        Write to{" "}
-        <a href={`mailto:${site.email}`} className="text-link hover:underline">
-          {site.email}
-        </a>{" "}
-        <CopyEmailButton email={site.email} />, or use the form below.
-      </p>
+      <section aria-labelledby="contact-cta">
+        <h2
+          id="contact-cta"
+          className="font-display text-[clamp(2rem,1.4rem+2.6vw,3.25rem)] leading-[1.1] text-foreground"
+        >
+          Have a project or role in mind?
+        </h2>
+        {site.email && (
+          <p className="prose-editorial mt-5 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>Write to</span>
+            {/* Email and its copy button stay together when the line wraps. */}
+            <span className="inline-flex items-center gap-2 whitespace-nowrap">
+              <a
+                href={`mailto:${site.email}`}
+                className="text-link underline-offset-4 hover:underline"
+              >
+                {site.email}
+              </a>
+              <CopyEmailButton email={site.email} />
+            </span>
+          </p>
+        )}
+        <p className="mt-2 text-sm text-muted-foreground">Or use the form below.</p>
+      </section>
       {sent ? (
         <p className="mt-8 bg-muted p-6 font-serif" role="status">
           Thank you — your message has been noted.

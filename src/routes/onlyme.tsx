@@ -134,6 +134,7 @@ function OnlymeLayout() {
   const navItems = [
     { to: "/onlyme", label: "Dashboard", icon: "📊" },
     { to: "/onlyme/settings", label: "Settings", icon: "⚙️" },
+    { to: "/onlyme/pages/overview", label: "Overview", icon: "🏠" },
     { to: "/onlyme/pages", label: "Pages", icon: "📄" },
     { to: "/onlyme/projects", label: "Projects", icon: "💼" },
     { to: "/onlyme/skills-certificates-awards", label: "Skills/Certs/Awards", icon: "🏆" },

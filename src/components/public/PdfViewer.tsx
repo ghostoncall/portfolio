@@ -13,7 +13,7 @@
 // site's Lenis smooth scroll from hijacking it. `overscroll-behavior: auto`
 // (overriding Lenis' `contain` for prevented areas) lets the scroll chain to
 // the page at either end, so the viewer never traps the visitor.
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 type Status = "idle" | "loading" | "ready" | "error";
@@ -29,6 +29,61 @@ async function loadPdfJs() {
   return pdfjs;
 }
 
+// ── Persistent cache (lives for the browser tab, survives route changes) ──
+// Leaving /resume unmounts the viewer, but the parsed document and the last
+// rendered page bitmaps stay here, so coming back shows the pages instantly:
+// no re-download, no re-parse, no re-render. The URL carries the résumé
+// version (?v=…); when a new version is seen, the old one is evicted and its
+// memory freed. One document per file path is kept — a few MB at most.
+type Loaded = { doc: PDFDocumentProxy; sizes: { w: number; h: number }[]; destroy: () => void };
+const docCache = new Map<string, Promise<Loaded>>();
+const resolvedDocs = new Map<string, Loaded>();
+const lastWidth = new Map<string, number>();
+const pageBitmaps = new Map<string, ImageBitmap>(); // `${src}|${page}` → bitmap
+
+const pathOf = (src: string) => src.split("?")[0];
+
+function evict(src: string) {
+  void docCache
+    .get(src)
+    ?.then((l) => l.destroy())
+    .catch(() => {});
+  docCache.delete(src);
+  resolvedDocs.delete(src);
+  lastWidth.delete(src);
+  for (const [key, bitmap] of pageBitmaps) {
+    if (key.startsWith(`${src}|`)) {
+      bitmap.close();
+      pageBitmaps.delete(key);
+    }
+  }
+}
+
+function loadDocument(src: string): Promise<Loaded> {
+  const cached = docCache.get(src);
+  if (cached) return cached;
+  for (const key of [...docCache.keys()]) {
+    if (key !== src && pathOf(key) === pathOf(src)) evict(key); // stale version
+  }
+  const promise = (async () => {
+    const pdfjs = await loadPdfJs();
+    const task = pdfjs.getDocument({ url: src, disableRange: true, enableXfa: false });
+    const doc = await task.promise;
+    // Page sizes up front so every placeholder has its final height (no CLS).
+    const sizes = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      const vp = (await doc.getPage(i)).getViewport({ scale: 1 });
+      sizes.push({ w: vp.width, h: vp.height });
+    }
+    const loaded: Loaded = { doc, sizes, destroy: () => void task.destroy() };
+    resolvedDocs.set(src, loaded);
+    return loaded;
+  })();
+  promise.catch(() => docCache.delete(src)); // allow a retry after failure
+  docCache.set(src, promise);
+  return promise;
+}
+
 export function PdfViewer({
   src,
   title,
@@ -42,11 +97,13 @@ export function PdfViewer({
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(false);
-  const [status, setStatus] = useState<Status>("idle");
-  const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
-  const [pageSizes, setPageSizes] = useState<{ w: number; h: number }[]>([]);
-  const [width, setWidth] = useState(0);
+  // A document already loaded in this tab renders straight away.
+  const warm = resolvedDocs.get(src);
+  const [near, setNear] = useState(Boolean(warm));
+  const [status, setStatus] = useState<Status>(warm ? "ready" : "idle");
+  const [doc, setDoc] = useState<PDFDocumentProxy | null>(warm?.doc ?? null);
+  const [pageSizes, setPageSizes] = useState<{ w: number; h: number }[]>(warm?.sizes ?? []);
+  const [width, setWidth] = useState(() => lastWidth.get(src) ?? 0);
   const [zoomIndex, setZoomIndex] = useState(0);
   const zoom = ZOOM_STEPS[zoomIndex]!;
 
@@ -76,37 +133,37 @@ export function PdfViewer({
   }, []);
 
   useEffect(() => {
+    if (width > 0) lastWidth.set(src, width);
+  }, [src, width]);
+
+  useEffect(() => {
     if (!near) return;
+    const ready = resolvedDocs.get(src);
+    if (ready) {
+      setDoc(ready.doc);
+      setPageSizes(ready.sizes);
+      setStatus("ready");
+      return;
+    }
     let cancelled = false;
-    let task: { destroy: () => Promise<void> } | null = null;
     setStatus("loading");
     setDoc(null);
     setPageSizes([]);
-    (async () => {
-      try {
-        const pdfjs = await loadPdfJs();
+    loadDocument(src).then(
+      (loaded) => {
         if (cancelled) return;
-        const loading = pdfjs.getDocument({ url: src, disableRange: true, enableXfa: false });
-        task = loading;
-        const loaded = await loading.promise;
-        // Page sizes up front so every placeholder has its final height (no CLS).
-        const sizes = [];
-        for (let i = 1; i <= loaded.numPages; i++) {
-          const vp = (await loaded.getPage(i)).getViewport({ scale: 1 });
-          sizes.push({ w: vp.width, h: vp.height });
-        }
-        if (cancelled) return;
-        setPageSizes(sizes);
-        setDoc(loaded);
+        setPageSizes(loaded.sizes);
+        setDoc(loaded.doc);
         setStatus("ready");
-      } catch (err) {
+      },
+      (err) => {
         console.error("[PdfViewer] could not load", err);
         if (!cancelled) setStatus("error");
-      }
-    })();
+      },
+    );
+    // Deliberately no destroy here: the document stays cached for this tab.
     return () => {
       cancelled = true;
-      void task?.destroy(); // frees the worker and the document
     };
   }, [near, src]);
 
@@ -176,6 +233,7 @@ export function PdfViewer({
             {pageSizes.map((size, i) => (
               <PdfPage
                 key={i}
+                src={src}
                 doc={doc}
                 pageNumber={i + 1}
                 pageCount={pageCount}
@@ -192,7 +250,11 @@ export function PdfViewer({
   );
 }
 
+// useLayoutEffect warns during SSR; the viewer only paints on the client.
+const useLayoutEffectSafe = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 function PdfPage({
+  src,
   doc,
   pageNumber,
   pageCount,
@@ -201,6 +263,7 @@ function PdfPage({
   title,
   root,
 }: {
+  src: string;
   doc: PDFDocumentProxy;
   pageNumber: number;
   pageCount: number;
@@ -224,30 +287,61 @@ function PdfPage({
     return () => io.disconnect();
   }, [root, visible]);
 
+  // Returning to the page: paint the last rendered bitmap immediately (the
+  // CSS size scales it if the width changed); a crisp re-render follows only
+  // when the target pixel size differs.
+  const bitmapKey = `${src}|${pageNumber}`;
+  useLayoutEffectSafe(() => {
+    const canvas = canvasRef.current;
+    const bitmap = pageBitmaps.get(bitmapKey);
+    if (!canvas || !bitmap) return;
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0);
+    setVisible(true);
+  }, [bitmapKey]);
+
   useEffect(() => {
     if (!visible) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     let task: { cancel: () => void; promise: Promise<void> } | null = null;
     let cancelled = false;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cached = pageBitmaps.get(bitmapKey);
+    if (cached && Math.abs(cached.width - cssWidth * dpr) < 2) return; // already exact
     // Debounce so resizing/zooming doesn't queue a render per frame.
     const timer = window.setTimeout(async () => {
       const page = await doc.getPage(pageNumber);
       if (cancelled) return;
       const base = page.getViewport({ scale: 1 });
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const viewport = page.getViewport({ scale: (cssWidth / base.width) * dpr });
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-      task = page.render({ canvas, viewport });
-      task.promise.catch(() => {}); // cancelled renders reject; ignore
+      // Render off-screen, then swap in, so a cached bitmap never flashes blank.
+      const off = document.createElement("canvas");
+      off.width = Math.floor(viewport.width);
+      off.height = Math.floor(viewport.height);
+      task = page.render({ canvas: off, viewport });
+      try {
+        await task.promise;
+      } catch {
+        return; // cancelled
+      }
+      if (cancelled) return;
+      canvas.width = off.width;
+      canvas.height = off.height;
+      canvas.getContext("2d")?.drawImage(off, 0, 0);
+      if (typeof createImageBitmap === "function") {
+        const bitmap = await createImageBitmap(off);
+        pageBitmaps.get(bitmapKey)?.close();
+        pageBitmaps.set(bitmapKey, bitmap);
+      }
     }, 80);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
       task?.cancel();
     };
-  }, [doc, pageNumber, cssWidth, visible]);
+  }, [doc, pageNumber, cssWidth, visible, bitmapKey]);
 
   return (
     <canvas

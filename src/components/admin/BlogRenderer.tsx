@@ -8,7 +8,9 @@
 //
 // This ensures the preview matches the published output exactly.
 //
-import type { CSSProperties } from "react";
+import { useMemo, type CSSProperties, type MouseEvent } from "react";
+import { prepareBlogHtml } from "@/lib/blog-html";
+import { readTimeLabel } from "@/lib/reading-time";
 import { Blocks } from "@/components/blocks";
 import { Media } from "@/components/media";
 import { blogThemeVars, type BlogSettings } from "@/lib/blog-settings";
@@ -58,8 +60,45 @@ type BlogRendererProps = {
   className?: string;
 };
 
+const SITE_HOST = (() => {
+  try {
+    const url = (import.meta.env as Record<string, string | undefined>)["VITE_SITE_URL"];
+    return url ? new URL(url).hostname : undefined;
+  } catch {
+    return undefined;
+  }
+})();
+
+/** Click-to-play: swap a video placeholder for the real player iframe. */
+function activateFacade(event: MouseEvent<HTMLDivElement>) {
+  const el = (event.target as HTMLElement).closest<HTMLElement>(".kg-facade");
+  if (!el || el.dataset["loaded"]) return;
+  const src = el.dataset["embed"];
+  if (!src) return;
+  const iframe = document.createElement("iframe");
+  iframe.src = src;
+  iframe.title = el.dataset["title"] || "Embedded video";
+  iframe.allow =
+    "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen";
+  iframe.allowFullscreen = true;
+  el.dataset["loaded"] = "1";
+  el.replaceChildren(iframe);
+  iframe.focus();
+}
+
 export function BlogRenderer({ post, themeVars, className }: BlogRendererProps) {
   const vars = themeVars ?? blogThemeVars(FALLBACK_SETTINGS);
+  const html = useMemo(
+    () =>
+      post.body?.html
+        ? prepareBlogHtml(post.body.html, {
+            imageLayouts: post.imageLayouts,
+            externalLinksNewTab: post.externalLinksNewTab,
+            siteHost: SITE_HOST,
+          })
+        : "",
+    [post.body?.html, post.imageLayouts, post.externalLinksNewTab],
+  );
 
   return (
     <div style={vars} className={`blog-theme ${className ?? ""}`}>
@@ -67,14 +106,17 @@ export function BlogRenderer({ post, themeVars, className }: BlogRendererProps) 
       <p className="label-caps mt-6 border-y border-border py-3 text-muted-foreground">
         By {post.author || "Admin"} ·{" "}
         <time dateTime={post.date}>{new Date(post.date).toLocaleDateString()}</time>
-        {post.readTime ? ` · ${post.readTime}` : ""}
+        {` · ${readTimeLabel(post)}`}
         {post.tags.length ? ` · ${post.tags.join(", ")}` : ""}
       </p>
       {post.cover?.src && <Media items={[post.cover]} />}
-      {post.body?.html ? (
+      {html ? (
+        // Click delegation only activates video placeholders; each placeholder
+        // contains a real <button>, so it works from the keyboard too.
         <div
           className="kg-content prose-editorial"
-          dangerouslySetInnerHTML={{ __html: post.body.html }}
+          onClick={activateFacade}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       ) : (
         <Blocks blocks={post.blocks} />

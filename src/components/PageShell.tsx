@@ -392,16 +392,25 @@ export function PageShell({
   );
 }
 
+/** Pages that end with the footer's "get in touch" call to action. */
+const CTA_PATHS = new Set(["/skills", "/certificates", "/awards"]);
+
 export function SiteFooter({ site }: { site: SiteIdentity }) {
   const year = new Date().getFullYear();
+  // The "get in touch" call to action appears only in the Skills,
+  // Certificates & Awards section — centered, no social links. Every other
+  // page ends with just the thin copyright line below.
+  const showCta = useRouterState({
+    select: (s) => CTA_PATHS.has(s.location.pathname.replace(/\/$/, "")),
+  });
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 pt-10 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-2">
+      {showCta && (
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-6 pt-12 text-center">
           <p className="font-display text-2xl text-foreground sm:text-3xl">
             Have a project or role in mind?
           </p>
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <Link
               to="/contact"
               className="font-semibold text-foreground underline-offset-4 transition-colors hover:underline"
@@ -411,34 +420,20 @@ export function SiteFooter({ site }: { site: SiteIdentity }) {
             {site.email && (
               <>
                 <span aria-hidden="true">·</span>
-                <a
-                  href={`mailto:${site.email}`}
-                  className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                >
-                  {site.email}
-                </a>
-                <CopyEmailButton email={site.email} />
+                <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                  <a
+                    href={`mailto:${site.email}`}
+                    className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                  >
+                    {site.email}
+                  </a>
+                  <CopyEmailButton email={site.email} />
+                </span>
               </>
             )}
           </p>
         </div>
-        {site.socials.length > 0 && (
-          <ul className="flex flex-wrap gap-5 text-sm" aria-label="Social profiles">
-            {site.socials.map((s) => (
-              <li key={s.label}>
-                <a
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                >
-                  {s.label} ↗
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      )}
       <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-4 px-6 py-8 text-sm text-muted-foreground sm:text-base">
         <span className="font-serif">
           © {year} {site.name ?? "Aryan Mehndiratta"}

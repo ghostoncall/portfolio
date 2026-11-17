@@ -84,9 +84,9 @@ function BlogIndex() {
               </div>
             ) : (
               <ul className="mt-8 border-t border-border">
-                {pagePosts.map((post) => (
+                {pagePosts.map((post, i) => (
                   <li key={post.slug} className="border-b border-border">
-                    <PostCard post={post} settings={settings} variant="list" />
+                    <PostCard post={post} settings={settings} variant="list" eager={i < 2} />
                   </li>
                 ))}
               </ul>
@@ -198,10 +198,13 @@ function PostCard({
   post,
   settings,
   variant,
+  eager,
 }: {
   post: Post;
   settings: BlogSettings;
   variant: "list" | "grid";
+  /** First rows are above the fold: load their thumbnails immediately. */
+  eager?: boolean | undefined;
 }) {
   const border =
     settings.card.style === "bordered"
@@ -230,25 +233,102 @@ function PostCard({
     </>
   );
 
+  if (variant === "list") {
+    return (
+      <Link
+        to="/blog/$slug"
+        params={{ slug: post.slug }}
+        className={`group grid grid-cols-[4.5rem_1fr] items-start gap-4 py-6 sm:grid-cols-[7.5rem_1fr] sm:gap-6 ${border}`}
+      >
+        <PostThumb post={post} eager={eager} />
+        <span className="min-w-0">
+          <ListMeta post={post} settings={settings} />
+          <span className="mt-1 block font-display text-2xl leading-tight text-foreground group-hover:underline">
+            {post.title}
+          </span>
+          {excerpt(post, settings) && (
+            <span className="mt-2 block font-serif text-muted-foreground">
+              {excerpt(post, settings)}
+            </span>
+          )}
+          {post.readTime && <span className="mt-3 block text-sm text-link">{post.readTime}</span>}
+        </span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       to="/blog/$slug"
       params={{ slug: post.slug }}
-      className={`group block ${variant === "list" ? "py-6" : ""} ${border} ${
-        variant === "list" ? "grid gap-2 md:grid-cols-[9rem_1fr]" : "flex h-full flex-col gap-3"
-      }`}
+      className={`group flex h-full flex-col gap-3 ${border}`}
     >
-      {variant === "list" ? (
-        <>
-          {settings.card.showDate && (
-            <span className="label-caps pt-1 text-muted-foreground">{formatDate(post.date)}</span>
-          )}
-          <span className="min-w-0">{body}</span>
-        </>
-      ) : (
-        body
-      )}
+      {body}
     </Link>
+  );
+}
+
+const isImageUrl = (src?: string) => !!src && /\.(avif|webp|png|jpe?g|gif)(\?|#|$)/i.test(src);
+
+/**
+ * Small 4:3 thumbnail in the list's left column. Uses the post's thumbnail
+ * (small WebP variant), else an image cover, else a quiet initial-letter tile
+ * so the column stays aligned. Fixed box + width/height → no layout shift.
+ */
+function PostThumb({ post, eager }: { post: Post; eager?: boolean | undefined }) {
+  const t = post.thumbnail;
+  const src = t?.thumb || t?.src || (isImageUrl(post.cover?.src) ? post.cover?.src : undefined);
+  return (
+    <span className="block aspect-[4/3] w-full overflow-hidden border border-border bg-muted">
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          width={t?.thumbWidth ?? 240}
+          height={t?.thumbHeight ?? 180}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          className="h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-90"
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="flex h-full w-full items-center justify-center font-display text-3xl text-muted-foreground/70"
+        >
+          {post.title.trim().charAt(0).toUpperCase()}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** Tags · date in one quiet line (date in secondary type, wraps naturally). */
+function ListMeta({ post, settings }: { post: Post; settings: BlogSettings }) {
+  const tags = settings.card.showTags ? post.tags : [];
+  const showDate = settings.card.showDate && post.date;
+  const parts: React.ReactNode[] = tags.map((t) => <span key={`t-${t}`}>{t}</span>);
+  if (showDate) {
+    parts.push(
+      <time key="date" dateTime={post.date}>
+        {formatDate(post.date)}
+      </time>,
+    );
+  }
+  if (settings.card.showAuthor && post.author) parts.push(<span key="author">{post.author}</span>);
+  if (!parts.length) return null;
+  return (
+    <span className="label-caps flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-muted-foreground">
+      {parts.flatMap((p, i) =>
+        i === 0
+          ? [p]
+          : [
+              <span key={`sep-${i}`} aria-hidden="true">
+                ·
+              </span>,
+              p,
+            ],
+      )}
+    </span>
   );
 }
 

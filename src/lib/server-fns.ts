@@ -44,7 +44,15 @@ import {
 } from "@/lib/cms-normalize";
 import { planPageReferenceCleanup, planProjectDelete, planProjectRename } from "@/lib/cms-server";
 import { mergeBlogSettings } from "@/lib/blog-settings";
-import { mergePage, mergeProjects, SITE_FALLBACK, SEED_POSTS } from "@/lib/merge-additions";
+import {
+  liveOverviewBlocks,
+  mergePage,
+  mergeProjects,
+  SITE_FALLBACK,
+  SEED_POSTS,
+} from "@/lib/merge-additions";
+import { withReadTime } from "@/lib/reading-time";
+import type { Post } from "@/content/site";
 import {
   RESUME_MAX_BYTES,
   RESUME_MIME,
@@ -659,15 +667,20 @@ export const ensureContentPage = createServerFn({ method: "POST", strict: false 
     if (existing[0]) return { ok: true, created: false, slug };
     const now = new Date();
     const empty: PageContent =
-      kind === "skills"
-        ? { kind: "skills", categories: [], skills: [] }
-        : kind === "certificates"
-          ? { kind: "certificates", certificates: [] }
-          : kind === "education"
-            ? { kind: "education", entries: [] }
-            : kind === "awards"
-              ? { kind: "awards", entries: [] }
-              : { kind: "experience", entries: [] };
+      kind === "blocks"
+        ? slug === "overview"
+          ? // Start from exactly what the public Overview shows today.
+            { kind: "blocks", blocks: liveOverviewBlocks(null), additionsApplied: true }
+          : { kind: "blocks", blocks: [] }
+        : kind === "skills"
+          ? { kind: "skills", categories: [], skills: [] }
+          : kind === "certificates"
+            ? { kind: "certificates", certificates: [] }
+            : kind === "education"
+              ? { kind: "education", entries: [] }
+              : kind === "awards"
+                ? { kind: "awards", entries: [] }
+                : { kind: "experience", entries: [] };
     await db.insert(pages).values({
       slug,
       title,
@@ -856,6 +869,18 @@ export const saveBlogSettings = createServerFn({ method: "POST", strict: false }
   },
 );
 
+/**
+ * Blog index entry: reading time resolved, and the article body dropped —
+ * the index never renders it, and shipping every full post in the listing
+ * payload was the single largest part of /blog's HTML.
+ */
+function toListing(post: Post): Post {
+  const { body: _body, blocks: _blocks, ...rest } = withReadTime(post);
+  void _body;
+  void _blocks;
+  return { ...rest, blocks: [] } as Post;
+}
+
 export const getPublishedPosts = createServerFn({ method: "GET", strict: false }).handler(
   async () => {
     try {
@@ -868,10 +893,13 @@ export const getPublishedPosts = createServerFn({ method: "GET", strict: false }
           and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
         )
         .orderBy(posts.sort);
-      return rows.map((r) => r.published).filter((p) => (p.visibility ?? "public") === "public");
+      return rows
+        .map((r) => r.published)
+        .filter((p) => (p.visibility ?? "public") === "public")
+        .map(toListing);
     } catch (err) {
       console.error("[getPublishedPosts] db unavailable, using seed content", err);
-      return SEED_POSTS.filter((p: any) => (p.visibility ?? "public") === "public");
+      return SEED_POSTS.filter((p: any) => (p.visibility ?? "public") === "public").map(toListing);
     }
   },
 );
@@ -894,10 +922,11 @@ export const getPublishedPost = createServerFn({ method: "GET", strict: false })
       if (row[0].publishedAt && row[0].publishedAt.getTime() > Date.now()) return null;
       const post = row[0].published;
       if ((post.visibility ?? "public") === "private") return null;
-      return post;
+      return withReadTime(post);
     } catch (err) {
       console.error("[getPublishedPost] db unavailable, using seed content", err);
-      return SEED_POSTS.find((p: any) => p.slug === data.slug) ?? null;
+      const seedPost = SEED_POSTS.find((p: any) => p.slug === data.slug);
+      return seedPost ? withReadTime(seedPost) : null;
     }
   },
 );
@@ -1509,6 +1538,138 @@ export const deleteMedia = createServerFn({ method: "POST", strict: false }).han
 
     await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
     return { ok: true };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Editor embeds (Koenig `cardConfig.fetchEmbed`)
+// ---------------------------------------------------------------------------
+
+const OEMBED_PROVIDERS: { test: RegExp; endpoint: string }[] = [
+  {
+    test: /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch|shorts|live)|youtu\.be\/)/i,
+    endpoint: "https://www.youtube.com/oembed?format=json&url=",
+  },
+  {
+    test: /^https?:\/\/(www\.|player\.)?vimeo\.com\//i,
+    endpoint: "https://vimeo.com/api/oembed.json?url=",
+  },
+];
+
+/** Only public http(s) hosts — never localhost, private ranges or IP literals. */
+function assertPublicUrl(raw: string): URL {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw httpError("That doesn't look like a valid URL.", 400);
+  }
+  const host = url.hostname.toLowerCase();
+  if (
+    !/^https?:$/.test(url.protocol) ||
+    host === "localhost" ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+    host.includes(":") ||
+    !host.includes(".")
+  ) {
+    throw httpError("Only public web addresses can be embedded.", 400);
+  }
+  return url;
+}
+
+const decodeEntities = (s: string) =>
+  s
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .trim();
+
+async function readCapped(res: Response, maxBytes: number): Promise<string> {
+  const reader = res.body?.getReader();
+  if (!reader) return "";
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (total < maxBytes) {
+    const { done, value } = await reader.read();
+    if (done || !value) break;
+    chunks.push(value);
+    total += value.byteLength;
+  }
+  await reader.cancel().catch(() => {});
+  return new TextDecoder().decode(Buffer.concat(chunks));
+}
+
+async function bookmarkMetadata(url: URL) {
+  const res = await fetch(url, {
+    redirect: "follow",
+    signal: AbortSignal.timeout(8000),
+    headers: { accept: "text/html", "user-agent": "Mozilla/5.0 (compatible; PortfolioBot/1.0)" },
+  });
+  assertPublicUrl(res.url || url.href);
+  if (!res.ok) throw httpError(`The page returned ${res.status}.`, 502);
+  const html = await readCapped(res, 512 * 1024);
+  const meta = (name: string) => {
+    const re = new RegExp(
+      `<meta[^>]+(?:property|name)=["']${name}["'][^>]*content=["']([^"']*)["']|<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${name}["']`,
+      "i",
+    );
+    const m = re.exec(html);
+    return m ? decodeEntities(m[1] ?? m[2] ?? "") : "";
+  };
+  const abs = (href: string) => {
+    try {
+      return href ? new URL(href, res.url || url.href).href : "";
+    } catch {
+      return "";
+    }
+  };
+  const title =
+    meta("og:title") || decodeEntities(/<title[^>]*>([^<]*)<\/title>/i.exec(html)?.[1] ?? "");
+  const iconHref = /<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["']/i.exec(
+    html,
+  )?.[1];
+  return {
+    title: title || url.hostname,
+    description: meta("og:description") || meta("description"),
+    thumbnail: abs(meta("og:image")),
+    icon: abs(iconHref ?? "/favicon.ico"),
+    publisher: meta("og:site_name") || url.hostname.replace(/^www\./, ""),
+    author: meta("author") || meta("article:author"),
+  };
+}
+
+/**
+ * Koenig contract: `{type: "bookmark"}` → `{url, metadata}`; otherwise an
+ * oEmbed object (`type`, `html`, …) or `{type: "bookmark", url, metadata}`
+ * when the URL has no oEmbed provider (e.g. GitHub). Admin-only.
+ */
+export const fetchEmbedData = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const url = assertPublicUrl(String(data?.url ?? "").trim());
+    const wantsBookmark = data?.type === "bookmark";
+
+    if (!wantsBookmark) {
+      const provider = OEMBED_PROVIDERS.find((p) => p.test.test(url.href));
+      if (provider) {
+        const res = await fetch(provider.endpoint + encodeURIComponent(url.href), {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!res.ok) throw httpError("That video couldn't be found or isn't embeddable.", 422);
+        const oembed = (await res.json()) as Record<string, unknown>;
+        return { ...oembed, type: oembed["type"] ?? "video", url: url.href };
+      }
+    }
+
+    const metadata = await bookmarkMetadata(url);
+    return wantsBookmark
+      ? { url: url.href, metadata }
+      : { type: "bookmark", url: url.href, metadata };
   },
 );
 
