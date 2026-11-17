@@ -130,6 +130,7 @@ In Cloudflare, open **Workers & Pages**, create a **Pages** application and impo
 | Setting | Value |
 |---|---|
 | Project name | `ghostoncall-portfolio` |
+| Public URL | `https://ghostoncall-portfolio-7gc.pages.dev` |
 | Production branch | `v0.9-optimized` |
 | Framework preset | None |
 | Build command | `npm run build` |
@@ -139,7 +140,7 @@ In Cloudflare, open **Workers & Pages**, create a **Pages** application and impo
 
 Set the environment variables below before the first build. `VITE_*` values must be available during the build. Store private values as secrets in Cloudflare. Set `VITE_SITE_URL` to the public deployment URL or custom domain.
 
-`wrangler.json` configures `nodejs_compat` and the existing `HYPERDRIVE` binding. Verify that its Hyperdrive ID belongs to the selected Cloudflare account and connects to the portfolio database. Nitro passes these bindings through the request runtime, and both TanStack pages and Nitro server routes use request-scoped database clients.
+`wrangler.json` configures `nodejs_compat` and the `HYPERDRIVE` binding to `portfolio-database`. Hyperdrive uses the Supabase direct connection and has query caching disabled so CMS edits can be read immediately. Nitro passes these bindings through the request runtime, and both TanStack pages and Nitro server routes use request-scoped database clients.
 
 After the initial deployment, pushes to `v0.9-optimized` trigger production deployments automatically. Configure the same bindings and variables for preview deployments if enabling other branches.
 
