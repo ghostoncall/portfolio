@@ -16,7 +16,7 @@ export type UploadOptions = {
   onProgress?: (percent: number) => void;
 };
 
-function putWithProgress(url: string, file: File, onProgress?: (p: number) => void) {
+export function putWithProgress(url: string, file: File, onProgress?: (p: number) => void) {
   return new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("PUT", url);

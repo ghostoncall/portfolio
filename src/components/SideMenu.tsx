@@ -6,7 +6,12 @@ import {
   certificates as staticCertificates,
   awards as staticAwards,
 } from "@/content/site";
-import { NavOrderContext, NavProjectsContext, type NavProject } from "@/components/nav-projects";
+import {
+  applyNavOrder,
+  NavOrderContext,
+  NavProjectsContext,
+  type NavProject,
+} from "@/components/nav-projects";
 
 /** Canonical default nav order (matches NavReorder / seed).
  *  Kept synchronous (no async fetch) so the nav never flickers or reorders
@@ -39,7 +44,8 @@ const DEFAULT_NAV: Array<{
     order: 8,
     hasChildren: false,
   },
-  { slug: "contact", label: "Contact", to: "/contact", order: 9, hasChildren: false },
+  { slug: "resume", label: "Résumé / CV", to: "/resume", order: 9, hasChildren: false },
+  { slug: "contact", label: "Contact", to: "/contact", order: 10, hasChildren: false },
 ] as const;
 
 type NavItem = {
@@ -60,16 +66,9 @@ function defaultItems(): NavItem[] {
   }));
 }
 
-/** Apply the admin-saved order on top of the defaults. Deterministic: unknown
- *  slugs keep their default position after the ordered ones. */
+/** Apply the admin-saved order on top of the defaults (see applyNavOrder). */
 function orderItems(items: NavItem[], order: string[] | null): NavItem[] {
-  if (!order || order.length === 0) return items;
-  const rank = new Map(order.map((slug, i) => [slug, i]));
-  return [...items].sort(
-    (a, b) =>
-      (rank.get(a.slug) ?? Number.MAX_SAFE_INTEGER) -
-        (rank.get(b.slug) ?? Number.MAX_SAFE_INTEGER) || a.navOrder - b.navOrder,
-  );
+  return applyNavOrder(items, order);
 }
 
 const itemClass =

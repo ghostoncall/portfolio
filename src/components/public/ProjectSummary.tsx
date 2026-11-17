@@ -36,7 +36,7 @@ export function ProjectSummary({ project }: { project: any }) {
           <p className="mt-1 block font-serif text-muted-foreground">{project.dek}</p>
         )}
       </Link>
-      {project.stack && project.stack.length && (
+      {project.stack && project.stack.length > 0 && (
         <p className="mt-3 block text-sm text-link">{project.stack.join(" · ")}</p>
       )}
       {project.thumbnail && (

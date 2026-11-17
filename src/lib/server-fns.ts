@@ -45,6 +45,14 @@ import {
 import { planPageReferenceCleanup, planProjectDelete, planProjectRename } from "@/lib/cms-server";
 import { mergeBlogSettings } from "@/lib/blog-settings";
 import { mergePage, mergeProjects, SITE_FALLBACK, SEED_POSTS } from "@/lib/merge-additions";
+import {
+  RESUME_MAX_BYTES,
+  RESUME_MIME,
+  safeResumeFileName,
+  type PublicResume,
+  type ResumeDoc,
+  type ResumeSettings,
+} from "@/lib/resume";
 
 /** Verify the Supabase session on a Request. Throws 401 if invalid. */
 async function requireAdmin(request: Request): Promise<void> {
@@ -1237,6 +1245,7 @@ export const NAV_SLUGS = [
   "skills",
   "experience",
   "volunteering",
+  "resume",
   "contact",
 ] as const;
 
@@ -1499,6 +1508,207 @@ export const deleteMedia = createServerFn({ method: "POST", strict: false }).han
     }
 
     await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
+    return { ok: true };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Résumé / CV (settings row id "resume"; see src/lib/resume.ts)
+// ---------------------------------------------------------------------------
+
+const RESUME_PATH_RE = /^resume\/[0-9a-f-]{36}\.pdf$/;
+
+async function readResumeRow(): Promise<{ staged: ResumeDoc | null; published: ResumeDoc | null }> {
+  const row = await getDb()
+    .select({ staged: settings.staged, published: settings.published })
+    .from(settings)
+    .where(eq(settings.id, "resume"))
+    .limit(1);
+  const staged = (row[0]?.staged as unknown as ResumeSettings | undefined)?.current ?? null;
+  const published = (row[0]?.published as unknown as ResumeSettings | undefined)?.current ?? null;
+  return { staged, published };
+}
+
+async function writeResumeRow(next: { staged: ResumeDoc | null; published: ResumeDoc | null }) {
+  const staged = { current: next.staged } as any;
+  const published = { current: next.published } as any;
+  const now = new Date();
+  await getDb()
+    .insert(settings)
+    .values({ id: "resume", staged, published, updatedAt: now })
+    .onConflictDoUpdate({ target: settings.id, set: { staged, published, updatedAt: now } });
+}
+
+/** Delete résumé objects no longer referenced by the staged or published copy. */
+async function removeOrphanedResumeFiles(
+  request: Request,
+  candidates: (ResumeDoc | null)[],
+  keep: (ResumeDoc | null)[],
+) {
+  const kept = new Set(keep.filter(Boolean).map((d) => d!.storagePath));
+  const paths = [...new Set(candidates.filter(Boolean).map((d) => d!.storagePath))].filter(
+    (p) => !kept.has(p) && RESUME_PATH_RE.test(p),
+  );
+  if (!paths.length) return;
+  const { error } = await getSupabaseServer(request).storage.from(MEDIA_BUCKET).remove(paths);
+  // The document change already succeeded; a leftover file is harmless.
+  if (error) console.error("[resume] could not remove old file(s):", error.message);
+}
+
+/** Public: metadata of the published résumé (never the storage path). */
+export const getPublishedResume = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<PublicResume | null> => {
+    try {
+      const { published } = await readResumeRow();
+      if (!published) return null;
+      const { storagePath: _omit, ...pub } = published;
+      void _omit;
+      return pub;
+    } catch (err) {
+      console.error("[getPublishedResume] db unavailable", err);
+      return null;
+    }
+  },
+);
+
+/** Admin: both copies, with a direct URL for previewing the staged file. */
+export const getResumeAdmin = createServerFn({ method: "GET", strict: false }).handler(
+  async ({ context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const { staged, published } = await readResumeRow();
+    const supabase = getSupabaseServer(request);
+    const urlFor = (d: ResumeDoc | null) =>
+      d ? supabase.storage.from(MEDIA_BUCKET).getPublicUrl(d.storagePath).data.publicUrl : null;
+    return { staged, published, stagedUrl: urlFor(staged), publishedUrl: urlFor(published) };
+  },
+);
+
+/** Admin step 1: validate the file description and hand out a signed upload URL. */
+export const createResumeUpload = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const name = String(data?.name ?? "");
+    const type = String(data?.type ?? "");
+    const size = Number(data?.size ?? 0);
+    if (!Number.isFinite(size) || size <= 0) throw httpError("The file is empty.", 400);
+    if (size > RESUME_MAX_BYTES) {
+      throw httpError(
+        `The file is too large (${(size / 1024 / 1024).toFixed(1)} MB). The limit is ${
+          RESUME_MAX_BYTES / 1024 / 1024
+        } MB.`,
+        413,
+      );
+    }
+    if (type !== RESUME_MIME || !/\.pdf$/i.test(name)) {
+      throw httpError("Only PDF files can be used as the résumé.", 415);
+    }
+
+    // Random object name: the original filename is kept in the DB only.
+    const storagePath = `resume/${crypto.randomUUID()}.pdf`;
+    const { data: signed, error } = await getSupabaseServer(request)
+      .storage.from(MEDIA_BUCKET)
+      .createSignedUploadUrl(storagePath);
+    if (error || !signed) {
+      throw httpError(`Storage is not configured: ${error?.message ?? "no upload URL"}`, 500);
+    }
+    return { storagePath, signedUrl: signed.signedUrl };
+  },
+);
+
+/**
+ * Admin step 2 (after the browser uploaded the bytes): verify the stored
+ * object really is a PDF of the declared size, then make it the staged
+ * résumé. On any failure the new object is deleted and the current résumé
+ * stays exactly as it was.
+ */
+export const stageResume = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const storagePath = String(data?.storagePath ?? "");
+    if (!RESUME_PATH_RE.test(storagePath)) throw httpError("Invalid upload reference.", 400);
+
+    const supabase = getSupabaseServer(request);
+    const discard = async () => {
+      await supabase.storage.from(MEDIA_BUCKET).remove([storagePath]);
+    };
+    const publicUrl = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(storagePath).data.publicUrl;
+
+    // Server-side content check: the first bytes must be the PDF signature.
+    let size = 0;
+    try {
+      const res = await fetch(publicUrl, {
+        headers: { range: "bytes=0-1023" },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new Error(`storage returned ${res.status}`);
+      const total = /\/(\d+)$/.exec(res.headers.get("content-range") ?? "")?.[1];
+      size = Number(total ?? res.headers.get("content-length") ?? 0);
+      const head = new Uint8Array(await res.arrayBuffer()).subarray(0, 1024);
+      const signature = new TextDecoder("latin1").decode(head);
+      if (!signature.includes("%PDF-")) {
+        await discard();
+        throw httpError("That file is not a valid PDF.", 422);
+      }
+    } catch (err: any) {
+      if (err?.statusCode) throw err;
+      await discard().catch(() => {});
+      throw httpError(`Could not verify the upload: ${err?.message ?? "unknown error"}`, 502);
+    }
+    if (!size || size > RESUME_MAX_BYTES) {
+      await discard();
+      throw httpError("The uploaded file is empty or exceeds the size limit.", 413);
+    }
+
+    const before = await readResumeRow();
+    const staged: ResumeDoc = {
+      storagePath,
+      fileName: safeResumeFileName(String(data?.fileName ?? "Resume.pdf")),
+      size,
+      uploadedAt: new Date().toISOString(),
+      version: storagePath.slice("resume/".length, "resume/".length + 8),
+    };
+    await writeResumeRow({ staged, published: before.published });
+    await removeOrphanedResumeFiles(request, [before.staged], [staged, before.published]);
+    return { ok: true, staged };
+  },
+);
+
+/** Admin: publish the staged résumé (staged → published). */
+export const publishResume = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const before = await readResumeRow();
+    if (!before.staged) throw httpError("Upload a résumé before publishing.", 400);
+    await writeResumeRow({ staged: before.staged, published: before.staged });
+    await removeOrphanedResumeFiles(request, [before.published], [before.staged]);
+    return { ok: true };
+  },
+);
+
+/** Admin: drop an unpublished upload and go back to the published résumé. */
+export const discardResumeDraft = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const before = await readResumeRow();
+    await writeResumeRow({ staged: before.published, published: before.published });
+    await removeOrphanedResumeFiles(request, [before.staged], [before.published]);
+    return { ok: true };
+  },
+);
+
+/** Admin: remove the résumé entirely (public section shows no document). */
+export const removeResume = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ context }: any) => {
+    const { request } = context;
+    await requireAdmin(request);
+    const before = await readResumeRow();
+    await writeResumeRow({ staged: null, published: null });
+    await removeOrphanedResumeFiles(request, [before.staged, before.published], []);
     return { ok: true };
   },
 );

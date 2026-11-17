@@ -58,6 +58,7 @@ export default defineEventHandler(async () => {
     { url: `${siteUrl}/certificates`, updated: siteLastMod },
     { url: `${siteUrl}/contact`, updated: siteLastMod },
     { url: `${siteUrl}/volunteering`, updated: siteLastMod },
+    { url: `${siteUrl}/resume`, updated: siteLastMod },
     { url: `${siteUrl}/blog`, updated: siteLastMod },
   ];
 

@@ -1,6 +1,9 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+/* Lenis smooth-scroll rules, bundled here rather than as a second
+   render-blocking <link> (it's ~0.5 KB). */
+@import "lenis/dist/lenis.css";
 @import "./fonts.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -142,6 +145,33 @@
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/*
+ * Restrained scroll reveal (design brief: "restrained reveals only").
+ * CSS scroll-driven animation — no JavaScript. Browsers without
+ * animation-timeline support, reduced-motion users, and no-JS visitors simply
+ * see the content as normal; content is never hidden waiting on script.
+ */
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+/* Movement only — no opacity fade, so text is always at full contrast
+   (a fade measurably dropped body text below WCAG AA mid-animation). */
+@keyframes reveal-in {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: none;
+  }
 }
 
 @utility prose-editorial {

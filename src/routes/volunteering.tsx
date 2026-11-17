@@ -103,7 +103,7 @@ function VolunteeringPage() {
       <section className="mt-12">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-5xl leading-tight text-foreground">Volunteering experiences</h2>
-          {featured.length && (
+          {featured.length > 0 && (
             <Badge variant="secondary" className="text-[0.65rem]">
               {featured.length} featured
             </Badge>
@@ -302,7 +302,7 @@ function VolunteeringPage() {
                 aria-label="Volunteering entry details"
                 className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-6 font-serif text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                {modalEntry.media?.length && (
+                {!!modalEntry.media?.length && (
                   <figure className="mb-6">
                     <Media items={modalEntry.media.filter((m: any) => m.src)} ratio="16/9" />
                   </figure>
@@ -330,7 +330,7 @@ function VolunteeringPage() {
                     <p className="whitespace-pre-line">{modalEntry.reflections}</p>
                   </>
                 )}
-                {modalEntry.takeaways?.length && (
+                {!!modalEntry.takeaways?.length && (
                   <>
                     <h3 className="text-xl label-caps text-muted-foreground mb-2">
                       What I learned
@@ -342,7 +342,7 @@ function VolunteeringPage() {
                     </ul>
                   </>
                 )}
-                {modalEntry.links?.length && (
+                {!!modalEntry.links?.length && (
                   <>
                     <h3 className="text-xl label-caps text-muted-foreground mb-2">Links</h3>
                     <div className="flex flex-wrap gap-2 text-sm">
@@ -400,7 +400,7 @@ function VolunteeringPage() {
               {content.lookingAhead.body}
             </p>
           )}
-          {content.interests?.length && (
+          {!!content.interests?.length && (
             <div className="mt-6 flex flex-wrap gap-2">
               {content.interests.map((interest: string, i: number) => (
                 <Badge key={i} variant="outline" className="text-xs px-3 py-1.5">

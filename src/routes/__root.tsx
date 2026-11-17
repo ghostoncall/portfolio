@@ -5,14 +5,19 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ReactLenis } from "lenis/react";
 
-import appCss from "../styles.css?url";
+// Side-effect import (not ?url) so TanStack Start's manifest owns the
+// stylesheet and can inline it into the SSR HTML (server.build.inlineCss).
+import "../styles.css";
 import { SiteHeader, SiteFooter } from "../components/PageShell";
+import { BackToTop } from "../components/BackToTop";
 import { NavOrderContext, NavProjectsContext, type NavProject } from "../components/nav-projects";
 import { getPublishedNavOrder, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
 
@@ -97,12 +102,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "AI Engineer Portfolio" },
       { name: "description", content: "Portfolio of an AI engineer." },
+      // Matches --background (paper white) so mobile browser chrome blends in.
+      { name: "theme-color", content: "#fdfdfb" },
+      { property: "og:site_name", content: "engineerthisaryan" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
       // Fonts are self-hosted (src/fonts.css, public/fonts/). Preload only the
       // two faces used by above-the-fold text — the body serif (LCP paragraph)
       // and Lato 400 — so they arrive with the CSS and the swap barely shifts.
@@ -149,8 +153,31 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Lenis smooth scrolling for mouse wheels and trackpads. Touch keeps the
+ * browser's native momentum (Lenis' default), and visitors who prefer reduced
+ * motion get plain native scrolling. Inner scroll areas (PDF viewer, mobile
+ * menu) opt out with `data-lenis-prevent` so they scroll natively.
+ */
+function SmoothScroll({ children }: { children: ReactNode }) {
+  const [smooth, setSmooth] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setSmooth(!mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return smooth ? <ReactLenis root>{children}</ReactLenis> : <>{children}</>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const isAdmin = useRouterState({
+    select: (s) => s.location.pathname.startsWith("/onlyme"),
+  });
   const { site, navProjects, navOrder } = Route.useLoaderData() as {
     site: any;
     navProjects: NavProject[];
@@ -159,7 +186,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <>
+      <SmoothScroll>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <SiteHeader site={site} navOrder={navOrder ?? []} />
         <NavOrderContext.Provider value={navOrder ?? []}>
@@ -168,7 +195,8 @@ function RootComponent() {
           </NavProjectsContext.Provider>
         </NavOrderContext.Provider>
         <SiteFooter site={site} />
-      </>
+        {!isAdmin && <BackToTop />}
+      </SmoothScroll>
     </QueryClientProvider>
   );
 }

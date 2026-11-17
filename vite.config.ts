@@ -1,9 +1,9 @@
-/**
- * Owned Vite config — replaces the removed vendor wrapper package that used
+﻿/**
+ * Owned Vite config â€” replaces the removed vendor wrapper package that used
  * to sit here. Composes the same standard plugins in the same order that
  * wrapper assembled, minus its editor-only plumbing (badge, telemetry,
  * devtools piping, sandbox shims, publishing manifest).
- * Server entry stays "server" (src/server.ts — SSR error wrapper) as before.
+ * Server entry stays "server" (src/server.ts â€” SSR error wrapper) as before.
  */
 import { loadEnv, mergeConfig } from "vite";
 import { defineConfig, type ConfigEnv, type UserConfig } from "vite";
@@ -14,7 +14,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
 
 export default ({ command, mode }: ConfigEnv): UserConfig => {
-  // VITE_* env vars → import.meta.env define (same as the removed wrapper did).
+  // VITE_* env vars â†’ import.meta.env define (same as the removed wrapper did).
   const envDefine: Record<string, string> = {};
   for (const [key, value] of Object.entries(loadEnv(mode, process.cwd(), "VITE_"))) {
     envDefine[`import.meta.env.${key}`] = JSON.stringify(value);
@@ -82,7 +82,10 @@ export default {};`;
       tsconfigPaths({ projects: ["./tsconfig.json"] }),
       tanstackStart({
         // Redirect the bundled server entry to src/server.ts (SSR error wrapper).
-        server: { entry: "server" },
+        // inlineCss: the site stylesheet (~18 KB gzip) ships inside the HTML as
+        // a <style> tag instead of a render-blocking <link>, saving a full
+        // network round trip before first paint (measured: see FINAL report).
+        server: { entry: "server", build: { inlineCss: true } },
         importProtection: {
           behavior: "error",
           client: { files: ["**/server/**"], specifiers: ["server-only"] },

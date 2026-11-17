@@ -2,6 +2,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { PageShell } from "@/components/PageShell";
+import { CopyEmailButton } from "@/components/CopyEmailButton";
 import { siteFromRoot } from "@/lib/root-data";
 import { sendContactEmail } from "@/lib/server-fns";
 
@@ -204,8 +205,8 @@ function Contact() {
         Write to{" "}
         <a href={`mailto:${site.email}`} className="text-link hover:underline">
           {site.email}
-        </a>
-        , or use the form below.
+        </a>{" "}
+        <CopyEmailButton email={site.email} />, or use the form below.
       </p>
       {sent ? (
         <p className="mt-8 bg-muted p-6 font-serif" role="status">

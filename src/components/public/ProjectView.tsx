@@ -78,7 +78,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
         </figure>
       )}
 
-      {project.gallery && project.gallery.length && (
+      {project.gallery && project.gallery.length > 0 && (
         <div className="my-6">
           <h2 className="mb-3 text-2xl text-foreground">Gallery</h2>
           <Media items={project.gallery} layout="grid" ratio="16/9" />
@@ -109,7 +109,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
         </div>
       )}
 
-      {related.length && (
+      {related.length > 0 && (
         <div className="my-6">
           <h2 className="mb-3 text-2xl text-foreground">Related skills</h2>
           <div className="flex flex-wrap gap-2">
@@ -129,7 +129,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
         </div>
       )}
 
-      {project.achievements && project.achievements.length && (
+      {project.achievements && project.achievements.length > 0 && (
         <div className="my-6">
           <h2 className="mb-3 text-2xl text-foreground">Achievements</h2>
           <ul className="list-disc pl-6 space-y-1 font-serif text-foreground">
@@ -140,7 +140,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
         </div>
       )}
 
-      {project.blocks && project.blocks.length && <Blocks blocks={project.blocks} />}
+      {project.blocks && project.blocks.length > 0 && <Blocks blocks={project.blocks} />}
     </div>
   );
 }

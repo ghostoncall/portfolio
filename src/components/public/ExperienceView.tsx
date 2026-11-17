@@ -36,7 +36,7 @@ export function ExperienceView({ content }: { content: any }) {
         <section
           key={entry.id}
           data-testid="experience-entry"
-          className="border-b border-border py-6 last:border-0 relative"
+          className="reveal border-b border-border py-6 last:border-0 relative"
         >
           <div className={entry.logo?.src ? "flex items-start gap-3 sm:gap-5" : undefined}>
             {entry.logo?.src && (
@@ -98,7 +98,7 @@ export function ExperienceView({ content }: { content: any }) {
                   {entry.overview}
                 </p>
               )}
-              {entry.responsibilities && entry.responsibilities.length && (
+              {entry.responsibilities && entry.responsibilities.length > 0 && (
                 <div className="my-4">
                   <h3 className="text-sm label-caps text-muted-foreground mb-1">
                     Responsibilities
@@ -110,7 +110,7 @@ export function ExperienceView({ content }: { content: any }) {
                   </ul>
                 </div>
               )}
-              {entry.achievements && entry.achievements.length && (
+              {entry.achievements && entry.achievements.length > 0 && (
                 <div className="my-4">
                   <h3 className="text-sm label-caps text-muted-foreground mb-1">Achievements</h3>
                   <ul className="list-disc pl-6 space-y-1 font-serif text-[0.95rem] text-foreground">
@@ -120,7 +120,7 @@ export function ExperienceView({ content }: { content: any }) {
                   </ul>
                 </div>
               )}
-              {entry.tech && entry.tech.length && (
+              {entry.tech && entry.tech.length > 0 && (
                 <div className="my-4 flex flex-wrap gap-2">
                   {entry.tech.map((t: string, i: number) => (
                     <Badge key={i} variant="outline" className="text-xs px-2 py-1">
@@ -146,12 +146,12 @@ export function ExperienceView({ content }: { content: any }) {
                     ))}
                 </div>
               )}
-              {entry.media && entry.media.length && (
+              {entry.media && entry.media.length > 0 && (
                 <div className="my-4">
                   <Media items={entry.media} layout="grid" ratio="16/9" />
                 </div>
               )}
-              {entry.blocks && entry.blocks.length && <Blocks blocks={entry.blocks} />}
+              {entry.blocks && entry.blocks.length > 0 && <Blocks blocks={entry.blocks} />}
             </div>
           </div>
         </section>

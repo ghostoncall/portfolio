@@ -14,6 +14,7 @@ import { getPublishedNavOrder, reorderNav } from "@/lib/server-fns";
 import { Button } from "@/components/ui/button";
 import { GripVertical } from "lucide-react";
 import { SortableList } from "@/components/admin/cms/SortableList";
+import { applyNavOrder } from "@/components/nav-projects";
 
 const DEFAULT_NAV = [
   { slug: "overview", label: "Overview" },
@@ -23,6 +24,7 @@ const DEFAULT_NAV = [
   { slug: "skills", label: "Skills/Certs/Awards" },
   { slug: "experience", label: "Experience" },
   { slug: "volunteering", label: "Volunteering" },
+  { slug: "resume", label: "Résumé / CV" },
   { slug: "contact", label: "Contact" },
 ] as const;
 
@@ -36,28 +38,17 @@ export function NavReorder() {
   const [items, setItems] = React.useState<NavItem[]>([]);
   const [loading, setLoading] = React.useState(true);
 
-  const defaultIndexBySlug = React.useMemo(
-    () => new Map(DEFAULT_NAV.map((s, i) => [s.slug, i])),
-    [],
-  );
-
   const refresh = React.useCallback(async () => {
     const saved = ((await (getPublishedNavOrder as any)()) as string[]) ?? [];
-    const rank = new Map(saved.map((slug, i) => [slug, i]));
-    const next = DEFAULT_NAV.map((s) => ({
+    // Same placement rule as the public menus, so the admin list matches them.
+    const next = applyNavOrder(DEFAULT_NAV, saved).map((s, i) => ({
       slug: s.slug,
       label: s.label,
-      navOrder:
-        rank.get(s.slug) ?? Number.MAX_SAFE_INTEGER - 100 + (defaultIndexBySlug.get(s.slug) ?? 0),
+      navOrder: i,
     }));
-    next.sort(
-      (a, b) =>
-        a.navOrder - b.navOrder ||
-        (defaultIndexBySlug.get(a.slug) ?? 0) - (defaultIndexBySlug.get(b.slug) ?? 0),
-    );
     setItems(next);
     setLoading(false);
-  }, [defaultIndexBySlug]);
+  }, []);
 
   React.useEffect(() => {
     refresh();

@@ -140,6 +140,7 @@ function OnlymeLayout() {
     { to: "/onlyme/education", label: "Education", icon: "🎓" },
     { to: "/onlyme/experience", label: "Experience", icon: "🛠️" },
     { to: "/onlyme/volunteering", label: "Volunteering", icon: "🤝" },
+    { to: "/onlyme/resume", label: "Résumé / CV", icon: "📃" },
     { to: "/onlyme/blogs", label: "Blogs", icon: "📝" },
     { to: "/onlyme/media", label: "Media", icon: "🖼️" },
     { to: "/onlyme/export", label: "Backup", icon: "💾" },

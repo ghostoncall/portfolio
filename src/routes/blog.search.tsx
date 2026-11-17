@@ -153,7 +153,7 @@ function SearchPage() {
           <h1 className="text-2xl font-medium text-foreground">
             {showingQuery ? `Search results for “${escapeHtml(showingQuery)}”` : "Search"}
           </h1>
-          {total && (
+          {total > 0 && (
             <p className="text-sm text-muted-foreground">
               {total} result{total === 1 ? "" : "s"} found.
             </p>

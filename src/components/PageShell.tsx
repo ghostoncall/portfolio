@@ -2,8 +2,11 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Rss, FileText, ChevronDown } from "lucide-react";
+import { useLenis } from "lenis/react";
 import type { SiteIdentity } from "@/db/schema";
 import { SideMenu } from "@/components/SideMenu";
+import { applyNavOrder } from "@/components/nav-projects";
+import { CopyEmailButton } from "@/components/CopyEmailButton";
 
 const NAV_BRAND_HOME = "engineerthisaryan";
 
@@ -36,6 +39,7 @@ const MOBILE_NAV_ITEMS: Array<{
   },
   { slug: "experience", label: "Experience", href: "/experience" },
   { slug: "volunteering", label: "Volunteering", href: "/volunteering" },
+  { slug: "resume", label: "Résumé / CV", href: "/resume" },
   { slug: "contact", label: "Contact", href: "/contact" },
 ];
 
@@ -44,12 +48,7 @@ function orderMobileItems(
   items: typeof MOBILE_NAV_ITEMS,
   order: string[] | null,
 ): typeof MOBILE_NAV_ITEMS {
-  if (!order || order.length === 0) return items;
-  const rank = new Map(order.map((slug, i) => [slug, i]));
-  return [...items].sort(
-    (a, b) =>
-      (rank.get(a.slug) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.slug) ?? Number.MAX_SAFE_INTEGER),
-  );
+  return applyNavOrder(items, order);
 }
 
 export function SiteHeader({ site, navOrder }: { site: SiteIdentity; navOrder?: string[] }) {
@@ -63,10 +62,14 @@ export function SiteHeader({ site, navOrder }: { site: SiteIdentity; navOrder?: 
   const menuRef = useRef<HTMLDivElement>(null);
   const htmlRef = useRef<HTMLElement | null>(null);
 
+  const lenis = useLenis();
+
   // Lock background scroll (Lenis + native) while the mobile menu is open.
   useEffect(() => {
     const html = document.documentElement;
     htmlRef.current = html;
+    if (isMenuOpen) lenis?.stop();
+    else lenis?.start();
     if (isMenuOpen) {
       html.style.overflow = "hidden";
       html.style.touchAction = "none";
@@ -86,7 +89,7 @@ export function SiteHeader({ site, navOrder }: { site: SiteIdentity; navOrder?: 
         html.style.width = "";
       }
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, lenis]);
 
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
@@ -166,6 +169,7 @@ export function SiteHeader({ site, navOrder }: { site: SiteIdentity; navOrder?: 
               </button>
             </div>
             <nav
+              data-lenis-prevent=""
               className="flex-1 overflow-y-auto px-6 py-4 space-y-1"
               aria-label="Mobile navigation"
             >
@@ -392,6 +396,49 @@ export function SiteFooter({ site }: { site: SiteIdentity }) {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t border-border">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 pt-10 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <p className="font-display text-2xl text-foreground sm:text-3xl">
+            Have a project or role in mind?
+          </p>
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            <Link
+              to="/contact"
+              className="font-semibold text-foreground underline-offset-4 transition-colors hover:underline"
+            >
+              Get in touch →
+            </Link>
+            {site.email && (
+              <>
+                <span aria-hidden="true">·</span>
+                <a
+                  href={`mailto:${site.email}`}
+                  className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                >
+                  {site.email}
+                </a>
+                <CopyEmailButton email={site.email} />
+              </>
+            )}
+          </p>
+        </div>
+        {site.socials.length > 0 && (
+          <ul className="flex flex-wrap gap-5 text-sm" aria-label="Social profiles">
+            {site.socials.map((s) => (
+              <li key={s.label}>
+                <a
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                >
+                  {s.label} ↗
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-4 px-6 py-8 text-sm text-muted-foreground sm:text-base">
         <span className="font-serif">
           © {year} {site.name ?? "Aryan Mehndiratta"}
