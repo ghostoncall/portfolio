@@ -3,10 +3,12 @@
   publish = "dist"
 
 [build.environment]
-  # SMTP_TO is the public contact address, which the site shows anyway and which
-  # is also the fallback in src/lib/merge-additions.ts. The scanner would
-  # otherwise block every deploy on it. Real SMTP credentials are not omitted.
-  SECRETS_SCAN_OMIT_KEYS = "SMTP_TO"
+  # These values are public by design, not credentials:
+  #   SMTP_TO / SMTP_FROM / SMTP_USER / ADMIN_EMAIL: the contact address (the
+  #     site shows it), which is also the fallback in src/lib/merge-additions.ts.
+  #   VITE_* : Supabase URL and anon key, shipped to browsers by design.
+  # SMTP_PASS, ADMIN_PASSWORD, DATABASE_URL and NETLIFY_PURGE_TOKEN stay scanned.
+  SECRETS_SCAN_OMIT_KEYS = "SMTP_TO,SMTP_FROM,SMTP_USER,ADMIN_EMAIL,VITE_SITE_URL,VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY"
 
 [[redirects]]
   # SPA fallback for client-side routes.
