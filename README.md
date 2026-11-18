@@ -138,7 +138,7 @@ In Cloudflare, open **Workers & Pages**, create a **Pages** application and impo
 | Root directory | Repository root |
 | `NODE_VERSION` environment variable | `26.8.1` |
 
-Set the environment variables below before the first build. `VITE_*` values must be available during the build. Store private values as secrets in Cloudflare. Set `VITE_SITE_URL` to the public deployment URL or custom domain.
+Set the environment variables below before the first build. `VITE_*` values must be available during the build. Store the Supabase values, `VITE_SITE_URL` and optional settings as encrypted secrets in Cloudflare so Pages retains them across Wrangler deployments. The generated Wrangler configuration supplies `NODE_VERSION`. Set `VITE_SITE_URL` to the public deployment URL or custom domain.
 
 `wrangler.json` configures `nodejs_compat` and the `HYPERDRIVE` binding to `portfolio-database`. Hyperdrive uses the Supabase direct connection and has query caching disabled so CMS edits can be read immediately. Nitro passes these bindings through the request runtime, and both TanStack pages and Nitro server routes use request-scoped database clients.
 
