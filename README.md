@@ -130,7 +130,8 @@ In Cloudflare, open **Workers & Pages**, create a **Pages** application and impo
 | Setting | Value |
 |---|---|
 | Project name | `ghostoncall-portfolio` |
-| Public URL | `https://ghostoncall-portfolio-7gc.pages.dev` |
+| Public URL | `https://engineerthisaryan.com` |
+| Pages URL | `https://ghostoncall-portfolio-7gc.pages.dev` |
 | Production branch | `v0.9-optimized` |
 | Framework preset | None |
 | Build command | `npm run build` |
