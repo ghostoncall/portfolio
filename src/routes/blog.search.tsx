@@ -147,7 +147,8 @@ function SearchPage() {
   const showingQuery = query.trim();
 
   return (
-    <div className="space-y-6">
+    // <main> landmark: this page doesn't use PageShell (which provides one).
+    <main className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-2xl font-medium text-foreground">
@@ -217,6 +218,7 @@ function SearchPage() {
       <div className="flex flex-wrap items-center gap-3 border border-border bg-muted/30 p-3">
         <label className="text-xs text-muted-foreground">Tag</label>
         <select
+          aria-label="Filter by tag"
           value={tag}
           onChange={(e) => {
             setTag(e.target.value);
@@ -232,6 +234,7 @@ function SearchPage() {
           ))}
         </select>
         <select
+          aria-label="Filter by year"
           value={String(year)}
           onChange={(e) => {
             setYear(e.target.value);
@@ -258,6 +261,7 @@ function SearchPage() {
           Featured only
         </label>
         <select
+          aria-label="Sort results"
           value={sort}
           onChange={(e) => {
             setSort(e.target.value as any);
@@ -340,7 +344,7 @@ function SearchPage() {
           <p>No articles match your search.</p>
         </div>
       )}
-    </div>
+    </main>
   );
 }
 

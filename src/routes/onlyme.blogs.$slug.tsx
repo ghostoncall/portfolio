@@ -1043,6 +1043,7 @@ function PostEditor() {
                     value={form.thumbnail}
                     onChange={(thumbnail) => patch({ thumbnail })}
                     thumbEdge={360}
+                    cropAspect={4 / 3}
                     fullEdge={1200}
                   />
                 </section>

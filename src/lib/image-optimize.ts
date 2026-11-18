@@ -97,7 +97,11 @@ export async function uploadThumbVariant(
   thumbEdge = 480,
   onProgress?: (p: number) => void,
 ): Promise<Pick<ImageAsset, "thumb" | "thumbWidth" | "thumbHeight">> {
-  const thumb = await optimizeImage(cropped, { maxEdge: thumbEdge, quality: 0.8, suffix: "-thumb" });
+  const thumb = await optimizeImage(cropped, {
+    maxEdge: thumbEdge,
+    quality: 0.8,
+    suffix: "-thumb",
+  });
   const row = await uploadFileToLibrary(thumb.file, onProgress ? { onProgress } : {});
   return {
     thumb: row.url,

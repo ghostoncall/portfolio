@@ -505,6 +505,14 @@ export function normalizeImageAsset(raw: unknown): ImageAsset | undefined {
       ? { thumbWidth: num(r.thumbWidth), thumbHeight: num(r.thumbHeight) }
       : {}),
     ...(typeof r.alt === "string" ? { alt: r.alt.slice(0, 300) } : {}),
+    ...(r.crop &&
+    [r.crop.x, r.crop.y, r.crop.w, r.crop.h].every(
+      (n) => typeof n === "number" && Number.isFinite(n),
+    ) &&
+    r.crop.w > 0 &&
+    r.crop.h > 0
+      ? { crop: { x: r.crop.x, y: r.crop.y, w: r.crop.w, h: r.crop.h } }
+      : {}),
   };
 }
 

@@ -66,19 +66,19 @@ const CertificateTile = React.forwardRef<HTMLButtonElement, CertificateTileProps
           <dl className="grid grid-cols-2 gap-x-2 gap-y-1 mb-3 text-[clamp(0.75rem,2vw,0.8125rem)] sm:text-sm text-muted-foreground">
             {cert.issueDate && (
               <>
-                <dt className="text-muted-foreground/60">Issued</dt>
+                <dt className="text-muted-foreground">Issued</dt>
                 <dd className="text-foreground">{cert.issueDate}</dd>
               </>
             )}
             {cert.expiryDate && (
               <>
-                <dt className="text-muted-foreground/60">Expires</dt>
+                <dt className="text-muted-foreground">Expires</dt>
                 <dd className="text-foreground">{cert.expiryDate}</dd>
               </>
             )}
             {cert.credentialId && (
               <>
-                <dt className="text-muted-foreground/60">Credential ID</dt>
+                <dt className="text-muted-foreground">Credential ID</dt>
                 <dd className="text-foreground truncate">{cert.credentialId}</dd>
               </>
             )}

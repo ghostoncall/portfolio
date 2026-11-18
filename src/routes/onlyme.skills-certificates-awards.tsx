@@ -528,6 +528,7 @@ function SkillsCertificatesAwardsAdmin() {
             label="Image thumbnail"
             hint="Shown as a small thumbnail; visitors can click it to see the full image. Saved as optimized WebP (thumbnail + full size). Leave empty if there's no image."
             value={editingDraft?.thumbnail}
+            cropAspect={4 / 3}
             onChange={(thumbnail) => setEditingDraft((d: any) => (d ? { ...d, thumbnail } : d))}
           />
           <MediaField

@@ -353,6 +353,9 @@ const imageAssetSchema = z.object({
   thumbWidth: z.number().positive().optional(),
   thumbHeight: z.number().positive().optional(),
   alt: z.string().max(300).optional(),
+  crop: z
+    .object({ x: z.number(), y: z.number(), w: z.number().positive(), h: z.number().positive() })
+    .optional(),
 });
 
 export const awardSchema = z.object({

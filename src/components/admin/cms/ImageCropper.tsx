@@ -93,7 +93,10 @@ export function ImageCropper({
       setZoom(z);
       setCenter(
         clamp(
-          { x: (initialCrop.x + initialCrop.w / 2) * nw, y: (initialCrop.y + initialCrop.h / 2) * nh },
+          {
+            x: (initialCrop.x + initialCrop.w / 2) * nw,
+            y: (initialCrop.y + initialCrop.h / 2) * nh,
+          },
           coverScale * z,
         ),
       );
@@ -119,7 +122,9 @@ export function ImageCropper({
     const dx = e.clientX - drag.current.x;
     const dy = e.clientY - drag.current.y;
     drag.current = { x: e.clientX, y: e.clientY };
-    setCenter((prev) => clamp({ x: (prev?.x ?? c.x) - dx / scale, y: (prev?.y ?? c.y) - dy / scale }, scale));
+    setCenter((prev) =>
+      clamp({ x: (prev?.x ?? c.x) - dx / scale, y: (prev?.y ?? c.y) - dy / scale }, scale),
+    );
   }
   function onKeyDown(e: React.KeyboardEvent) {
     const step = 12 / scale;
