@@ -16,7 +16,8 @@ import { nitro } from "nitro/vite";
 export default ({ command, mode }: ConfigEnv): UserConfig => {
   // VITE_* env vars â†’ import.meta.env define (same as the removed wrapper did).
   const envDefine: Record<string, string> = {};
-  for (const [key, value] of Object.entries(loadEnv(mode, process.cwd(), "VITE_"))) {
+  const publicEnv = loadEnv(mode, process.cwd(), "VITE_");
+  for (const [key, value] of Object.entries(publicEnv)) {
     envDefine[`import.meta.env.${key}`] = JSON.stringify(value);
   }
 
@@ -92,7 +93,17 @@ export default {};`;
         },
       }),
       // Build-time server bundling, same as the removed wrapper's default.
-      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-pages" })] : []),
+      ...(command === "build"
+        ? [
+            nitro({
+              defaultPreset: "cloudflare-pages",
+              cloudflare: {
+                // Pages treats Wrangler as the source of runtime variables.
+                wrangler: { vars: { NODE_VERSION: "26.8.1", ...publicEnv } },
+              },
+            }),
+          ]
+        : []),
       react(),
     ],
   };
