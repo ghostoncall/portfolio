@@ -14,6 +14,9 @@ import { getSupabaseBrowser } from "@/lib/supabase-browser";
 // Toasts are only used inside the admin area, so the toast library is loaded
 // with this route chunk rather than shipped to every public visitor.
 import { Toaster } from "@/components/ui/sonner";
+import { CodeContentBanner } from "@/components/admin/cms/CodeContentBanner";
+import { FormatToolbar } from "@/components/admin/cms/FormatToolbar";
+import { DatabaseStatus } from "@/components/admin/cms/DatabaseStatus";
 
 export const Route = createFileRoute("/onlyme")({
   // Server-enforced guard: every /onlyme page requires a Supabase session.
@@ -105,6 +108,7 @@ function OnlymeLayout() {
       <>
         <Outlet />
         <Toaster />
+      {pathname !== "/onlyme/login" && <FormatToolbar />}
       </>
     );
   }
@@ -142,7 +146,8 @@ function OnlymeLayout() {
     { to: "/onlyme/experience", label: "Experience", icon: "🛠️" },
     { to: "/onlyme/volunteering", label: "Volunteering", icon: "🤝" },
     { to: "/onlyme/resume", label: "Résumé / CV", icon: "📃" },
-    { to: "/onlyme/blogs", label: "Blogs", icon: "📝" },
+    { to: "/onlyme/blogs", label: "Blog posts", icon: "📝" },
+    { to: "/onlyme/blog-settings", label: "Blog sections", icon: "🗂️" },
     { to: "/onlyme/media", label: "Media", icon: "🖼️" },
     { to: "/onlyme/export", label: "Backup", icon: "💾" },
   ];
@@ -273,6 +278,8 @@ function OnlymeLayout() {
             <h1 className="text-heading-1 sm:text-4xl font-bold text-foreground">Admin</h1>
           </div>
         </header>
+        {pathname !== "/onlyme/login" && <DatabaseStatus />}
+        {pathname !== "/onlyme/login" && <CodeContentBanner />}
         <Outlet />
       </div>
       <Toaster />

@@ -102,7 +102,28 @@ function SkillsCertificatesAwardsAdmin() {
   if (skillsDraft.loading || certsDraft.loading || awardsDraft.loading) {
     return <div className="text-sm text-muted-foreground">Loading draft…</div>;
   }
-  if (!skillsDraft.data || !certsDraft.data || !awardsDraft.data) return null;
+  if (!skillsDraft.data || !certsDraft.data || !awardsDraft.data) {
+    return (
+      <div role="alert" className="space-y-3 text-sm">
+        <p className="text-destructive">
+          {skillsDraft.error ||
+            certsDraft.error ||
+            awardsDraft.error ||
+            "Could not load the section."}
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            void skillsDraft.reload();
+            void certsDraft.reload();
+            void awardsDraft.reload();
+          }}
+        >
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   const skills = skillsDraft.doc.skills ?? [];
   const certificates = certsDraft.doc.certificates ?? [];
@@ -707,9 +728,8 @@ function SkillsCertificatesAwardsAdmin() {
                 className="h-7 px-2 text-xs text-destructive"
                 data-testid={`${kind}-delete`}
                 onClick={() => {
-                  if (kind === "skills") removeSkill(e as Skill);
-                  else if (kind === "certificates") removeCert(e as Certificate);
-                  else removeAward(e as Award);
+                  setEditingKind(kind);
+                  setDeleteTarget(e);
                 }}
               >
                 Del.
@@ -887,7 +907,7 @@ function SkillsCertificatesAwardsAdmin() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title={`Delete "${(deleteTarget as any).title ?? (deleteTarget as any).name ?? ""}"?`}
+        title={`Delete "${deleteTarget?.title ?? deleteTarget?.name ?? ""}"?`}
         description="Removes the entry from the draft (and from the site once you publish)."
         onConfirm={() => {
           if (deleteTarget) {

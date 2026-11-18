@@ -1,357 +1,386 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// Blog search: PostgreSQL full-text search (title A / dek+tags B / body C)
-// with pg_trgm fuzzy fallback for typos. Drafts, scheduled and private posts
-// are excluded inside the RPC, never here.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+// Blog search across Tech Blogs and My Journal.
+//
+// Results come from the Postgres search (full text + typo-tolerant fuzzy
+// match; drafts, scheduled and private posts are excluded inside the
+// database), with a plain fallback search on the server if that isn't
+// available. Results update as you type; the query and filters live in the
+// URL so refresh, Back and shared links all keep them.
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Loader2, Search, X } from "lucide-react";
-import { searchPosts, searchSuggest, getBlogTags } from "@/lib/server-fns";
+import { getBlogSettings, getBlogTags, searchPosts } from "@/lib/server-fns";
+import type { BlogSettings } from "@/lib/blog-settings";
+import { BLOG_SECTION_IDS, sectionPath, type BlogSectionId } from "@/lib/blog-sections";
+import { plainText, Rich } from "@/lib/rich-inline";
+import { PageShell } from "@/components/PageShell";
+import { siteFromRoot } from "@/lib/root-data";
+import { pageCopy } from "@/lib/site-copy";
+import { formatDate } from "@/lib/format-date";
+
+type SearchQuery = {
+  q?: string;
+  section?: BlogSectionId;
+  tag?: string;
+  sort?: "relevance" | "newest" | "oldest";
+  page?: number;
+};
 
 export const Route = createFileRoute("/blog/search")({
+  validateSearch: (s: Record<string, unknown>): SearchQuery => ({
+    ...(typeof s["q"] === "string" && s["q"] ? { q: s["q"] } : {}),
+    ...(s["section"] === "tech" || s["section"] === "journal" ? { section: s["section"] } : {}),
+    ...(typeof s["tag"] === "string" && s["tag"] ? { tag: s["tag"] } : {}),
+    ...(s["sort"] === "newest" || s["sort"] === "oldest" ? { sort: s["sort"] } : {}),
+    ...(Number(s["page"]) > 1 ? { page: Math.floor(Number(s["page"])) } : {}),
+  }),
+  loader: async ({ parentMatchPromise }) => {
+    const [settings, site] = await Promise.all([
+      (getBlogSettings as any)() as Promise<BlogSettings>,
+      siteFromRoot(parentMatchPromise, "blog"),
+    ]);
+    return { settings, site };
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: `Search articles — ${plainText(loaderData?.site?.name ?? "Portfolio")}` },
+      // Result pages are endless permutations; keep them out of search engines.
+      { name: "robots", content: "noindex, follow" },
+    ],
+  }),
   component: SearchPage,
 });
 
+const PER_PAGE = 10;
 const field =
-  "w-full border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring";
+  "min-h-[44px] border border-input bg-background px-3 text-base text-foreground outline-none focus:border-ring";
+
+type Result = {
+  slug: string;
+  title: string;
+  dek: string;
+  date: string;
+  tags: string[];
+  readTime?: string;
+  section?: BlogSectionId;
+};
 
 function SearchPage() {
-  const search = Route.useSearch() as any;
-  const [query, setQuery] = useState(String(search.q ?? ""));
-  const [tag, setTag] = useState(String(search.tag ?? ""));
-  const [year, setYear] = useState<string | number>(search.year ?? "");
-  const [featured, setFeatured] = useState<boolean | null>(
-    search.featured === "true" ? true : search.featured === "false" ? false : null,
-  );
-  const [sort, setSort] = useState<"relevance" | "newest" | "oldest">(
-    (search.sort as any) ?? "relevance",
-  );
-  const [page, setPage] = useState(Math.max(1, Number(search.page ?? 1)));
-  const [perPage] = useState(10);
+  const { settings, site } = Route.useLoaderData();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/blog/search" });
 
-  const [results, setResults] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<{ kind: string; label: string; slug: string }[]>(
-    [],
-  );
+  const [input, setInput] = useState(search.q ?? "");
   const [tags, setTags] = useState<{ tag: string; count: number }[]>([]);
+  const [results, setResults] = useState<Result[]>([]);
+  const [headlines, setHeadlines] = useState<(string | null)[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestTimer = useRef<number | null>(null);
+  const [searched, setSearched] = useState(false);
+  const requestId = useRef(0);
 
-  const params = useMemo(() => {
-    const p: Record<string, string> = {};
-    if (query) p["q"] = query;
-    if (tag) p["tag"] = tag;
-    if (year) p["year"] = String(year);
-    if (featured !== null) p["featured"] = featured ? "true" : "false";
-    p["sort"] = sort;
-    p["page"] = String(page);
-    p["perPage"] = String(perPage);
-    return p;
-  }, [query, tag, year, featured, sort, page]);
+  const sections = BLOG_SECTION_IDS.filter((id) => settings.sections[id].visible);
+  const q = search.q ?? "";
+  const page = search.page ?? 1;
+  // A section on its own (arriving from Tech Blogs / My Journal) isn't a
+  // search yet — show the prompt rather than "no articles match".
+  const active = Boolean(q.trim() || search.tag);
 
+  // Typing updates the URL (and so the results) after a short pause.
   useEffect(() => {
-    if (query.trim()) {
-      void runSearch();
-    } else {
-      setResults([]);
-      setTotal(0);
-      setError(null);
-    }
-  }, [query, tag, year, featured, sort, page]);
+    if (input === q) return;
+    const t = window.setTimeout(() => {
+      void navigate({
+        search: (prev: SearchQuery) => {
+          const next: SearchQuery = { ...prev };
+          if (input.trim()) next.q = input;
+          else delete next.q;
+          delete next.page;
+          return next;
+        },
+        replace: true,
+      });
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [input, q, navigate]);
+
+  // Keep the box in sync when the URL changes (Back/Forward).
+  useEffect(() => setInput(q), [q]);
 
   useEffect(() => {
     (getBlogTags as any)()
-      .then((rows: any) => setTags(rows))
+      .then((rows: any) => setTags(Array.isArray(rows) ? rows : []))
       .catch(() => {});
   }, []);
 
-  const runSearch = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      const data: any = await (searchPosts as any)({
-        data: {
-          query: query.trim() || null,
-          tag: tag || null,
-          year: year ? Number(year) : null,
-          featured: featured === null ? null : featured,
-          sort,
-          page,
-          perPage,
-        },
-      });
-      setResults(data.posts ?? []);
-      setTotal(Number(data.total ?? 0));
-    } catch (e: any) {
-      setError(e?.message ?? "Search failed.");
+  useEffect(() => {
+    if (!active) {
       setResults([]);
       setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSuggest = async () => {
-    const q = query.trim();
-    if (!q || q.length < 2) {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      setSearched(false);
       return;
     }
-    if (suggestTimer.current) window.clearTimeout(suggestTimer.current);
-    suggestTimer.current = window.setTimeout(async () => {
-      try {
-        const rows: any[] = await (searchSuggest as any)({ data: { query: q, limit: 6 } });
-        setSuggestions(rows);
-        setShowSuggestions(rows.length > 0);
-      } catch {
-        setSuggestions([]);
-      }
-    }, 200);
-  };
+    const id = ++requestId.current;
+    setLoading(true);
+    setError(null);
+    (searchPosts as any)({
+      data: {
+        query: q.trim() || null,
+        tag: search.tag ?? null,
+        section: search.section ?? null,
+        sort: search.sort ?? (q.trim() ? "relevance" : "newest"),
+        page,
+        perPage: PER_PAGE,
+      },
+    })
+      .then((data: any) => {
+        if (id !== requestId.current) return; // a newer search is on its way
+        setResults(data.posts ?? []);
+        setHeadlines(data.headline ?? []);
+        setTotal(Number(data.total ?? 0));
+        setSearched(true);
+      })
+      .catch(() => {
+        if (id !== requestId.current) return;
+        setError("Search isn't available right now. Please try again in a moment.");
+      })
+      .finally(() => {
+        if (id === requestId.current) setLoading(false);
+      });
+  }, [active, q, search.tag, search.section, search.sort, page]);
 
-  useEffect(() => {
-    if (query.trim().length >= 2) void onSuggest();
-    else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-    return () => {
-      if (suggestTimer.current) window.clearTimeout(suggestTimer.current);
-    };
-  }, [query]);
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const setFilter = (patch: { [K in keyof SearchQuery]?: SearchQuery[K] | undefined }) =>
+    navigate({
+      search: (prev: SearchQuery) => {
+        const next: any = { ...prev, ...patch };
+        delete next.page;
+        for (const k of Object.keys(next)) if (next[k] === undefined || next[k] === "") delete next[k];
+        return next;
+      },
+      replace: true,
+    });
 
-  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const status = useMemo(() => {
+    if (!active) return "";
+    if (loading && !searched) return "Searching…";
+    const what = q.trim() ? `for “${q.trim()}”` : "";
+    return `${total} ${total === 1 ? "article" : "articles"} ${what}`.trim();
+  }, [active, loading, searched, total, q]);
 
-  const handleSelect = (suggestion: { kind: string; label: string; slug: string }) => {
-    setShowSuggestions(false);
-    if (suggestion.kind === "post" && suggestion.slug) {
-      window.location.href = `/blog/${suggestion.slug}`;
-    } else if (suggestion.kind === "tag") {
-      setTag(suggestion.label);
-      setPage(1);
-    }
-  };
-
-  if (loading && results.length === 0) {
-    return (
-      <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Searching…
-      </div>
-    );
-  }
-
-  const hasResults = results.length > 0;
-  const showingQuery = query.trim();
+  const blogLabel = pageCopy(site, "blog").navLabel;
+  // "Back" returns to the section the visitor came from (or Tech Blogs).
+  const backTo: BlogSectionId =
+    search.section && settings.sections[search.section].visible ? search.section : "tech";
+  const backName = plainText(settings.sections[backTo].name);
 
   return (
-    // <main> landmark: this page doesn't use PageShell (which provides one).
-    <main className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl font-medium text-foreground">
-            {showingQuery ? `Search results for “${escapeHtml(showingQuery)}”` : "Search"}
-          </h1>
-          {total > 0 && (
-            <p className="text-sm text-muted-foreground">
-              {total} result{total === 1 ? "" : "s"} found.
-            </p>
+    <PageShell crumbs={[blogLabel, "Search"]} title="Search articles" site={site}>
+      <Link
+        to={sectionPath(backTo)}
+        className="mb-6 inline-flex min-h-[48px] items-center gap-2 border border-foreground/60 bg-background px-5 text-base font-semibold text-foreground transition-colors hover:bg-muted active:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <span aria-hidden="true">←</span> Back to {backName}
+      </Link>
+      <form role="search" onSubmit={(e) => e.preventDefault()} className="space-y-4">
+        <div className="relative">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            type="search"
+            autoFocus
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Search by title, topic or word…"
+            aria-label="Search articles"
+            className={`${field} w-full pl-10 pr-12`}
+          />
+          {input && (
+            <button
+              type="button"
+              onClick={() => setInput("")}
+              aria-label="Clear search"
+              className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-5 w-5" />
+            </button>
           )}
         </div>
-      </div>
 
-      <div className="flex gap-2">
-        <label className="relative flex-1 min-w-[20rem]">
-          <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <input
-            autoFocus
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onBlur={() => window.setTimeout(() => setShowSuggestions(false), 150)}
-            placeholder="Search articles…"
-            className={`${field} pl-8`}
-          />
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            disabled={!query.trim()}
-            className={`absolute right-2 top-2.5 h-5 w-5 text-muted-foreground ${!query.trim() ? "opacity-0" : ""}`}
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </label>
-        {showingQuery && (
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            className="shrink-0 bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
-          >
-            Clear
-          </button>
-        )}
-      </div>
-
-      {showingQuery && suggestions.length > 0 && showSuggestions && (
-        <div className="border border-border bg-background z-20 w-[20rem]">
-          <div className="border-b border-border px-3 py-1 text-xs text-muted-foreground uppercase tracking-wide">
-            Suggestions
-          </div>
-          {suggestions.map((s) => (
-            <button
-              key={`${s.kind}-${s.slug ?? s.label}`}
-              type="button"
-              onClick={() => handleSelect(s)}
-              className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent"
+        <div className="flex flex-wrap items-center gap-3">
+          {sections.length > 1 && (
+            <select
+              aria-label="Filter by section"
+              value={search.section ?? ""}
+              onChange={(e) => setFilter({ section: (e.target.value || undefined) as any })}
+              className={field}
             >
-              {s.kind === "post" ? (
-                <span className="font-medium">{escapeHtml(s.label)}</span>
-              ) : (
-                `# ${escapeHtml(s.label)}`
-              )}
+              <option value="">All sections</option>
+              {sections.map((id) => (
+                <option key={id} value={id}>
+                  {plainText(settings.sections[id].name)}
+                </option>
+              ))}
+            </select>
+          )}
+          {tags.length > 0 && (
+            <select
+              aria-label="Filter by tag"
+              value={search.tag ?? ""}
+              onChange={(e) => setFilter({ tag: e.target.value || undefined })}
+              className={field}
+            >
+              <option value="">All tags</option>
+              {tags.map((t) => (
+                <option key={t.tag} value={t.tag}>
+                  {t.tag} ({t.count})
+                </option>
+              ))}
+            </select>
+          )}
+          <select
+            aria-label="Sort results"
+            value={search.sort ?? "relevance"}
+            onChange={(e) =>
+              setFilter({ sort: e.target.value === "relevance" ? undefined : (e.target.value as any) })
+            }
+            className={field}
+          >
+            <option value="relevance">Best match</option>
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+          {active && (
+            <button
+              type="button"
+              onClick={() => {
+                setInput("");
+                void navigate({ search: {}, replace: true });
+              }}
+              className="min-h-[44px] px-2 text-sm font-semibold text-link hover:underline"
+            >
+              Reset
             </button>
-          ))}
+          )}
         </div>
-      )}
+      </form>
 
-      <div className="flex flex-wrap items-center gap-3 border border-border bg-muted/30 p-3">
-        <label className="text-xs text-muted-foreground">Tag</label>
-        <select
-          aria-label="Filter by tag"
-          value={tag}
-          onChange={(e) => {
-            setTag(e.target.value);
-            setPage(1);
-          }}
-          className={`${field} w-auto`}
-        >
-          <option value="">All tags</option>
-          {tags.map((t) => (
-            <option key={t.tag} value={t.tag}>
-              #{t.tag} ({t.count})
-            </option>
-          ))}
-        </select>
-        <select
-          aria-label="Filter by year"
-          value={String(year)}
-          onChange={(e) => {
-            setYear(e.target.value);
-            setPage(1);
-          }}
-          className={`${field} w-auto`}
-        >
-          <option value="">Any year</option>
-          {[2024, 2025, 2026].map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={featured === true}
-            onChange={(e) => {
-              setFeatured(e.target.checked);
-              setPage(1);
-            }}
-          />
-          Featured only
-        </label>
-        <select
-          aria-label="Sort results"
-          value={sort}
-          onChange={(e) => {
-            setSort(e.target.value as any);
-            setPage(1);
-          }}
-          className={`${field} w-auto`}
-        >
-          <option value="relevance">Relevance</option>
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-        </select>
-      </div>
+      <p role="status" aria-live="polite" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+        {loading && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />}
+        {status}
+      </p>
 
       {error && (
-        <div className="border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p role="alert" className="mt-4 border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
-        </div>
+        </p>
       )}
 
-      {!showingQuery && !tag && !year && featured === null ? (
-        <div className="flex flex-col items-center gap-3 border border-dashed border-border py-24 text-center text-muted-foreground">
-          <Search className="h-10 w-10" />
-          <p>Enter a search term to find articles.</p>
-        </div>
-      ) : hasResults ? (
-        <div className="space-y-4">
-          {results.map((post) => (
-            <article
-              key={post.slug}
-              className="border border-border rounded-lg p-5 hover:bg-muted/30 transition-colors"
-            >
-              <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
-                <div className="flex flex-wrap gap-1.5 mb-1">
-                  {(post.tags as string[]).slice(0, 4).map((t: string) => (
-                    <span
-                      key={t}
-                      className="text-[10px] uppercase tracking-wider text-link font-sans hover:underline"
+      {!active ? (
+        <div className="mt-6 border border-dashed border-border px-6 py-12 text-center">
+          <p className="font-serif text-lg text-foreground">Type a word or topic to find articles.</p>
+          {tags.length > 0 && (
+            <div className="mt-5">
+              <p className="text-sm text-muted-foreground">Or browse a topic:</p>
+              <ul className="mt-3 flex flex-wrap justify-center gap-2">
+                {tags.slice(0, 12).map((t) => (
+                  <li key={t.tag}>
+                    <button
+                      type="button"
+                      onClick={() => setFilter({ tag: t.tag })}
+                      className="min-h-[44px] border border-border px-3 text-sm hover:bg-muted"
                     >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <h2 className="font-display text-xl leading-tight text-foreground group-hover:underline">
-                  {post.title}
-                </h2>
-                <p className="mt-1 font-serif text-muted-foreground">{post.dek || "No excerpt."}</p>
-                <p className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
-                  {post.date} {post.readTime ? `· ${post.readTime}` : ""}
-                  {post.author ? `· ${post.author}` : ""}
-                </p>
-                {post.headline && <p className="mt-2 text-sm text-foreground">{post.headline}</p>}
-              </Link>
-            </article>
-          ))}
-          {totalPages > 1 && (
-            <nav className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="text-link hover:underline disabled:opacity-40"
-              >
-                ← Newer
-              </button>
-              <span className="text-muted-foreground">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="text-link hover:underline disabled:opacity-40"
-              >
-                Older →
-              </button>
-            </nav>
+                      {t.tag}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
-      ) : (
-        <div className="flex flex-col items-center gap-3 border border-dashed border-border py-24 text-center text-muted-foreground">
-          <Search className="h-10 w-10" />
-          <p>No articles match your search.</p>
+      ) : searched && results.length === 0 && !loading ? (
+        <div className="mt-6 border border-dashed border-border px-6 py-12 text-center">
+          <p className="font-serif text-lg text-foreground">No articles match that search.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Try fewer or shorter words
+            {search.tag || search.section ? ", or remove a filter" : ""}.
+          </p>
         </div>
+      ) : (
+        <ul className={`mt-4 border-t border-border transition-opacity ${loading ? "opacity-60" : ""}`}>
+          {results.map((post, i) => {
+            const sec = post.section ?? "tech";
+            const headline = headlines[i] ? plainText(String(headlines[i]).replace(/<[^>]+>/g, "")) : "";
+            return (
+              <li key={post.slug} className="border-b border-border">
+                <Link to="/blog/$slug" params={{ slug: post.slug }} className="group block py-5">
+                  <span className="label-caps flex flex-wrap gap-x-1.5 text-muted-foreground">
+                    <span className="text-foreground">{plainText(settings.sections[sec].name)}</span>
+                    {post.date && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <time dateTime={post.date}>{formatDate(post.date)}</time>
+                      </>
+                    )}
+                    {post.readTime && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span>{post.readTime}</span>
+                      </>
+                    )}
+                  </span>
+                  <span className="mt-1 block font-display text-2xl leading-tight text-foreground group-hover:underline">
+                    <Rich text={post.title} />
+                  </span>
+                  {post.dek && (
+                    <span className="mt-1 block font-serif text-muted-foreground">
+                      <Rich text={post.dek} />
+                    </span>
+                  )}
+                  {headline && headline !== plainText(post.dek) && (
+                    <span className="mt-2 block text-sm text-muted-foreground">{headline}</span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       )}
-    </main>
-  );
-}
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+      {active && totalPages > 1 && (
+        <nav aria-label="Search result pages" className="mt-8 flex items-center justify-between text-sm">
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => navigate({ search: (p: SearchQuery) => ({ ...p, page: page - 1 }) })}
+            className="min-h-[44px] font-semibold text-link hover:underline disabled:opacity-40"
+          >
+            ← Previous
+          </button>
+          <span className="text-muted-foreground">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => navigate({ search: (p: SearchQuery) => ({ ...p, page: page + 1 }) })}
+            className="min-h-[44px] font-semibold text-link hover:underline disabled:opacity-40"
+          >
+            Next →
+          </button>
+        </nav>
+      )}
+
+      <p className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        {sections.map((id) => (
+          <Link key={id} to={sectionPath(id)} className="inline-flex min-h-[44px] items-center font-semibold text-link hover:underline">
+            ← <span className="ml-1">{plainText(settings.sections[id].name)}</span>
+          </Link>
+        ))}
+      </p>
+    </PageShell>
+  );
 }

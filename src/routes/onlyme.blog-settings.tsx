@@ -15,6 +15,8 @@ import {
   blogThemeVars,
   type BlogSettings,
 } from "@/lib/blog-settings";
+import { BLOG_SECTION_IDS, sectionPath, type BlogSectionId } from "@/lib/blog-sections";
+import { Rich } from "@/lib/rich-inline";
 
 export const Route = createFileRoute("/onlyme/blog-settings")({
   component: BlogSettingsPage,
@@ -89,9 +91,10 @@ function BlogSettingsPage() {
               ← Blogs
             </Link>
           </div>
-          <h2 className="mt-1 text-2xl font-medium text-foreground">Blog appearance</h2>
+          <h2 className="mt-1 text-2xl font-medium text-foreground">Blog settings</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Layout, cards and typography for the public blog. Changes apply to /blog and every post.
+            The two sections (Tech Blogs at /blog, My Journal at /blog/journal), the post list,
+            and typography. Saving updates the public blog straight away.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -131,23 +134,14 @@ function BlogSettingsPage() {
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_26rem]">
         <div className="space-y-5">
-          <Section title="Header">
-            <Field label="Blog heading">
-              <input
-                value={settings.heading}
-                onChange={(e) => setPath("heading", e.target.value)}
-                className={field}
-              />
-            </Field>
-            <Field label="Description">
-              <textarea
-                value={settings.description}
-                onChange={(e) => setPath("description", e.target.value)}
-                rows={2}
-                className={`${field} resize-y`}
-              />
-            </Field>
-          </Section>
+          {BLOG_SECTION_IDS.map((id) => (
+            <SectionEditor
+              key={id}
+              id={id}
+              settings={settings}
+              onChange={(key, value) => setPath(`sections.${id}.${key}`, value)}
+            />
+          ))}
 
           <Section title="Layout">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -172,6 +166,17 @@ function BlogSettingsPage() {
                 />
               </Field>
             </div>
+            <Field label="Post order">
+              <select
+                value={settings.listingOrder}
+                onChange={(e) => setPath("listingOrder", e.target.value)}
+                className={field}
+              >
+                <option value="newest">Newest first (by publication date)</option>
+                <option value="oldest">Oldest first</option>
+                <option value="manual">My own order (arrange it in Blogs → move up/down)</option>
+              </select>
+            </Field>
             <Toggle
               label="Pagination"
               hint="Split posts across pages using “Newer / Older” links."
@@ -265,25 +270,19 @@ function BlogSettingsPage() {
                 checked={settings.card.showTags}
                 onChange={(value) => setPath("card.showTags", value)}
               />
+              <Toggle
+                label="Show reading time"
+                checked={settings.card.showReadTime}
+                onChange={(value) => setPath("card.showReadTime", value)}
+              />
             </div>
           </Section>
 
-          <Section title="Empty state">
-            <Field label="Heading">
-              <input
-                value={settings.empty.heading}
-                onChange={(e) => setPath("empty.heading", e.target.value)}
-                className={field}
-              />
-            </Field>
-            <Field label="Message">
-              <textarea
-                value={settings.empty.body}
-                onChange={(e) => setPath("empty.body", e.target.value)}
-                rows={2}
-                className={`${field} resize-y`}
-              />
-            </Field>
+          <Section title="Empty sections">
+            <p className="text-xs text-muted-foreground">
+              Each section's “nothing published yet” heading and message are set in its own card
+              above. This picture (optional) is shown with both.
+            </p>
             <EmptyImageField
               value={settings.empty.image}
               onChange={(value) => setPath("empty.image", value)}
@@ -567,17 +566,140 @@ function FontPicker({
   );
 }
 
+/** One section's editable text, images, SEO and visibility. */
+function SectionEditor({
+  id,
+  settings,
+  onChange,
+}: {
+  id: BlogSectionId;
+  settings: BlogSettings;
+  onChange: (key: string, value: unknown) => void;
+}) {
+  const sec = settings.sections[id];
+  const isLanding = id === "tech";
+  const text = (key: keyof typeof sec, label: string, opts: { rows?: number; hint?: string } = {}) => (
+    <label className="block">
+      <span className={caption}>{label}</span>
+      {opts.rows ? (
+        <textarea
+          value={String(sec[key] ?? "")}
+          onChange={(e) => onChange(key, e.target.value)}
+          rows={opts.rows}
+          className={`${field} resize-y`}
+        />
+      ) : (
+        <input value={String(sec[key] ?? "")} onChange={(e) => onChange(key, e.target.value)} className={field} />
+      )}
+      {opts.hint && <span className="mt-1 block text-xs text-muted-foreground">{opts.hint}</span>}
+    </label>
+  );
+  return (
+    <section className="space-y-4 border border-border p-5" aria-labelledby={`section-${id}`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 id={`section-${id}`} className="text-base font-semibold text-foreground">
+          <Rich text={sec.name || (isLanding ? "Tech Blogs" : "My Journal")} />{" "}
+          <span className="font-mono text-xs font-normal text-muted-foreground">{sectionPath(id)}</span>
+        </h3>
+        <a
+          href={sectionPath(id)}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs text-link underline"
+        >
+          View on site ↗
+        </a>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {text("name", "Name (switcher label & article tag)")}
+        {text("title", "Page heading")}
+      </div>
+      {text("subtitle", "Subtitle (optional)")}
+      {text("intro", "Introduction", { rows: 3, hint: "Shown under the heading. Empty → no introduction." })}
+      <EmptyImageField
+        label="Introduction image (optional)"
+        value={sec.image}
+        onChange={(value) => onChange("image", value)}
+      />
+      {sec.image && text("imageAlt", "Image description (alt text)", { hint: "What the picture shows, for screen readers." })}
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Toggle
+          label="Show the introduction"
+          checked={sec.showIntro}
+          onChange={(value) => onChange("showIntro", value)}
+        />
+        <Toggle
+          label="Show in the section switcher"
+          checked={sec.showInSwitcher}
+          onChange={(value) => onChange("showInSwitcher", value)}
+        />
+        {isLanding ? (
+          <p className="text-xs text-muted-foreground sm:col-span-2">
+            Tech Blogs is the /blog landing page, so it is always published.
+          </p>
+        ) : (
+          <Toggle
+            label="Published (visible on the site)"
+            hint="Off: /blog/journal and its articles return “not found” and leave the sitemap. Posts are kept."
+            checked={sec.visible}
+            onChange={(value) => onChange("visible", value)}
+          />
+        )}
+      </div>
+      <label className="block max-w-40">
+        <span className={caption}>Order in switcher</span>
+        <input
+          type="number"
+          min={0}
+          max={9}
+          value={sec.order}
+          onChange={(e) => onChange("order", clampInt(e.target.value, 0, 9, isLanding ? 0 : 1))}
+          className={field}
+        />
+      </label>
+      <details className="border-t border-border pt-3">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
+          Search & sharing (optional)
+        </summary>
+        <div className="mt-3 space-y-4">
+          {text("seoTitle", "Search title", { hint: "Empty → “Page heading — your name”." })}
+          {text("seoDescription", "Search description", { rows: 2, hint: "Empty → the introduction." })}
+          <EmptyImageField
+            label="Link preview image"
+            value={sec.ogImage}
+            onChange={(value) => onChange("ogImage", value)}
+          />
+        </div>
+      </details>
+      <details className="border-t border-border pt-3">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
+          When there are no posts
+        </summary>
+        <div className="mt-3 space-y-4">
+          {text("emptyHeading", "Heading")}
+          {text("emptyBody", "Message", { rows: 2 })}
+        </div>
+      </details>
+    </section>
+  );
+}
+
 function EmptyImageField({
   value,
   onChange,
+  label = "Empty-state image (optional)",
 }: {
   value: string;
   onChange: (value: string) => void;
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="space-y-2">
-      <span className={caption}>Empty-state image (optional)</span>
+      <span className={caption}>{label}</span>
+      {value && (
+        <img src={value} alt="" className="h-20 w-auto border border-border object-cover" />
+      )}
       <div className="flex gap-2">
         <input
           value={value}
@@ -607,7 +729,7 @@ function EmptyImageField({
         open={open}
         onClose={() => setOpen(false)}
         accept="image"
-        title="Empty-state image"
+        title={label}
         onSelect={(asset) => onChange(asset.url)}
       />
     </div>
@@ -630,9 +752,13 @@ function Preview({ settings }: { settings: BlogSettings }) {
   return (
     <div style={vars} className="blog-theme mt-3 border border-border">
       <div className="p-4">
-        <p className="font-display text-2xl leading-tight text-foreground">{settings.heading}</p>
-        {settings.description && (
-          <p className="mt-1 text-xs text-muted-foreground">{settings.description}</p>
+        <p className="font-display text-2xl leading-tight text-foreground">
+          <Rich text={settings.sections.tech.title} />
+        </p>
+        {settings.sections.tech.showIntro && settings.sections.tech.intro && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            <Rich text={settings.sections.tech.intro} />
+          </p>
         )}
 
         {settings.featured.enabled && settings.featured.position === "hero" && (

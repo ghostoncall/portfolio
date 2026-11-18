@@ -19,8 +19,20 @@ import "../styles.css";
 import { SiteHeader, SiteFooter } from "../components/PageShell";
 import { BackToTop } from "../components/BackToTop";
 import { typographyCss } from "@/lib/typography";
-import { NavOrderContext, NavProjectsContext, type NavProject } from "../components/nav-projects";
-import { getPublishedNavOrder, getPublishedProjects, getSiteIdentity } from "@/lib/server-fns";
+import {
+  NavOrderContext,
+  NavProjectsContext,
+  ResumeVisibilityContext,
+  SectionVisibilityContext,
+  type NavProject,
+} from "../components/nav-projects";
+import {
+  getPublishedNavOrder,
+  getPublishedProjects,
+  getPublishedSectionVisibility,
+  getSiteIdentity,
+} from "@/lib/server-fns";
+import { sectionVisible, type SectionVisibility } from "@/lib/section-visibility";
 
 function NotFoundComponent() {
   return (
@@ -81,15 +93,22 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   loader: async () => {
-    const [site, projects, navOrder] = await Promise.all([
+    const [site, projects, navOrder, sectionVisibility] = await Promise.all([
       (getSiteIdentity as any)(),
       (getPublishedProjects as any)(),
       (getPublishedNavOrder as any)(),
+      getPublishedSectionVisibility(),
     ]);
     const navProjects: NavProject[] = (projects as any[])
       .filter((p) => p.status !== "archived")
       .map((p) => ({ slug: p.slug, title: p.title }));
-    return { site, navProjects, navOrder: (navOrder as string[]) ?? [] };
+    return {
+      site,
+      navProjects,
+      navOrder: (navOrder as string[]) ?? [],
+      sectionVisibility,
+      resumeVisible: sectionVisible(sectionVisibility, "resume"),
+    };
   },
   // Site identity, nav order and the project list change only when the admin
   // publishes. Public client-side navigations reuse the copy loaded with the
@@ -111,7 +130,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Portfolio of an AI engineer." },
       // Matches --background (paper white) so mobile browser chrome blends in.
       { name: "theme-color", content: "#fdfdfb" },
-      { property: "og:site_name", content: "engineerthisaryan" },
+      { property: "og:site_name", content: (loaderData as any)?.site?.name ?? "Portfolio" },
     ],
     links: [
       // Fonts are self-hosted (src/fonts.css, public/fonts/). Preload only the
@@ -135,7 +154,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "alternate",
         type: "application/rss+xml",
-        title: "Aryan Mehndiratta RSS Feed",
+        title: `${(loaderData as any)?.site?.name ?? "Portfolio"} RSS Feed`,
         href: "/rss.xml",
       },
     ],
@@ -185,23 +204,30 @@ function RootComponent() {
   const isAdmin = useRouterState({
     select: (s) => s.location.pathname.startsWith("/onlyme"),
   });
-  const { site, navProjects, navOrder } = Route.useLoaderData() as {
-    site: any;
-    navProjects: NavProject[];
-    navOrder: string[];
-  };
+  const { site, navProjects, navOrder, resumeVisible, sectionVisibility } =
+    Route.useLoaderData() as {
+      site: any;
+      navProjects: NavProject[];
+      navOrder: string[];
+      resumeVisible: boolean;
+      sectionVisibility: SectionVisibility;
+    };
 
   return (
     <QueryClientProvider client={queryClient}>
       <SmoothScroll>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <SiteHeader site={site} navOrder={navOrder ?? []} />
-        <NavOrderContext.Provider value={navOrder ?? []}>
-          <NavProjectsContext.Provider value={navProjects ?? []}>
-            <Outlet />
-          </NavProjectsContext.Provider>
-        </NavOrderContext.Provider>
-        <SiteFooter site={site} />
+        <SectionVisibilityContext.Provider value={sectionVisibility}>
+          <ResumeVisibilityContext.Provider value={resumeVisible}>
+            <NavOrderContext.Provider value={navOrder ?? []}>
+              <NavProjectsContext.Provider value={navProjects ?? []}>
+                <SiteHeader site={site} navOrder={navOrder ?? []} />
+                <Outlet />
+              </NavProjectsContext.Provider>
+            </NavOrderContext.Provider>
+          </ResumeVisibilityContext.Provider>
+          <SiteFooter site={site} />
+        </SectionVisibilityContext.Provider>
         {!isAdmin && <BackToTop />}
       </SmoothScroll>
     </QueryClientProvider>

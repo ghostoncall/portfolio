@@ -4,11 +4,12 @@
 // Renders the *published* résumé managed in /onlyme/resume. The preview and the
 // download button both point at the same-origin /cv/* routes, which always
 // serve the current published file (see server/routes/cv/[action].ts).
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { Download } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
+import { pageCopy, pageMeta } from "@/lib/site-copy";
 import { getPublishedResume } from "@/lib/server-fns";
 import { resumeFileUrl, type PublicResume } from "@/lib/resume";
 import { formatBytes } from "@/lib/media-config";
@@ -20,24 +21,14 @@ const PdfViewer = lazy(() =>
 
 export const Route = createFileRoute("/resume")({
   loader: async ({ parentMatchPromise }) => {
-    const [site, resume] = await Promise.all([
-      siteFromRoot(parentMatchPromise),
-      (getPublishedResume as any)() as Promise<PublicResume | null>,
+    const [site, resumeSettings] = await Promise.all([
+      siteFromRoot(parentMatchPromise, "resume"),
+      getPublishedResume(),
     ]);
-    return { site, resume };
+    if (!resumeSettings.visible) throw notFound();
+    return { site, resume: resumeSettings.current };
   },
-  head: ({ loaderData }) => {
-    const name = loaderData?.site?.name ?? "Portfolio";
-    return {
-      meta: [
-        { title: `Résumé / CV — ${name}` },
-        { name: "description", content: `The current résumé / CV of ${name}.` },
-        { property: "og:title", content: `Résumé / CV — ${name}` },
-        { property: "og:description", content: `The current résumé / CV of ${name}.` },
-        { property: "og:type", content: "website" },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site as any, "resume") }),
   component: ResumePage,
 });
 
@@ -46,7 +37,11 @@ function ResumePage() {
   const title = `Résumé of ${site?.name ?? "the site owner"}`;
 
   return (
-    <PageShell crumbs={["Résumé / CV"]} title="Résumé / CV" site={site}>
+    <PageShell
+      crumbs={[pageCopy(site, "resume").navLabel]}
+      title={pageCopy(site, "resume").title}
+      site={site}
+    >
       {!resume ? (
         <p className="prose-editorial text-muted-foreground">
           The résumé hasn’t been published yet. In the meantime, you can{" "}

@@ -21,6 +21,7 @@ import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as VolunteeringRouteImport } from './routes/volunteering'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as BlogJournalRouteImport } from './routes/blog.journal'
 import { Route as BlogSearchRouteImport } from './routes/blog.search'
 import { Route as OnlymeIndexRouteImport } from './routes/onlyme.index'
 import { Route as OnlymeBlogSettingsRouteImport } from './routes/onlyme.blog-settings'
@@ -103,6 +104,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogJournalRoute = BlogJournalRouteImport.update({
+  id: '/blog/journal',
+  path: '/blog/journal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSearchRoute = BlogSearchRouteImport.update({
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/skills': typeof SkillsRoute
   '/volunteering': typeof VolunteeringRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/journal': typeof BlogJournalRoute
   '/blog/search': typeof BlogSearchRoute
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
   '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/skills': typeof SkillsRoute
   '/volunteering': typeof VolunteeringRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/journal': typeof BlogJournalRoute
   '/blog/search': typeof BlogSearchRoute
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
   '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   '/skills': typeof SkillsRoute
   '/volunteering': typeof VolunteeringRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/journal': typeof BlogJournalRoute
   '/blog/search': typeof BlogSearchRoute
   '/onlyme/blog-settings': typeof OnlymeBlogSettingsRoute
   '/onlyme/blogs': typeof OnlymeBlogsRouteWithChildren
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/volunteering'
     | '/blog/$slug'
+    | '/blog/journal'
     | '/blog/search'
     | '/onlyme/blog-settings'
     | '/onlyme/blogs'
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/volunteering'
     | '/blog/$slug'
+    | '/blog/journal'
     | '/blog/search'
     | '/onlyme/blog-settings'
     | '/onlyme/blogs'
@@ -420,6 +431,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/volunteering'
     | '/blog/$slug'
+    | '/blog/journal'
     | '/blog/search'
     | '/onlyme/blog-settings'
     | '/onlyme/blogs'
@@ -458,6 +470,7 @@ export interface RootRouteChildren {
   SkillsRoute: typeof SkillsRoute
   VolunteeringRoute: typeof VolunteeringRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  BlogJournalRoute: typeof BlogJournalRoute
   BlogSearchRoute: typeof BlogSearchRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -548,6 +561,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/journal': {
+      id: '/blog/journal'
+      path: '/blog/journal'
+      fullPath: '/blog/journal'
+      preLoaderRoute: typeof BlogJournalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/search': {
@@ -805,6 +825,7 @@ const rootRouteChildren: RootRouteChildren = {
   SkillsRoute: SkillsRoute,
   VolunteeringRoute: VolunteeringRoute,
   BlogSlugRoute: BlogSlugRoute,
+  BlogJournalRoute: BlogJournalRoute,
   BlogSearchRoute: BlogSearchRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
   BlogIndexRoute: BlogIndexRoute,

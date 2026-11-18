@@ -87,7 +87,15 @@ function MediaLibrary() {
         if (file.size > MEDIA_MAX_BYTES) {
           throw new Error(`“${file.name}” is larger than ${formatBytes(MEDIA_MAX_BYTES)}.`);
         }
-        await uploadFileToLibrary(file, {
+        const prepared = file.type.startsWith("image/")
+          ? await (
+              await import("@/lib/image-optimize")
+            ).optimizeImage(file, {
+              maxEdge: 2000,
+              quality: 0.84,
+            })
+          : null;
+        await uploadFileToLibrary(prepared?.file ?? file, {
           onProgress: (percent) =>
             setProgress(Math.round(((index + percent / 100) / files.length) * 100)),
         });

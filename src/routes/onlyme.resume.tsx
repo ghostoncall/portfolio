@@ -10,7 +10,7 @@
 //      and the current résumé is untouched.
 //   4. "Publish" makes the draft the public résumé; the public page and the
 //      Download button switch to it immediately (CDN copies within a minute).
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -20,11 +20,13 @@ import {
   publishResume,
   removeResume,
   stageResume,
+  setResumeVisibility,
 } from "@/lib/server-fns";
 import { putWithProgress } from "@/lib/media-upload";
 import { RESUME_MAX_BYTES, RESUME_MIME, type ResumeDoc } from "@/lib/resume";
 import { formatBytes } from "@/lib/media-config";
 import { ConfirmDialog } from "@/components/admin/cms/ConfirmDialog";
+import { VisibilityToggle } from "@/components/admin/cms/VisibilityToggle";
 
 const PdfViewer = lazy(() =>
   import("@/components/public/PdfViewer").then((m) => ({ default: m.PdfViewer })),
@@ -35,6 +37,7 @@ export const Route = createFileRoute("/onlyme/resume")({
 });
 
 type AdminState = {
+  visible: boolean;
   staged: ResumeDoc | null;
   published: ResumeDoc | null;
   stagedUrl: string | null;
@@ -46,6 +49,7 @@ function errorMessage(err: any, fallback: string): string {
 }
 
 function ResumeAdmin() {
+  const router = useRouter();
   const [state, setState] = useState<AdminState | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
@@ -108,6 +112,7 @@ function ResumeAdmin() {
       await action();
       toast.success(success);
       await refresh();
+      await router.invalidate();
     } catch (err) {
       toast.error(errorMessage(err, failure));
     } finally {
@@ -132,21 +137,49 @@ function ResumeAdmin() {
       {loadError && <p className="text-sm text-destructive">{loadError}</p>}
 
       <section className="space-y-4 border border-border p-6">
+        <div className="space-y-1 border-b border-border pb-4">
+          <VisibilityToggle
+            label="Show Résumé / CV on the site"
+            visible={state?.visible ?? true}
+            disabled={!state || busy || !!loadError}
+            description="Saves immediately. Uncheck to hide the section and downloads while keeping your PDF."
+            onChange={(visible) => {
+              const previous = state?.visible ?? true;
+              setState((before) => (before ? { ...before, visible } : before));
+              void run(
+                async () => {
+                  try {
+                    await (setResumeVisibility as any)({ data: { visible } });
+                  } catch (error) {
+                    setState((before) => (before ? { ...before, visible: previous } : before));
+                    throw error;
+                  }
+                },
+                visible
+                  ? "Résumé / CV is visible on the site."
+                  : "Résumé / CV is hidden from the site.",
+                "Could not save visibility. Please try again.",
+              );
+            }}
+          />
+        </div>
         <dl className="grid gap-2 text-sm sm:grid-cols-[10rem_1fr]">
-          <dt className="text-muted-foreground">Live on the site</dt>
+          <dt className="text-muted-foreground">Published PDF</dt>
           <dd className="text-foreground">
             {published ? (
               <>
                 {published.fileName} · {formatBytes(published.size)} · uploaded{" "}
                 {new Date(published.uploadedAt).toLocaleString()}{" "}
-                <a
-                  href="/resume"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-link hover:underline"
-                >
-                  View page ↗
-                </a>
+                {state?.visible && (
+                  <a
+                    href="/resume"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-link hover:underline"
+                  >
+                    View page ↗
+                  </a>
+                )}
               </>
             ) : (
               <span className="text-muted-foreground">Nothing published yet</span>

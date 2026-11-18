@@ -313,7 +313,8 @@ export function normalizeVolunteeringPage(raw: unknown): {
   whyVolunteering: { heading?: string; body?: string };
   lookingAhead: { heading?: string; body?: string };
   interests: string[];
-  cta: { heading?: string; body?: string; buttonText?: string };
+  cta: { heading?: string; body?: string; buttonText?: string; hidden?: boolean };
+  entriesHeading?: string;
 } {
   const r = (raw as any) ?? {};
 
@@ -361,7 +362,9 @@ export function normalizeVolunteeringPage(raw: unknown): {
         ...(r.cta?.heading ? { heading: r.cta.heading } : {}),
         ...(r.cta?.body ? { body: r.cta.body } : {}),
         ...(r.cta?.buttonText ? { buttonText: r.cta.buttonText } : {}),
+        ...(r.cta?.hidden === true ? { hidden: true } : {}),
       },
+      ...(typeof r.entriesHeading === "string" ? { entriesHeading: r.entriesHeading } : {}),
     };
   }
 
@@ -591,6 +594,7 @@ export function normalizePageContent(kind: any, raw: unknown): any {
         kind: "blocks",
         blocks: Array.isArray((raw as any)?.blocks) ? (raw as any).blocks : [],
         ...((raw as any)?.additionsApplied === true ? { additionsApplied: true } : {}),
+        ...((raw as any)?.featuredWorkManaged === true ? { featuredWorkManaged: true } : {}),
       };
   }
 }

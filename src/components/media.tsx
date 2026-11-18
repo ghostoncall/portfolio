@@ -2,8 +2,8 @@
 // Drop <Media /> anywhere. Give it zero, one or many items of ANY file type
 // (jpg, png, gif, svg, mp4, mov, mp3, pdf, ppt/pptx, doc/docx, xls/xlsx,
 // YouTube/Vimeo links, zip, anything). It detects the type from the URL,
-// keeps a fixed frame so the layout never shifts, and becomes a carousel
-// when there is more than one item. Empty slots render as tidy placeholders.
+// preserves the configured or intrinsic frame, and becomes a carousel when
+// there is more than one item. Empty slots render as tidy placeholders.
 //
 // Self-contained: depends only on React + Tailwind (shadcn color tokens:
 // background, foreground, muted, muted-foreground, border).
@@ -23,24 +23,64 @@ export type MediaItem = {
   alt?: string;
   caption?: string;
   credit?: string;
+  /** Intrinsic dimensions recorded by the media library. */
+  width?: number;
+  height?: number;
   /** Poster image for videos. */
   poster?: string;
 };
 
+export type MediaFit = "cover" | "contain";
+export type MediaPosition = "center" | "top" | "bottom" | "left" | "right";
+
+export const MEDIA_RATIO_OPTIONS = [
+  { label: "Natural (uploaded image)", value: "natural" },
+  { label: "Banner (3:1)", value: "3/1" },
+  { label: "Wide banner (21:9)", value: "21/9" },
+  { label: "Wide (16:9)", value: "16/9" },
+  { label: "Landscape (3:2)", value: "3/2" },
+  { label: "Standard (4:3)", value: "4/3" },
+  { label: "Square (1:1)", value: "1/1" },
+  { label: "Portrait (3:4)", value: "3/4" },
+] as const;
+
+export const MEDIA_POSITION_OPTIONS: { label: string; value: MediaPosition }[] = [
+  { label: "Center", value: "center" },
+  { label: "Top", value: "top" },
+  { label: "Bottom", value: "bottom" },
+  { label: "Left", value: "left" },
+  { label: "Right", value: "right" },
+];
+
 export type MediaProps = {
-  items?: MediaItem[];
+  items?: MediaItem[] | undefined;
   /** Number of empty placeholder slots to show when `items` is empty. */
-  count?: number;
+  count?: number | undefined;
   /** How several items are shown. Default: carousel. */
-  layout?: "carousel" | "grid" | "stack";
-  /** Frame aspect ratio, e.g. "16/9", "4/3", "1/1", "3/4". Default 16/9. */
-  ratio?: string;
+  layout?: "carousel" | "grid" | "stack" | undefined;
+  /** Frame aspect ratio or "natural". Missing keeps the legacy 16/9 default. */
+  ratio?: string | undefined;
   /** How images/videos fill the frame. Default cover. */
-  fit?: "cover" | "contain";
-  caption?: string;
-  credit?: string;
-  className?: string;
+  fit?: MediaFit | undefined;
+  /** Which part stays visible when a fixed frame crops media. Default center. */
+  position?: MediaPosition | undefined;
+  caption?: string | undefined;
+  credit?: string | undefined;
+  captionContent?: ReactNode | undefined;
+  creditContent?: ReactNode | undefined;
+  frameClassName?: string | undefined;
+  className?: string | undefined;
 };
+
+export function resolveMediaAspectRatio(
+  item: Pick<MediaItem, "width" | "height"> | undefined,
+  ratio: string,
+): string | undefined {
+  if (ratio !== "natural") return ratio;
+  const width = Number(item?.width ?? 0);
+  const height = Number(item?.height ?? 0);
+  return width > 0 && height > 0 ? `${width}/${height}` : undefined;
+}
 
 const EXT: Record<Exclude<MediaKind, "youtube" | "vimeo" | "embed" | "file">, string[]> = {
   image: ["jpg", "jpeg", "png", "gif", "webp", "avif", "svg", "bmp", "ico", "heic", "tif", "tiff"],
@@ -175,11 +215,15 @@ function OfficeSlot({ item, ext }: { item: MediaItem; ext: string }) {
 function Slot({
   item,
   fit,
+  position,
+  naturalFlow,
   index,
   total,
 }: {
   item: MediaItem;
-  fit: "cover" | "contain";
+  fit: MediaFit;
+  position: MediaPosition;
+  naturalFlow: boolean;
   index: number;
   total: number;
 }) {
@@ -187,7 +231,10 @@ function Slot({
   const src = item.src ?? "";
   const ext = fileExtension(src);
   const objectFit = fit === "cover" ? "object-cover" : "object-contain";
+  const mediaClass = naturalFlow ? "block h-auto w-full" : `${fill} ${objectFit}`;
   const title = item.title ?? item.alt ?? item.caption ?? "Media";
+  const width = Number(item.width ?? 0) > 0 ? Number(item.width) : undefined;
+  const height = Number(item.height ?? 0) > 0 ? Number(item.height) : undefined;
 
   switch (kind) {
     case "empty":
@@ -197,9 +244,12 @@ function Slot({
         <img
           src={src}
           alt={item.alt ?? item.caption ?? ""}
+          width={width}
+          height={height}
           loading="lazy"
           decoding="async"
-          className={`${fill} ${objectFit} bg-muted`}
+          className={`${mediaClass} bg-muted`}
+          style={{ objectPosition: position }}
         />
       );
     case "video":
@@ -207,10 +257,13 @@ function Slot({
         <video
           src={src}
           poster={item.poster}
+          width={width}
+          height={height}
           controls
           playsInline
           preload="metadata"
-          className={`${fill} ${objectFit} bg-foreground`}
+          className={`${mediaClass} bg-foreground`}
+          style={{ objectPosition: position }}
         />
       );
     case "audio":
@@ -273,9 +326,20 @@ function Slot({
   }
 }
 
-function Frame({ ratio, children }: { ratio: string; children: ReactNode }) {
+function Frame({
+  ratio,
+  className,
+  children,
+}: {
+  ratio?: string | undefined;
+  className?: string | undefined;
+  children: ReactNode;
+}) {
   return (
-    <div className="relative w-full overflow-hidden" style={{ aspectRatio: ratio }}>
+    <div
+      className={`${ratio ? "relative" : ""} w-full overflow-hidden ${className ?? ""}`}
+      style={ratio ? { aspectRatio: ratio } : undefined}
+    >
       {children}
     </div>
   );
@@ -311,8 +375,12 @@ export function Media({
   layout = "carousel",
   ratio = "16/9",
   fit = "cover",
+  position = "center",
   caption,
   credit,
+  captionContent,
+  creditContent,
+  frameClassName,
   className = "",
 }: MediaProps) {
   const slots: MediaItem[] =
@@ -327,13 +395,30 @@ export function Media({
     if (e.key === "ArrowLeft") go(-1);
   };
 
+  const framedSlot = (item: MediaItem, itemIndex: number) => {
+    const kind = detectMediaKind(item);
+    const resolvedRatio = resolveMediaAspectRatio(item, ratio);
+    const naturalFlow =
+      ratio === "natural" && !resolvedRatio && (kind === "image" || kind === "video");
+    return (
+      <Frame ratio={naturalFlow ? undefined : (resolvedRatio ?? "16/9")} className={frameClassName}>
+        <Slot
+          item={item}
+          fit={fit}
+          position={position}
+          naturalFlow={naturalFlow}
+          index={itemIndex}
+          total={total}
+        />
+      </Frame>
+    );
+  };
+
   let body: ReactNode;
   if (total === 1) {
     body = (
       <>
-        <Frame ratio={ratio}>
-          <Slot item={slots[0]!} fit={fit} index={0} total={1} />
-        </Frame>
+        {framedSlot(slots[0]!, 0)}
         <ItemCaption item={slots[0]!} />
       </>
     );
@@ -342,9 +427,7 @@ export function Media({
       <div className={layout === "grid" ? "grid gap-6 sm:grid-cols-2" : "space-y-8"}>
         {slots.map((item, i) => (
           <div key={i}>
-            <Frame ratio={ratio}>
-              <Slot item={item} fit={fit} index={i} total={total} />
-            </Frame>
+            {framedSlot(item, i)}
             <ItemCaption item={item} />
           </div>
         ))}
@@ -361,9 +444,7 @@ export function Media({
         onKeyDown={onKey}
         className="outline-none focus-visible:ring-1 focus-visible:ring-foreground"
       >
-        <Frame ratio={ratio}>
-          <Slot key={current} item={item} fit={fit} index={current} total={total} />
-        </Frame>
+        <div key={current}>{framedSlot(item, current)}</div>
         <ItemCaption item={item} />
         <div className="mt-3 flex items-center justify-between gap-4 border-t border-border pt-3">
           <button
@@ -408,8 +489,8 @@ export function Media({
       {body}
       {(caption || credit) && (
         <figcaption className="mt-3 flex flex-wrap justify-between gap-2 text-sm text-muted-foreground">
-          <span className="font-serif">{caption}</span>
-          {credit && <span className={caps}>{credit}</span>}
+          <span className="font-serif">{captionContent ?? caption}</span>
+          {(creditContent || credit) && <span className={caps}>{creditContent ?? credit}</span>}
         </figcaption>
       )}
     </figure>

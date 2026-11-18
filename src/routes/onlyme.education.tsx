@@ -222,7 +222,7 @@ function EducationAdmin() {
             onChange={(e) => setEditingDraft((d) => (d ? withKey(d, "field", e.target.value) : d))}
           />
         </Field>
-        <Field label="Specialization">
+        <Field label="Specialization" hint="Optional. Shown under the field of study.">
           <InputField
             value={editingDraft?.specialization ?? ""}
             placeholder="AI & Machine Learning…"
@@ -419,6 +419,17 @@ function EducationAdmin() {
                 onChange={(e) => {
                   const rw = [...(editingDraft?.research ?? [])];
                   rw[i] = { ...rw[i]!, supervisor: e.target.value };
+                  setEditingDraft((d) => (d ? withKey(d, "research", rw) : d));
+                }}
+              />
+              <textarea
+                value={r.description ?? ""}
+                placeholder="Short description (optional)"
+                rows={2}
+                className="w-full border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-ring"
+                onChange={(e) => {
+                  const rw = [...(editingDraft?.research ?? [])];
+                  rw[i] = { ...rw[i]!, description: e.target.value };
                   setEditingDraft((d) => (d ? withKey(d, "research", rw) : d));
                 }}
               />

@@ -1,10 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
 import { listStaged, publishItem, revertItem } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/onlyme/pages")({
-  component: Pages,
+  component: PagesRoute,
 });
+
+function PagesRoute() {
+  const hasChild = useChildMatches({ select: (matches) => matches.length > 0 });
+  return hasChild ? <Outlet /> : <Pages />;
+}
 
 function Pages() {
   const [items, setItems] = React.useState<any[]>([]);
@@ -14,7 +19,9 @@ function Pages() {
   } | null>(null);
 
   React.useEffect(() => {
-    (listStaged as any)({ data: { table: "pages" } }).then((rows: any) => setItems(rows));
+    (listStaged as any)({ data: { table: "pages" } })
+      .then((rows: any) => setItems(Array.isArray(rows) ? rows : []))
+      .catch(() => setItems([]));
   }, []);
 
   async function handlePublish(slug: string) {

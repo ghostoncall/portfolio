@@ -56,6 +56,40 @@ export type SiteIdentity = {
   showHomeBrand?: boolean;
   /** Site-wide heading font/bold/italic (see src/lib/typography.ts). */
   typography?: SiteTypography | undefined;
+  /** Editable page titles, nav labels and fixed copy (see src/lib/site-copy.ts). */
+  copy?: SiteCopy | undefined;
+};
+
+/** Per-page wording. Empty/missing → the built-in default for that page. */
+export type PageCopy = {
+  title?: string | undefined;
+  navLabel?: string | undefined;
+  /** Independent label for the Skills subpage inside its grouped menu. */
+  childNavLabel?: string | undefined;
+  description?: string | undefined;
+};
+
+/**
+ * Site-wide wording that used to be hard-coded. Missing (undefined) means
+ * "use the default"; an empty string on an optional line means "hide it".
+ */
+export type SiteCopy = {
+  pages?: Partial<Record<string, PageCopy>> | undefined;
+  /** Header text on the home page (defaults to "engineerthisaryan"). */
+  homeBrand?: string | undefined;
+  /** Overview photo URL and its alt text. "" hides the photo. */
+  profileImage?: string | undefined;
+  profileAlt?: string | undefined;
+  /** "Featured Work" heading on the Overview. "" hides the section. */
+  featuredHeading?: string | undefined;
+  featuredCount?: number | undefined;
+  contactHeading?: string | undefined;
+  contactLead?: string | undefined;
+  contactFormNote?: string | undefined;
+  contactThanks?: string | undefined;
+  /** Footer call to action on Skills / Certificates / Awards. "" hides it. */
+  footerCtaHeading?: string | undefined;
+  footerCtaLink?: string | undefined;
 };
 
 /** Legacy skill group shape (pre-CMS). Kept so old documents still typecheck. */

@@ -5,6 +5,17 @@ import { getDb } from "../../src/db/client";
 import { getEnv } from "../../src/lib/runtime-config";
 import { posts, settings } from "../../src/db/schema";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
+import { readSectionVisibility } from "../../src/lib/section-visibility.server";
+import { sectionVisible } from "../../src/lib/section-visibility";
+
+/** Drop admin formatting marks (**bold**, *italic*, __underline__, [font:x]…[/font]). */
+function plain(value: unknown): string {
+  return String(value ?? "")
+    .replace(/\[font:[a-z]+\]|\[\/font\]/g, "")
+    .replace(/(\*\*|__)(.+?)\1/g, "$2")
+    .replace(/\*(?! )(.+?)(?<! )\*/g, "$1")
+    .replace(/\\([*_[\]\\])/g, "$1");
+}
 
 const SITE_NAME = "Aryan Mehndiratta";
 
@@ -13,7 +24,7 @@ export default defineEventHandler(async () => {
   const now = new Date();
 
   // Site identity (channel title) and posts are independent — fetch together.
-  const [siteRow, rows] = await Promise.all([
+  const [siteRow, rows, visibility] = await Promise.all([
     db
       .select({ published: settings.published })
       .from(settings)
@@ -26,8 +37,11 @@ export default defineEventHandler(async () => {
         and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
       )
       .orderBy(posts.updatedAt),
+    readSectionVisibility(),
   ]);
-  const siteIdentity = siteRow[0]?.published as any;
+  if (!sectionVisible(visibility, "blog"))
+    return new Response("Not found", { status: 404, headers: { "cache-control": "no-store" } });
+  const siteIdentity = siteRow[0]?.published;
   const siteTitle = siteIdentity?.name || SITE_NAME;
   const siteUrl = getEnv("VITE_SITE_URL") || "https://example.com";
 
@@ -40,9 +54,9 @@ export default defineEventHandler(async () => {
       const url = `${siteUrl}/blog/${p.slug}`;
       const pub = new Date(p.date ?? r.updatedAt ?? Date.now()).toISOString();
       const pubDate = new Date(pub).toUTCString();
-      const desc = p.dek || "";
+      const desc = plain(p.dek);
       return `<item>
-        <title>${escapeXml(p.title)}</title>
+        <title>${escapeXml(plain(p.title))}</title>
         <link>${url}</link>
         <guid isPermaLink="false">${url}</guid>
         <pubDate>${pubDate}</pubDate>
@@ -68,7 +82,7 @@ export default defineEventHandler(async () => {
       "content-type": "application/rss+xml; charset=utf-8",
       "cache-control": "public, max-age=0, must-revalidate",
       // Feed readers poll; serve them from Netlify's CDN, refreshed every 10 min.
-      "netlify-cdn-cache-control": "public, durable, s-maxage=600, stale-while-revalidate=86400",
+      "cdn-cache-control": "public, s-maxage=600, stale-while-revalidate=86400",
     },
   });
 });

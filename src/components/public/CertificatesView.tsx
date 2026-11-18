@@ -10,8 +10,8 @@ export function CertificatesView({ certificates }: { certificates: Certificate[]
   if (!visibleCerts.length) return null;
 
   return (
-    <section id="certificates" className="space-y-6">
-      <h2 className="text-heading-2 sm:text-3xl text-foreground">Certificates</h2>
+    <section id="certificates" aria-label="Certificates" className="space-y-6">
+      
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleCerts.map((c) => (
           <CertificatePreviewDialog key={c.id} cert={c}>

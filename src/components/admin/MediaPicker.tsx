@@ -8,6 +8,12 @@ import { listMedia } from "@/lib/server-fns";
 import { uploadFileToLibrary } from "@/lib/media-upload";
 import { formatBytes, MEDIA_MAX_BYTES } from "@/lib/media-config";
 import type { MediaAssetRow } from "@/db/schema";
+import {
+  resolveMediaAspectRatio,
+  type MediaFit,
+  type MediaItem,
+  type MediaPosition,
+} from "@/components/media";
 
 const field =
   "w-full border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring";
@@ -105,7 +111,17 @@ export function MediaPicker({
     setProgress(0);
     setError(null);
     try {
-      const asset = await uploadFileToLibrary(file, { onProgress: setProgress });
+      const uploadFile = file.type.startsWith("image/")
+        ? await (
+            await import("@/lib/image-optimize")
+          ).optimizeImage(file, {
+            maxEdge: 2000,
+            quality: 0.84,
+          })
+        : null;
+      const asset = await uploadFileToLibrary(uploadFile?.file ?? file, {
+        onProgress: setProgress,
+      });
       setAssets((prev) => [...prev, asset]);
       onSelect(asset);
       onClose();
@@ -230,14 +246,22 @@ export function MediaItemFields({
   value,
   onChange,
   accept = "image",
+  previewRatio = "16/9",
+  previewFit = "cover",
+  previewPosition = "center",
 }: {
   label: string;
-  value: { src?: string; alt?: string; caption?: string } | undefined;
-  onChange: (value: { src?: string; alt?: string; caption?: string }) => void;
+  value: MediaItem | undefined;
+  onChange: (value: MediaItem) => void;
   accept?: "image" | "any";
+  previewRatio?: string;
+  previewFit?: MediaFit;
+  previewPosition?: MediaPosition;
 }) {
   const [open, setOpen] = useState(false);
   const item = value ?? {};
+  const previewAspectRatio = resolveMediaAspectRatio(item, previewRatio);
+  const naturalWithoutMetadata = previewRatio === "natural" && !previewAspectRatio;
   return (
     <div
       className="space-y-2 border border-border p-3"
@@ -256,38 +280,63 @@ export function MediaItemFields({
         </button>
       </div>
       {item.src && (
-        <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
+        <div
+          className="w-full overflow-hidden bg-muted"
+          style={previewAspectRatio ? { aspectRatio: previewAspectRatio } : undefined}
+        >
           <img
             src={item.src}
             alt={item.alt ?? ""}
+            width={item.width}
+            height={item.height}
             data-testid="media-preview"
-            className="h-full w-full object-cover"
+            className={
+              naturalWithoutMetadata
+                ? "block h-auto w-full"
+                : `h-full w-full ${previewFit === "cover" ? "object-cover" : "object-contain"}`
+            }
+            style={{ objectPosition: previewPosition }}
           />
         </div>
       )}
       <input
         value={item.src ?? ""}
-        onChange={(e) => onChange({ ...item, src: e.target.value })}
+        onChange={(e) => {
+          const next = { ...item, src: e.target.value };
+          if (e.target.value !== item.src) {
+            delete next.width;
+            delete next.height;
+          }
+          onChange(next);
+        }}
         placeholder="Image URL"
+        aria-label={`${label} URL`}
         className={field}
       />
       <input
         value={item.alt ?? ""}
         onChange={(e) => onChange({ ...item, alt: e.target.value })}
         placeholder="Alt text (describe the image)"
+        aria-label={`${label} alt text`}
         className={field}
       />
       <input
         value={item.caption ?? ""}
         onChange={(e) => onChange({ ...item, caption: e.target.value })}
         placeholder="Caption"
+        aria-label={`${label} caption`}
         className={field}
       />
       {item.src && (
         <button
           type="button"
           data-testid="media-remove"
-          onClick={() => onChange({ ...item, src: "" })}
+          onClick={() => {
+            const next = { ...item, src: "" };
+            delete next.width;
+            delete next.height;
+            onChange(next);
+          }}
           className="text-xs text-destructive hover:underline"
         >
           Remove image
@@ -298,9 +347,18 @@ export function MediaItemFields({
         onClose={() => setOpen(false)}
         accept={accept}
         title={label}
-        onSelect={(asset) =>
-          onChange({ ...item, src: asset.url, alt: item.alt || asset.alt || asset.name })
-        }
+        onSelect={(asset) => {
+          const next: MediaItem = {
+            ...item,
+            src: asset.url,
+            alt: item.alt || asset.alt || asset.name,
+          };
+          if (asset.width) next.width = asset.width;
+          else delete next.width;
+          if (asset.height) next.height = asset.height;
+          else delete next.height;
+          onChange(next);
+        }}
       />
     </div>
   );

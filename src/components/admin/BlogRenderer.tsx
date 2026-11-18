@@ -13,51 +13,24 @@ import { prepareBlogHtml } from "@/lib/blog-html";
 import { readTimeLabel } from "@/lib/reading-time";
 import { Blocks } from "@/components/blocks";
 import { Media } from "@/components/media";
-import { blogThemeVars, type BlogSettings } from "@/lib/blog-settings";
+import {
+  blogThemeVars,
+  DEFAULT_BLOG_SETTINGS,
+  validBodyFontSize,
+  type BlogSettings,
+} from "@/lib/blog-settings";
+import { formatDate } from "@/lib/format-date";
 import type { Post } from "@/content/site";
+import { Rich } from "@/lib/rich-inline";
 
-const FALLBACK_SETTINGS: BlogSettings = {
-  heading: "Writing & Notes",
-  description: "Essays and notes on applied AI, LLMs, retrieval and engineering.",
-  layout: "list",
-  postsPerPage: 10,
-  featured: { enabled: false, position: "top" },
-  card: {
-    showImage: false,
-    imageRatio: "16/9",
-    showExcerpt: true,
-    excerptLength: 180,
-    showAuthor: true,
-    showDate: true,
-    showTags: true,
-    style: "divided",
-  },
-  pagination: { enabled: true },
-  empty: {
-    heading: "Nothing published yet",
-    body: "New writing will appear here as soon as it is published.",
-    image: "",
-  },
-  typography: {
-    headingFont: '"Cormorant Garamond", Georgia, serif',
-    bodyFont: '"Libre Baskerville", Georgia, serif',
-    baseSize: 17,
-    headingScale: 1,
-    lineHeight: 1.75,
-    contentWidth: 48,
-    imageSpacing: 2,
-    paragraphSpacing: 1.25,
-    background: "#fdfdfc",
-    text: "#1a1a1a",
-    link: "#4a6f8a",
-    accent: "#1a1a1a",
-  },
-};
+const FALLBACK_SETTINGS: BlogSettings = DEFAULT_BLOG_SETTINGS;
 
 type BlogRendererProps = {
   post: Post;
   themeVars?: CSSProperties;
   className?: string;
+  /** Section label shown first in the metadata line ("Tech Blogs"). */
+  sectionName?: string | undefined;
 };
 
 const SITE_HOST = (() => {
@@ -86,8 +59,12 @@ function activateFacade(event: MouseEvent<HTMLDivElement>) {
   iframe.focus();
 }
 
-export function BlogRenderer({ post, themeVars, className }: BlogRendererProps) {
-  const vars = themeVars ?? blogThemeVars(FALLBACK_SETTINGS);
+export function BlogRenderer({ post, themeVars, className, sectionName }: BlogRendererProps) {
+  const bodyFontSize = validBodyFontSize(post.body?.fontSize);
+  const vars = {
+    ...(themeVars ?? blogThemeVars(FALLBACK_SETTINGS)),
+    ...(bodyFontSize ? { "--blog-font-size": bodyFontSize } : {}),
+  } as CSSProperties;
   const html = useMemo(
     () =>
       post.body?.html
@@ -102,12 +79,43 @@ export function BlogRenderer({ post, themeVars, className }: BlogRendererProps) 
 
   return (
     <div style={vars} className={`blog-theme ${className ?? ""}`}>
-      {post.dek && <p className="font-serif text-xl italic text-muted-foreground">{post.dek}</p>}
-      <p className="label-caps mt-6 border-y border-border py-3 text-muted-foreground">
-        By {post.author || "Admin"} ·{" "}
-        <time dateTime={post.date}>{new Date(post.date).toLocaleDateString()}</time>
-        {` · ${readTimeLabel(post)}`}
-        {post.tags.length ? ` · ${post.tags.join(", ")}` : ""}
+      {post.dek && (
+        <p className="font-serif text-xl italic text-muted-foreground">
+          <Rich text={post.dek} />
+        </p>
+      )}
+      <p className="label-caps mt-6 flex flex-wrap gap-x-2 gap-y-1 border-y border-border py-3 text-muted-foreground">
+        {[
+          sectionName ? (
+            <span key="s" className="text-foreground">
+              {sectionName}
+            </span>
+          ) : null,
+          post.date ? (
+            <time key="d" dateTime={post.date}>
+              {formatDate(post.date)}
+            </time>
+          ) : null,
+          post.updated && post.updated > post.date ? (
+            <span key="u">
+              Updated <time dateTime={post.updated}>{formatDate(post.updated)}</time>
+            </span>
+          ) : null,
+          <span key="r">{readTimeLabel(post)}</span>,
+          post.author ? <span key="a">By {post.author}</span> : null,
+          post.tags.length ? <span key="t">{post.tags.join(", ")}</span> : null,
+        ]
+          .filter(Boolean)
+          .flatMap((part, i) =>
+            i === 0
+              ? [part]
+              : [
+                  <span key={`sep${i}`} aria-hidden="true">
+                    ·
+                  </span>,
+                  part,
+                ],
+          )}
       </p>
       {post.cover?.src && <Media items={[post.cover]} />}
       {html ? (

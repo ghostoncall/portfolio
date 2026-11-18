@@ -295,8 +295,11 @@ export const volunteeringPageSchema = z.object({
       heading: z.string().trim().optional(),
       body: z.string().trim().optional(),
       buttonText: z.string().trim().optional(),
+      hidden: z.boolean().optional(),
     })
     .optional(),
+  entriesHeading: z.string().trim().optional(),
+  additionsApplied: z.boolean().optional(),
 });
 
 export const educationEntrySchema = z.object({

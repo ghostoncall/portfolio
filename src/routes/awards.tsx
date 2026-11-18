@@ -2,39 +2,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
+import { pageCopy, pageMeta } from "@/lib/site-copy";
 import { getPublishedAwards } from "@/lib/server-fns";
 import { AwardsView } from "@/components/public/AwardsView";
 
 export const Route = createFileRoute("/awards")({
   loader: async ({ parentMatchPromise }) => {
     const [site, awards] = await Promise.all([
-      siteFromRoot(parentMatchPromise),
+      siteFromRoot(parentMatchPromise, "awards"),
       (getPublishedAwards as any)(),
     ]);
     return { site, awards };
   },
-  head: ({ loaderData }) => {
-    const site = loaderData?.site;
-    return {
-      meta: [
-        { title: `Awards & Recognitions — ${site?.name ?? "Portfolio"}` },
-        {
-          name: "description",
-          content: "Academic awards, scholarships, honours, and competition recognitions.",
-        },
-        {
-          property: "og:title",
-          content: `Awards & Recognitions — ${site?.name ?? "Portfolio"}`,
-        },
-        {
-          property: "og:description",
-          content: "Academic awards and recognitions.",
-        },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site as any, "awards") }),
   component: AwardsPage,
 });
 
@@ -44,7 +24,7 @@ function AwardsPage() {
     awards: any;
   };
   return (
-    <PageShell crumbs={["Awards & Recognitions"]} title="Awards & Recognitions" site={site}>
+    <PageShell crumbs={[pageCopy(site, "awards").navLabel]} title={pageCopy(site, "awards").title} site={site}>
       <AwardsView awards={awards?.entries ?? []} />
     </PageShell>
   );

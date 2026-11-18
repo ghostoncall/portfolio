@@ -5,13 +5,24 @@
 // default that reproduces the existing editorial look; the admin panel
 // only stores overrides, and `mergeBlogSettings` fills the rest in.
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  BLOG_SECTION_IDS,
+  DEFAULT_BLOG_SECTIONS,
+  type BlogSection,
+  type BlogSectionId,
+} from "@/lib/blog-sections";
 
 export type BlogCardStyle = "divided" | "bordered" | "plain";
 export type BlogLayout = "list" | "grid";
 
 export type BlogSettings = {
+  /** Legacy: the single blog heading/description, now Tech Blogs' title/intro. */
   heading: string;
   description: string;
+  /** Tech Blogs (/blog) and My Journal (/blog/journal). */
+  sections: Record<BlogSectionId, BlogSection>;
+  /** newest/oldest by date, or "manual" = the order set in /onlyme/blogs. */
+  listingOrder: "newest" | "oldest" | "manual";
   layout: BlogLayout;
   postsPerPage: number;
   featured: {
@@ -26,6 +37,7 @@ export type BlogSettings = {
     showAuthor: boolean;
     showDate: boolean;
     showTags: boolean;
+    showReadTime: boolean;
     style: BlogCardStyle;
   };
   pagination: {
@@ -68,6 +80,8 @@ export const IMAGE_RATIOS = ["16/9", "3/2", "4/3", "1/1", "3/4"] as const;
 export const DEFAULT_BLOG_SETTINGS: BlogSettings = {
   heading: "Writing & Notes",
   description: "Essays and notes on applied AI, LLMs, retrieval and engineering.",
+  sections: DEFAULT_BLOG_SECTIONS,
+  listingOrder: "newest",
   layout: "list",
   postsPerPage: 10,
   featured: { enabled: false, position: "top" },
@@ -79,6 +93,7 @@ export const DEFAULT_BLOG_SETTINGS: BlogSettings = {
     showAuthor: true,
     showDate: true,
     showTags: true,
+    showReadTime: true,
     style: "divided",
   },
   pagination: { enabled: true },
@@ -120,11 +135,36 @@ export function mergeBlogSettings(stored: unknown): BlogSettings {
     }
     return out;
   };
-  return merge(DEFAULT_BLOG_SETTINGS, stored) as BlogSettings;
+  // Clone the defaults: the merge reuses nested default objects, and the
+  // fix-ups below must never modify the shared constant.
+  const defaults = JSON.parse(JSON.stringify(DEFAULT_BLOG_SETTINGS)) as BlogSettings;
+  const merged = merge(defaults, stored) as BlogSettings;
+  // Before sections existed the blog had one heading + description; carry
+  // them over as Tech Blogs' title and introduction so nothing changes.
+  const hadSections = isObject(stored) && isObject((stored as any).sections);
+  if (!hadSections && isObject(stored)) {
+    const s = stored as any;
+    if (typeof s.heading === "string" && s.heading.trim()) merged.sections.tech.title = s.heading;
+    if (typeof s.description === "string") merged.sections.tech.intro = s.description;
+  }
+  for (const id of BLOG_SECTION_IDS) {
+    const sec = merged.sections[id];
+    sec.order = Number.isFinite(Number(sec.order))
+      ? Number(sec.order)
+      : DEFAULT_BLOG_SECTIONS[id].order;
+    sec.visible = sec.visible !== false;
+  }
+  // Tech Blogs is the /blog landing page — it can never be hidden.
+  merged.sections.tech.visible = true;
+  if (!["newest", "oldest", "manual"].includes(merged.listingOrder)) merged.listingOrder = "newest";
+  return merged;
 }
 
 /** CSS custom properties consumed by the public blog + admin preview. */
-export function blogThemeVars(settings: BlogSettings): Record<string, string> {
+export function blogThemeVars(
+  settings: BlogSettings,
+  bodyFontSize?: number,
+): Record<string, string> {
   const t = settings.typography;
   return {
     "--blog-bg": t.background,
@@ -133,11 +173,17 @@ export function blogThemeVars(settings: BlogSettings): Record<string, string> {
     "--blog-accent": t.accent,
     "--blog-font-heading": t.headingFont,
     "--blog-font-body": t.bodyFont,
-    "--blog-font-size": `${t.baseSize}px`,
+    "--blog-font-size": validBodyFontSize(bodyFontSize) ?? `${t.baseSize}px`,
     "--blog-heading-scale": String(t.headingScale),
     "--blog-line-height": String(t.lineHeight),
     "--blog-content-width": `${t.contentWidth}rem`,
     "--blog-image-spacing": `${t.imageSpacing}rem`,
     "--blog-paragraph-spacing": `${t.paragraphSpacing}rem`,
   };
+}
+
+export function validBodyFontSize(value: unknown): string | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value >= 12 && value <= 48
+    ? `${value}px`
+    : undefined;
 }

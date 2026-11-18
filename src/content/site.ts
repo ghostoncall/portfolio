@@ -7,18 +7,27 @@
 // you like and it becomes a carousel automatically.
 
 import type { HeadingStyle } from "@/lib/typography";
-import type { MediaItem } from "@/components/media";
+import type { MediaFit, MediaItem, MediaPosition } from "@/components/media";
 
 export type { MediaItem };
 
 export type Block =
+  | {
+      /** Editable Overview feature; project records stay in the Projects CMS. */
+      type: "featured-projects";
+      visible?: boolean;
+      heading?: string;
+      /** Undefined uses the existing automatic selection; [] intentionally shows none. */
+      projectSlugs?: string[];
+    }
   | {
       type: "media";
       items?: MediaItem[];
       count?: number;
       layout?: "carousel" | "grid" | "stack";
       ratio?: string;
-      fit?: "cover" | "contain";
+      fit?: MediaFit;
+      position?: MediaPosition;
       caption?: string;
       credit?: string;
     }
@@ -38,7 +47,11 @@ export type Block =
       alt: string;
       caption?: string;
       credit?: string;
-      ratio?: "16/9" | "4/3" | "1/1" | "3/2";
+      ratio?: string;
+      fit?: MediaFit;
+      position?: MediaPosition;
+      width?: number;
+      height?: number;
     }
   | { type: "video"; src?: string; embed?: string; caption?: string }
   | { type: "link"; href: string; title: string; source?: string; description?: string }
@@ -251,7 +264,11 @@ export type VolunteeringPageContent = {
     heading?: string;
     body?: string;
     buttonText?: string;
+    /** Hide the "open to opportunities" section entirely. */
+    hidden?: boolean;
   };
+  /** Heading above the list of entries ("" hides the heading). */
+  entriesHeading?: string;
 };
 
 /** A single academic qualification (degree / diploma / certificate of study). */
@@ -343,6 +360,8 @@ export type PageContent =
       /** Set once the git-tracked additions were folded into this page (the
        *  admin then owns them: they're no longer appended on every read). */
       additionsApplied?: boolean | undefined;
+      /** Prevent the legacy automatic feature from returning after its block is removed. */
+      featuredWorkManaged?: boolean | undefined;
     }
   | SkillsPageContent
   | CertificatesPageContent
@@ -614,12 +633,6 @@ export const certificates: CertificatesPageContent = {
       featured: true,
       visible: true,
       sort: 2,
-      image: {
-        src: "/images/certs/data-science-fundamentals.png",
-        alt: "Data Science Fundamentals certificate",
-        caption: "Sample certificate badge.",
-        ratio: "16/9",
-      },
       skillIds: ["skill-deep-learning"],
     },
     {
@@ -639,12 +652,6 @@ export const certificates: CertificatesPageContent = {
       title: "Computer Vision with PyTorch",
       issuer: "Meridian College",
       issueDate: "2025-09-05",
-      file: {
-        href: "/files/certs/computer-vision-pytorch.pdf",
-        name: "computer-vision-pytorch.pdf",
-        kind: "pdf",
-        description: "Certificate of completion.",
-      },
       description: "Image classification, object detection and transfer learning.",
       category: "Computer Vision",
       visible: true,
@@ -790,6 +797,8 @@ export const awards: AwardPageContent = {
 };
 
 export type PostBody = {
+  /** Optional body text size in pixels; headings keep the blog's type scale. */
+  fontSize?: number | undefined;
   /** Lexical editor state (Koenig / Ghost). Opaque to the rest of the app. */
   lexical: Record<string, unknown>;
   /** Rendered HTML captured from the editor; what the public site displays. */
@@ -835,6 +844,10 @@ export type Post = {
   imageLayouts?: Record<string, PostImageLayout>;
   /** External links open in a new tab (default true). */
   externalLinksNewTab?: boolean;
+  /** Tech Blogs (/blog) or My Journal (/blog/journal). Missing → Tech Blogs, flagged in admin. */
+  section?: "tech" | "journal";
+  /** Shown as "Updated …" on the article when later than `date`. */
+  updated?: string;
 };
 
 export type PostImageLayout = {

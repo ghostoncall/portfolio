@@ -17,26 +17,12 @@ export function MediaField({
   accept?: "image" | "pdf" | "any" | undefined;
 }) {
   const item = value ?? {};
-  const fields = {
-    src: item.src ?? "",
-    alt: item.alt ?? "",
-    caption: item.caption ?? "",
-  };
-
   return (
     <Field label={label} hint={undefined} error={undefined} className={undefined}>
       <MediaItemFields
         label={label ?? "Media"}
-        value={fields}
-        onChange={(next) =>
-          onChange({
-            src: next.src ?? undefined,
-            alt: next.alt ?? undefined,
-            caption: next.caption ?? undefined,
-            title: item.title,
-            kind: item.kind,
-          } as MediaItem)
-        }
+        value={item}
+        onChange={onChange}
         accept={accept === "pdf" ? "any" : accept}
       />
     </Field>

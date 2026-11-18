@@ -4,13 +4,14 @@ import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
 import { getPublishedProject, getPublishedSkillsBundle } from "@/lib/server-fns";
 import { ProjectView } from "@/components/public/ProjectView";
+import { plainText } from "@/lib/rich-inline";
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: async ({ params, parentMatchPromise }) => {
     const [project, skillsBundle, site] = await Promise.all([
       (getPublishedProject as any)({ data: { slug: params.slug } }),
       (getPublishedSkillsBundle as any)(),
-      siteFromRoot(parentMatchPromise),
+      siteFromRoot(parentMatchPromise, "projects"),
     ]);
     if (!project) throw notFound();
     return { project, skills: skillsBundle.skills.skills, site };
@@ -20,10 +21,10 @@ export const Route = createFileRoute("/projects/$slug")({
     return {
       meta: project
         ? [
-            { title: `${project.title} — ${site?.name ?? "Portfolio"}` },
-            { name: "description", content: project.dek },
-            { property: "og:title", content: project.title },
-            { property: "og:description", content: project.dek },
+            { title: `${plainText(project.title)} — ${plainText(site?.name ?? "Portfolio")}` },
+            { name: "description", content: plainText(project.dek) },
+            { property: "og:title", content: plainText(project.title) },
+            { property: "og:description", content: plainText(project.dek) },
             { property: "og:type", content: "article" },
             { name: "twitter:card", content: "summary_large_image" },
           ]
@@ -52,7 +53,7 @@ function ProjectPage() {
     site: any;
   };
   return (
-    <PageShell crumbs={["Projects", project.title]} title={project.title} site={site}>
+    <PageShell crumbs={["Projects", plainText(project.title)]} title={project.title} site={site}>
       <ProjectView project={project} skills={skills} />
     </PageShell>
   );

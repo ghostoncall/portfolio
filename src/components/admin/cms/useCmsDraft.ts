@@ -48,6 +48,24 @@ export interface UseCmsDraftReturn<T> {
   reload: () => Promise<void>;
 }
 
+/**
+ * Normalizers rebuild documents field by field, which would drop the
+ * `additionsApplied` ownership flag. Losing it would make the code-defined
+ * entries (src/content/additions.ts) reappear on the live site after the
+ * next save, so it is carried over explicitly.
+ */
+function keepOwnership<T>(raw: unknown, normalized: T): T {
+  if ((raw as any)?.additionsApplied === true && normalized && typeof normalized === "object") {
+    return { ...(normalized as any), additionsApplied: true };
+  }
+  return normalized;
+}
+
+/** listStaged returns an array; older callers expected `{ rows }`. */
+function rowsOf(result: any): any[] {
+  return Array.isArray(result) ? result : Array.isArray(result?.rows) ? result.rows : [];
+}
+
 const notify = (text: string, kind: "ok" | "error" = "ok") => {
   const props: any = { duration: 2500 };
   if (kind === "error") props.className = "bg-destructive text-destructive-foreground";
@@ -110,8 +128,8 @@ export function useCmsDraft<T>({
     setLoading(true);
     setError(null);
     try {
-      const rows = await (listStaged as any)({ data: { table } });
-      const row = Array.isArray(rows) ? rows.find((r: any) => r.slug === slug) : undefined;
+      const rows = rowsOf(await (listStaged as any)({ data: { table } }));
+      const row = rows.find((r: any) => r.slug === slug);
       if (!row && allowMissing) {
         setData(null);
         return;
@@ -119,8 +137,8 @@ export function useCmsDraft<T>({
       if (!row) {
         throw new Error(`Row not found for slug ${slug}`);
       }
-      const published = normalizeRef.current(row.published);
-      const staged = normalizeRef.current(row.staged);
+      const published = keepOwnership(row.published, normalizeRef.current(row.published));
+      const staged = keepOwnership(row.staged, normalizeRef.current(row.staged));
       baselineRef.current = staged;
       setData({
         published,
@@ -280,13 +298,13 @@ export function useCmsDraft<T>({
     try {
       setSaving(true);
       await (revertItem as any)({ data: { table, slug } });
-      const { rows } = await (listStaged as any)({ data: { table } });
-      const row = Array.isArray(rows) ? rows.find((r: any) => r.slug === slug) : undefined;
+      const rows = rowsOf(await (listStaged as any)({ data: { table } }));
+      const row = rows.find((r: any) => r.slug === slug);
       if (!row) {
         throw new Error(`Row not found for slug ${slug}`);
       }
-      const published = normalizeRef.current(row.published);
-      const staged = normalizeRef.current(row.staged);
+      const published = keepOwnership(row.published, normalizeRef.current(row.published));
+      const staged = keepOwnership(row.staged, normalizeRef.current(row.staged));
       baselineRef.current = staged;
       setData({ published, staged, isPublic: row.isPublic, publishedAt: row.publishedAt ?? null });
       setDirty(false);

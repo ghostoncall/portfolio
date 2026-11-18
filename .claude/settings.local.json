@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(curl.exe -sI \"https://engineerthisaryan.com/\" | Select-String \"location\"; $h = \\(curl.exe -sI \"https://engineerthisaryan.com/\" | Select-String \"location\"\\).ToString\\(\\).Split\\(\" \",2\\)[1].Trim\\(\\); \"-> $h\"; foreach\\($p in \"\",\"experience\",\"blog\"\\){ $t=@\\(\\); for\\($i=0;$i -lt 4;$i++\\){ $t += curl.exe -s -o NUL -w \"%{time_starttransfer}|%{http_code}|%{size_download}\" -H \"Accept-Encoding: br, gzip\" \"$\\($h.TrimEnd\\('/'\\)\\)/$p\" }; \"/$p  \" + \\($t -join \"  \"\\) }; curl.exe -s -D - -o NUL -H \"Accept-Encoding: br, gzip\" \"$\\($h.TrimEnd\\('/'\\)\\)/\" | Select-String \"cache-control|content-encoding|age:|cache-status|content-type\")",
+      "PowerShell(& \"$env:TEMP\\\\claude\\\\afc3f4551fd5f223\\\\56be1157-ae13-4426-be43-9545281ae8f6\\\\scratchpad\\\\lh.ps1\" -Label prod-before -Base \"https://www.engineerthisaryan.com\" -Paths \"/\",\"/experience\" -Runs 2 | Out-Null; Import-Csv \"$env:TEMP\\\\claude\\\\afc3f4551fd5f223\\\\56be1157-ae13-4426-be43-9545281ae8f6\\\\scratchpad\\\\lh-prod-before\\\\summary.csv\" | Format-Table | Out-String -Width 250)",
+      "PowerShell(Import-Csv \"$env:TEMP\\\\claude\\\\afc3f4551fd5f223\\\\56be1157-ae13-4426-be43-9545281ae8f6\\\\scratchpad\\\\lh-prod-before\\\\summary.csv\" | Select page,run,LCP_ms,TTFB_ms,bytes_KB,requests | Format-Table | Out-String -Width 250)"
+    ]
+  }
+}

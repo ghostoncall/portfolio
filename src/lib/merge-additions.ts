@@ -77,9 +77,26 @@ function appendNew<T extends WithId>(
   return [...base, ...added];
 }
 
-export function mergeProjects<T extends WithId>(rows: T[], useSeed = false): T[] {
+/**
+ * `adopted` = the admin has imported the code-defined content into the
+ * database (adoptCodeContent), so the DB rows are the only source of truth.
+ */
+export function mergeProjects<T extends WithId>(rows: T[], useSeed = false, adopted = false): T[] {
   if (useSeed) rows = seed.projects as unknown as T[];
+  if (adopted) return rows;
   return appendNew(rows, add.projects as unknown as T[]);
+}
+
+/** Fill a single existing project's empty fields from its code addition. */
+export function fillProjectFromAdditions<T extends WithId>(row: T): T {
+  return appendNew([row], add.projects as unknown as T[]).find(
+    (p) => (p.slug ?? p.id) === (row.slug ?? row.id),
+  ) as T;
+}
+
+/** Code-defined projects that have no database row yet. */
+export function projectsMissingFromDb(slugs: Set<string>) {
+  return add.projects.filter((p) => !slugs.has(p.slug));
 }
 
 /** `raw` is the published page content from the DB (or null when absent). */
@@ -89,12 +106,13 @@ export function mergePage(slug: string, raw: any, useSeed = false): any {
     // seed content, with the additions merged in.
     raw = seedPage(slug);
   }
+  // Once the admin has taken ownership (flag set by the Overview editor or by
+  // adoptCodeContent), the page is exactly what they saved: deleted entries
+  // stay deleted and cleared fields stay empty. Before that, append only the
+  // additions that aren't already on the page.
+  if (raw?.additionsApplied) return raw;
   switch (slug) {
     case "overview": {
-      // Once the admin has taken ownership (flag set by the Overview editor),
-      // the page is exactly what they saved. Before that, append only the
-      // additions that aren't already on the page.
-      if (raw?.additionsApplied) return raw;
       return {
         ...(raw ?? { kind: "blocks" }),
         blocks: [...(raw?.blocks ?? []), ...missingOverviewAdditions(raw?.blocks)],

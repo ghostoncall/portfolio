@@ -13,6 +13,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Maximize, Minimize, ImageIcon, Loader2, X } from "lucide-react";
 import {
   deleteItem,
+  getBlogSettings,
   getStaged,
   publishItem,
   revertItem,
@@ -20,7 +21,8 @@ import {
   updatePostSlug,
   updateStaged,
 } from "@/lib/server-fns";
-import { KoenigBodyEditor } from "@/components/admin/KoenigBodyEditor";
+import { plainText } from "@/lib/rich-inline";
+import { KoenigBodyEditor, type EditorHandle } from "@/components/admin/KoenigBodyEditor";
 import { FontSizeToolbar } from "@/components/admin/FontSizeToolbar";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { BlogRenderer } from "@/components/admin/BlogRenderer";
@@ -31,6 +33,7 @@ import type { ImageAsset, Post, PostBody, PostImageLayout, PostVisibility } from
 import { ImageAssetField } from "@/components/admin/cms/ImageAssetField";
 import { readingMinutes } from "@/lib/reading-time";
 import { bodyImages } from "@/lib/blog-html";
+import { decodeImageAttribute } from "@/lib/blog-image-layout";
 
 export const Route = createFileRoute("/onlyme/blogs/$slug")({
   component: PostEditor,
@@ -64,6 +67,10 @@ type Form = {
   readTimeAuto: boolean;
   imageLayouts: Record<string, PostImageLayout>;
   externalLinksNewTab: boolean;
+  /** "" = never assigned (listed in Tech Blogs until you choose). */
+  section: "" | "tech" | "journal";
+  /** Optional "last updated" date shown on the article. */
+  updated: string;
 };
 
 function toForm(post: Post): Form {
@@ -87,6 +94,8 @@ function toForm(post: Post): Form {
     readTimeAuto: post.readTimeMode !== "manual",
     imageLayouts: post.imageLayouts ?? {},
     externalLinksNewTab: post.externalLinksNewTab !== false,
+    section: post.section === "tech" || post.section === "journal" ? post.section : "",
+    updated: post.updated ?? "",
   };
 }
 
@@ -127,10 +136,16 @@ function buildDoc(form: Form, base: Post, slug: string): Post {
   }
   if (form.thumbnail?.src) doc.thumbnail = form.thumbnail;
   else delete doc.thumbnail;
+  if (form.section) doc.section = form.section;
+  else delete doc.section;
+  if (form.updated) doc.updated = form.updated;
+  else delete doc.updated;
   // Keep layouts only for images still in the body.
   const present = new Set(bodyImages(form.body?.html ?? "").map((i) => i.src));
   const layouts = Object.fromEntries(
-    Object.entries(form.imageLayouts).filter(([src]) => present.has(src)),
+    Object.entries(form.imageLayouts)
+      .map(([src, layout]) => [decodeImageAttribute(src), layout] as const)
+      .filter(([src]) => present.has(src)),
   );
   if (Object.keys(layouts).length) doc.imageLayouts = layouts;
   else delete doc.imageLayouts;
@@ -191,11 +206,27 @@ function PostEditor() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [scheduleAt, setScheduleAt] = useState("");
   const [converted, setConverted] = useState(false);
-  const [fontSize, setFontSize] = useState("16px");
+  const [blogSettings, setBlogSettings] = useState(DEFAULT_BLOG_SETTINGS);
   const [zoomLevel, setZoomLevel] = useState("100");
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState<boolean>(false);
   const [focusMode, setFocusMode] = useState<boolean>(false);
   const [previewMode, setPreviewMode] = useState<"editor" | "preview" | "split">("editor");
+  // Section names as set in Blog settings (shown on the section buttons + preview).
+  const [sectionNames, setSectionNames] = useState<Record<"tech" | "journal", string>>({
+    tech: DEFAULT_BLOG_SETTINGS.sections.tech.name,
+    journal: DEFAULT_BLOG_SETTINGS.sections.journal.name,
+  });
+  useEffect(() => {
+    (getBlogSettings as any)()
+      .then((s: typeof DEFAULT_BLOG_SETTINGS) => {
+        setBlogSettings(s);
+        setSectionNames({
+          tech: plainText(s.sections.tech.name),
+          journal: plainText(s.sections.journal.name),
+        });
+      })
+      .catch(() => {});
+  }, []);
   const [deviceType, setDeviceType] = useState<"desktop" | "tablet" | "mobile">("desktop");
 
   useEffect(() => {
@@ -219,11 +250,24 @@ function PostEditor() {
   const slugRef = useRef(params.slug);
   const savingRef = useRef(false);
   const dirtyRef = useRef(false);
+  const bodyEditorRef = useRef<EditorHandle | null>(null);
 
   formRef.current = form;
   baseRef.current = base;
   slugRef.current = currentSlug;
   dirtyRef.current = dirty;
+
+  const updateBody = useCallback((value: PostBody, initial = false) => {
+    const current = formRef.current;
+    if (!current) return;
+    const next = { ...current, body: { ...value, fontSize: current.body?.fontSize } };
+    formRef.current = next;
+    setForm(next);
+    if (!initial) {
+      dirtyRef.current = true;
+      setDirty(true);
+    }
+  }, []);
 
   const notify = (kind: "ok" | "error", text: string) => {
     setNotice({ kind, text });
@@ -259,6 +303,8 @@ function PostEditor() {
   }
 
   function setPreviewModeVal(mode: "editor" | "preview" | "split") {
+    const snapshot = bodyEditorRef.current?.getSnapshot();
+    if (snapshot) updateBody(snapshot, true);
     setPreviewMode(mode);
     try {
       localStorage.setItem("onlyme:previewMode", mode);
@@ -331,7 +377,13 @@ function PostEditor() {
 
   const save = useCallback(
     async (options: { applySlug?: boolean; silent?: boolean } = {}) => {
-      const current = formRef.current;
+      let current = formRef.current;
+      const snapshot = bodyEditorRef.current?.getSnapshot();
+      if (current && snapshot) {
+        current = { ...current, body: { ...snapshot, fontSize: current.body?.fontSize } };
+        formRef.current = current;
+        setForm(current);
+      }
       const baseline = baseRef.current;
       if (!current || !baseline) return false;
       if (savingRef.current) return false;
@@ -502,7 +554,8 @@ function PostEditor() {
     published && base && JSON.stringify(base) !== JSON.stringify(published),
   );
 
-  const vars = blogThemeVars(DEFAULT_BLOG_SETTINGS);
+  const fontSize = form.body?.fontSize ? `${form.body.fontSize}px` : "";
+  const vars = blogThemeVars(blogSettings, form.body?.fontSize);
 
   return (
     <div className="space-y-6">
@@ -535,7 +588,16 @@ function PostEditor() {
           >
             Preview
           </button>
-          <FontSizeToolbar value={fontSize} onChange={setFontSize} />
+          <FontSizeToolbar
+            value={fontSize}
+            defaultSize={blogSettings.typography.baseSize}
+            onChange={(size) => {
+              if (!form.body) return;
+              patch({
+                body: { ...form.body, fontSize: size ? Number.parseInt(size, 10) : undefined },
+              });
+            }}
+          />
           <div className="flex items-center gap-1 border-l border-border pl-2">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Zoom</span>
             <button
@@ -662,12 +724,14 @@ function PostEditor() {
 
       <div
         className={`grid gap-8 ${
-          rightSidebarCollapsed || focusMode || previewMode === "split"
-            ? "lg:grid-cols-[1fr]"
-            : "lg:grid-cols-[minmax(0,1fr)_22rem]"
+          previewMode === "split"
+            ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+            : rightSidebarCollapsed || focusMode || previewMode === "preview"
+              ? "lg:grid-cols-[1fr]"
+              : "lg:grid-cols-[minmax(0,1fr)_22rem]"
         }`}
       >
-        {previewMode === "preview" ? (
+        {previewMode === "preview" && (
           <div className="min-w-0">
             <div className="space-y-2 border-b border-border pb-4">
               <div className="flex items-center justify-between">
@@ -707,436 +771,428 @@ function PostEditor() {
                       : "max-w-3xl"
                 }`}
               >
-                <BlogRenderer post={previewPost ?? (form as unknown as Post)} themeVars={vars} />
+                <BlogRenderer
+                  post={previewPost ?? (form as unknown as Post)}
+                  themeVars={vars}
+                  sectionName={sectionNames[form.section === "journal" ? "journal" : "tech"]}
+                />
               </div>
             </div>
           </div>
-        ) : previewMode === "split" ? (
-          <>
-            <div className="min-w-0 space-y-6">
-              <div className="space-y-4 border border-border p-5">
-                <label className="block">
-                  <span className={label}>Title</span>
-                  <textarea
-                    value={form.title}
-                    onChange={(e) => patch({ title: e.target.value })}
-                    rows={2}
-                    placeholder="Post title"
-                    className="w-full resize-none border-0 border-b border-input bg-transparent px-0 py-2 font-display text-3xl leading-tight text-foreground outline-none focus:border-ring"
-                  />
-                </label>
-                <label className="block">
-                  <span className={label}>Excerpt / dek</span>
-                  <textarea
-                    value={form.dek}
-                    onChange={(e) => patch({ dek: e.target.value })}
-                    rows={2}
-                    placeholder="One or two sentences shown on the blog index and in search results."
-                    className={`${field} resize-y`}
-                  />
-                </label>
-              </div>
+        )}
+        <div key="body-editor" hidden={previewMode === "preview"} className="min-w-0 space-y-6">
+          <div className="space-y-4 border border-border p-5">
+            <label className="block">
+              <span className={label}>Title</span>
+              <textarea
+                value={form.title}
+                onChange={(e) => patch({ title: e.target.value })}
+                rows={2}
+                placeholder="Post title"
+                className="w-full resize-none border-0 border-b border-input bg-transparent px-0 py-2 font-display text-3xl leading-tight text-foreground outline-none focus:border-ring"
+              />
+            </label>
+            <label className="block">
+              <span className={label}>Excerpt / dek</span>
+              <textarea
+                value={form.dek}
+                onChange={(e) => patch({ dek: e.target.value })}
+                rows={2}
+                placeholder="One or two sentences shown on the blog index and in search results."
+                className={`${field} resize-y`}
+              />
+            </label>
+          </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-foreground">Body</h3>
-                  <span className="text-xs text-muted-foreground">
-                    Autosaves to draft · use Save before publishing URL changes
-                  </span>
-                </div>
-                <div
-                  className="relative"
-                  style={{
-                    transform: `scale(${Number(zoomLevel) / 100})`,
-                    transformOrigin: "top left",
-                    width: `${100 / (Number(zoomLevel) / 100)}%`,
-                  }}
-                >
-                  <KoenigBodyEditor
-                    initialLexical={hasLexical ? form.body!.lexical : null}
-                    initialHtml={form.body?.html ?? ""}
-                    fontSize={fontSize}
-                    onFontSizeChange={setFontSize}
-                    onChange={(value) => {
-                      setForm((prev) => (prev ? { ...prev, body: value } : prev));
-                      setDirty(true);
-                    }}
-                  />
-                </div>
-              </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-foreground">Body</h3>
+              <span className="text-xs text-muted-foreground">
+                Autosaves to draft · use Save before publishing URL changes
+              </span>
             </div>
+            <div
+              className="relative"
+              style={{
+                transform: `scale(${Number(zoomLevel) / 100})`,
+                transformOrigin: "top left",
+                width: `${100 / (Number(zoomLevel) / 100)}%`,
+              }}
+            >
+              <KoenigBodyEditor
+                initialLexical={hasLexical ? form.body!.lexical : null}
+                initialHtml={form.body?.html ?? ""}
+                fontSize={fontSize}
+                imageLayouts={form.imageLayouts}
+                themeVars={vars}
+                editorRef={bodyEditorRef}
+                onInitialValue={(value) => updateBody(value, true)}
+                onChange={updateBody}
+              />
+            </div>
+          </div>
+        </div>
 
-            <div className="min-w-0 border-l border-border pl-6">
-              <div className="space-y-2 border-b border-border pb-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium text-foreground">Live Preview</h2>
-                  <div className="flex items-center gap-2">
-                    {DEVICE_TYPES.map((dev) => (
-                      <button
-                        key={dev}
-                        type="button"
-                        onClick={() => setDevice(dev)}
-                        className={`text-xs border rounded px-2 py-1 ${
-                          deviceType === dev
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background text-muted-foreground hover:bg-accent"
-                        }`}
-                      >
-                        {dev === "desktop" ? "Desktop" : dev === "tablet" ? "Tablet" : "Mobile"}
-                      </button>
-                    ))}
+        {previewMode === "split" && (
+          <div className="min-w-0 border-l border-border pl-6">
+            <div className="space-y-2 border-b border-border pb-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium text-foreground">Live Preview</h2>
+                <div className="flex items-center gap-2">
+                  {DEVICE_TYPES.map((dev) => (
                     <button
+                      key={dev}
                       type="button"
-                      onClick={() => setPreviewModeVal("editor")}
-                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                      onClick={() => setDevice(dev)}
+                      className={`text-xs border rounded px-2 py-1 ${
+                        deviceType === dev
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-muted-foreground hover:bg-accent"
+                      }`}
                     >
-                      Back to editor
+                      {dev === "desktop" ? "Desktop" : dev === "tablet" ? "Tablet" : "Mobile"}
                     </button>
-                  </div>
-                </div>
-              </div>
-              <div className="min-h-[70vh] overflow-auto">
-                <div
-                  className={`mx-auto my-4 ${
-                    deviceType === "mobile"
-                      ? "max-w-xs"
-                      : deviceType === "tablet"
-                        ? "max-w-lg"
-                        : "max-w-3xl"
-                  }`}
-                >
-                  <BlogRenderer post={previewPost ?? (form as unknown as Post)} themeVars={vars} />
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="min-w-0 space-y-6">
-              <div className="space-y-4 border border-border p-5">
-                <label className="block">
-                  <span className={label}>Title</span>
-                  <textarea
-                    value={form.title}
-                    onChange={(e) => patch({ title: e.target.value })}
-                    rows={2}
-                    placeholder="Post title"
-                    className="w-full resize-none border-0 border-b border-input bg-transparent px-0 py-2 font-display text-3xl leading-tight text-foreground outline-none focus:border-ring"
-                  />
-                </label>
-                <label className="block">
-                  <span className={label}>Excerpt / dek</span>
-                  <textarea
-                    value={form.dek}
-                    onChange={(e) => patch({ dek: e.target.value })}
-                    rows={2}
-                    placeholder="One or two sentences shown on the blog index and in search results."
-                    className={`${field} resize-y`}
-                  />
-                </label>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-foreground">Body</h3>
-                  <span className="text-xs text-muted-foreground">
-                    Autosaves to draft · use Save before publishing URL changes
-                  </span>
-                </div>
-                <div
-                  className="relative"
-                  style={{
-                    transform: `scale(${Number(zoomLevel) / 100})`,
-                    transformOrigin: "top left",
-                    width: `${100 / (Number(zoomLevel) / 100)}%`,
-                  }}
-                >
-                  <KoenigBodyEditor
-                    initialLexical={hasLexical ? form.body!.lexical : null}
-                    initialHtml={form.body?.html ?? ""}
-                    fontSize={fontSize}
-                    onFontSizeChange={setFontSize}
-                    onChange={(value) => {
-                      setForm((prev) => (prev ? { ...prev, body: value } : prev));
-                      setDirty(true);
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {!rightSidebarCollapsed && !focusMode && (
-              <aside className="space-y-4">
-                <section className="space-y-3 border border-border p-4">
-                  <h3 className="text-sm font-medium text-foreground">Publishing</h3>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">Status</span>
-                    <StatusBadge isPublic={isPublic} publishedAt={publishedAt} />
-                  </div>
-
-                  <label className="block">
-                    <span className={label}>Schedule for</span>
-                    <input
-                      type="datetime-local"
-                      value={scheduleAt}
-                      onChange={(e) => setScheduleAt(e.target.value)}
-                      className={field}
-                    />
-                  </label>
+                  ))}
                   <button
                     type="button"
-                    onClick={() => void handlePublish("schedule")}
-                    disabled={saving || !scheduleAt}
+                    onClick={() => setPreviewModeVal("editor")}
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                  >
+                    Back to editor
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="min-h-[70vh] overflow-auto">
+              <div
+                className={`mx-auto my-4 ${
+                  deviceType === "mobile"
+                    ? "max-w-xs"
+                    : deviceType === "tablet"
+                      ? "max-w-lg"
+                      : "max-w-3xl"
+                }`}
+              >
+                <BlogRenderer
+                  post={previewPost ?? (form as unknown as Post)}
+                  themeVars={vars}
+                  sectionName={sectionNames[form.section === "journal" ? "journal" : "tech"]}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        {previewMode === "editor" && !rightSidebarCollapsed && !focusMode && (
+          <aside className="space-y-4">
+            <section className="space-y-3 border border-border p-4">
+              <h3 className="text-sm font-medium text-foreground">Publishing</h3>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">Status</span>
+                <StatusBadge isPublic={isPublic} publishedAt={publishedAt} />
+              </div>
+
+              <label className="block">
+                <span className={label}>Schedule for</span>
+                <input
+                  type="datetime-local"
+                  value={scheduleAt}
+                  onChange={(e) => setScheduleAt(e.target.value)}
+                  className={field}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => void handlePublish("schedule")}
+                disabled={saving || !scheduleAt}
+                className="w-full border border-input bg-background px-4 py-2 text-sm text-foreground hover:bg-accent disabled:opacity-50"
+              >
+                {isPublic ? "Reschedule" : "Schedule publish"}
+              </button>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                Scheduling is enforced by the server: the post stays hidden from the public site
+                until the chosen time.
+              </p>
+
+              <div className="space-y-2 border-t border-border pt-3">
+                {isPublic && (
+                  <button
+                    type="button"
+                    onClick={() => void handleUnpublish()}
+                    disabled={saving}
                     className="w-full border border-input bg-background px-4 py-2 text-sm text-foreground hover:bg-accent disabled:opacity-50"
                   >
-                    {isPublic ? "Reschedule" : "Schedule publish"}
+                    Unpublish
                   </button>
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
-                    Scheduling is enforced by the server: the post stays hidden from the public site
-                    until the chosen time.
-                  </p>
-
-                  <div className="space-y-2 border-t border-border pt-3">
-                    {isPublic && (
-                      <button
-                        type="button"
-                        onClick={() => void handleUnpublish()}
-                        disabled={saving}
-                        className="w-full border border-input bg-background px-4 py-2 text-sm text-foreground hover:bg-accent disabled:opacity-50"
-                      >
-                        Unpublish
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => void handleRevert()}
-                      disabled={saving}
-                      className="w-full border border-input bg-background px-4 py-2 text-sm text-foreground hover:bg-accent disabled:opacity-50"
-                    >
-                      Revert to published
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete()}
-                      disabled={saving}
-                      className="w-full border border-destructive/40 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50"
-                    >
-                      Delete post
-                    </button>
-                  </div>
-                </section>
-
-                <section className="space-y-3 border border-border p-4">
-                  <h3 className="text-sm font-medium text-foreground">Post details</h3>
-
-                  <label className="block">
-                    <span className={label}>URL slug</span>
-                    <div className="flex gap-2">
-                      <input
-                        value={form.slug}
-                        onChange={(e) => patch({ slug: e.target.value })}
-                        className={`${field} font-mono`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => patch({ slug: slugify(form.title) })}
-                        className="shrink-0 border border-input px-2 text-xs text-muted-foreground hover:bg-accent"
-                        title="Generate from title"
-                      >
-                        From title
-                      </button>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      /blog/{form.slug || "your-slug"} — applies when you save or publish.
-                    </p>
-                  </label>
-
-                  <label className="block">
-                    <span className={label}>Author</span>
-                    <input
-                      value={form.author}
-                      onChange={(e) => patch({ author: e.target.value })}
-                      placeholder="Author name"
-                      className={field}
-                    />
-                  </label>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="block">
-                      <span className={label}>Display date</span>
-                      <input
-                        type="date"
-                        value={form.date}
-                        onChange={(e) => patch({ date: e.target.value })}
-                        className={field}
-                      />
-                    </label>
-                    <div className="block">
-                      <span className={label}>Read time</span>
-                      {form.readTimeAuto ? (
-                        <p className={`${field} bg-muted/40`} aria-live="polite">
-                          {readingMinutes({
-                            body: form.body ?? undefined,
-                            blocks: base?.blocks ?? [],
-                          })}{" "}
-                          min read
-                        </p>
-                      ) : (
-                        <input
-                          value={form.readTime}
-                          onChange={(e) => patch({ readTime: e.target.value })}
-                          placeholder="6 min read"
-                          aria-label="Read time (manual)"
-                          className={field}
-                        />
-                      )}
-                      <label className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                        <input
-                          type="checkbox"
-                          checked={form.readTimeAuto}
-                          onChange={(e) => patch({ readTimeAuto: e.target.checked })}
-                        />
-                        Calculate from content
-                      </label>
-                    </div>
-                  </div>
-
-                  <label className="block">
-                    <span className={label}>Tags / categories</span>
-                    <input
-                      value={form.tags}
-                      onChange={(e) => patch({ tags: e.target.value })}
-                      placeholder="RAG, Agents, Evaluation"
-                      className={field}
-                    />
-                    <p className="mt-1 text-[11px] text-muted-foreground">Comma-separated.</p>
-                  </label>
-
-                  <label className="block">
-                    <span className={label}>Visibility</span>
-                    <select
-                      value={form.visibility}
-                      onChange={(e) => patch({ visibility: e.target.value as PostVisibility })}
-                      className={field}
-                    >
-                      <option value="public">Public — listed on the blog</option>
-                      <option value="unlisted">Unlisted — reachable by URL only</option>
-                      <option value="private">Private — admin only</option>
-                    </select>
-                  </label>
-
-                  <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={form.featured}
-                      onChange={(e) => patch({ featured: e.target.checked })}
-                    />
-                    Feature on the blog index
-                  </label>
-                </section>
-
-                <section className="space-y-3 border border-border p-4">
-                  <h3 className="text-sm font-medium text-foreground">Blog index thumbnail</h3>
-                  <ImageAssetField
-                    label="Thumbnail"
-                    hint="Small 4:3 image beside the post on /blog. Saved as optimized WebP. Without one, an image cover or a lettered tile is shown."
-                    value={form.thumbnail}
-                    onChange={(thumbnail) => patch({ thumbnail })}
-                    thumbEdge={360}
-                    cropAspect={4 / 3}
-                    fullEdge={1200}
-                  />
-                </section>
-
-                <ImageLayoutPanel
-                  html={form.body?.html ?? ""}
-                  layouts={form.imageLayouts}
-                  onChange={(imageLayouts) => patch({ imageLayouts })}
-                />
-
-                <section className="space-y-2 border border-border p-4">
-                  <h3 className="text-sm font-medium text-foreground">Links</h3>
-                  <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={form.externalLinksNewTab}
-                      onChange={(e) => patch({ externalLinksNewTab: e.target.checked })}
-                    />
-                    Open external links in a new tab
-                  </label>
-                  <p className="text-[11px] text-muted-foreground">
-                    Select text and press Ctrl/⌘+K (or the link button) to add, edit or remove a
-                    link. Paste a YouTube, Vimeo or GitHub URL on an empty line to embed it.
-                  </p>
-                </section>
-
-                <section className="space-y-3 border border-border p-4">
-                  <h3 className="text-sm font-medium text-foreground">Featured image</h3>
-                  <ImageField
-                    label="Cover"
-                    value={form.cover}
-                    onChange={(cover) => patch({ cover })}
-                    withAltCaption
-                  />
-                </section>
-
-                <section className="space-y-3 border border-border p-4">
-                  <h3 className="text-sm font-medium text-foreground">SEO & sharing</h3>
-                  <label className="block">
-                    <span className={label}>SEO title</span>
-                    <input
-                      value={form.seoTitle}
-                      onChange={(e) => patch({ seoTitle: e.target.value })}
-                      placeholder={form.title || "Defaults to the post title"}
-                      className={field}
-                    />
-                  </label>
-                  <label className="block">
-                    <span className={label}>SEO description</span>
-                    <textarea
-                      value={form.seoDescription}
-                      onChange={(e) => patch({ seoDescription: e.target.value })}
-                      rows={3}
-                      placeholder={form.dek || "Defaults to the excerpt"}
-                      className={`${field} resize-y`}
-                    />
-                  </label>
-                  <label className="block">
-                    <span className={label}>Canonical URL</span>
-                    <input
-                      value={form.canonical}
-                      onChange={(e) => patch({ canonical: e.target.value })}
-                      placeholder="https://example.com/original-post"
-                      className={field}
-                    />
-                  </label>
-                  <ImageField
-                    label="Social share image"
-                    value={{ src: form.socialImage }}
-                    onChange={(value) => patch({ socialImage: value.src ?? "" })}
-                  />
-                </section>
-
-                {published && (
-                  <section className="space-y-2 border border-border p-4 text-xs text-muted-foreground">
-                    <h3 className="text-sm font-medium text-foreground">Live version</h3>
-                    <p className="truncate">{published.title}</p>
-                    <p>{published.date}</p>
-                    {isPublic && (
-                      <Link
-                        to="/blog/$slug"
-                        params={{ slug: published.slug }}
-                        target="_blank"
-                        className="inline-block text-link hover:underline"
-                      >
-                        View live post ↗
-                      </Link>
-                    )}
-                  </section>
                 )}
-              </aside>
+                <button
+                  type="button"
+                  onClick={() => void handleRevert()}
+                  disabled={saving}
+                  className="w-full border border-input bg-background px-4 py-2 text-sm text-foreground hover:bg-accent disabled:opacity-50"
+                >
+                  Revert to published
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleDelete()}
+                  disabled={saving}
+                  className="w-full border border-destructive/40 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                >
+                  Delete post
+                </button>
+              </div>
+            </section>
+
+            <section className="space-y-3 border border-border p-4">
+              <h3 className="text-sm font-medium text-foreground">Post details</h3>
+
+              <label className="block">
+                <span className={label}>URL slug</span>
+                <div className="flex gap-2">
+                  <input
+                    value={form.slug}
+                    onChange={(e) => patch({ slug: e.target.value })}
+                    className={`${field} font-mono`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => patch({ slug: slugify(form.title) })}
+                    className="shrink-0 border border-input px-2 text-xs text-muted-foreground hover:bg-accent"
+                    title="Generate from title"
+                  >
+                    From title
+                  </button>
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  /blog/{form.slug || "your-slug"} — applies when you save or publish.
+                </p>
+              </label>
+
+              <fieldset className="block">
+                <legend className={label}>Section</legend>
+                <div className="mt-1 grid grid-cols-2 gap-2">
+                  {(
+                    [
+                      ["tech", sectionNames.tech, "/blog"],
+                      ["journal", sectionNames.journal, "/blog/journal"],
+                    ] as const
+                  ).map(([id, name, path]) => (
+                    <label
+                      key={id}
+                      className={`flex min-h-[44px] cursor-pointer flex-col justify-center border px-3 py-2 text-sm ${
+                        form.section === id
+                          ? "border-foreground bg-primary text-primary-foreground"
+                          : "border-input hover:bg-accent"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="post-section"
+                        className="sr-only"
+                        checked={form.section === id}
+                        onChange={() => patch({ section: id })}
+                      />
+                      <span className="font-medium">{name}</span>
+                      <span className="font-mono text-[10px] opacity-70">{path}</span>
+                    </label>
+                  ))}
+                </div>
+                {!form.section && (
+                  <p className="mt-1 text-[11px] text-amber-700">
+                    Not assigned yet — listed in Tech Blogs until you pick one.
+                  </p>
+                )}
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Changing it moves the post to the other list after you publish. Its URL (/blog/
+                  {form.slug || "slug"}) stays the same.
+                </p>
+              </fieldset>
+
+              <label className="block">
+                <span className={label}>Author</span>
+                <input
+                  value={form.author}
+                  onChange={(e) => patch({ author: e.target.value })}
+                  placeholder="Author name"
+                  className={field}
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className={label}>Display date</span>
+                  <input
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => patch({ date: e.target.value })}
+                    className={field}
+                  />
+                  <span className={`${label} mt-2`}>Last updated (optional)</span>
+                  <input
+                    type="date"
+                    value={form.updated}
+                    onChange={(e) => patch({ updated: e.target.value })}
+                    className={field}
+                  />
+                </label>
+                <div className="block">
+                  <span className={label}>Read time</span>
+                  {form.readTimeAuto ? (
+                    <p className={`${field} bg-muted/40`} aria-live="polite">
+                      {readingMinutes({
+                        body: form.body ?? undefined,
+                        blocks: base?.blocks ?? [],
+                      })}{" "}
+                      min read
+                    </p>
+                  ) : (
+                    <input
+                      value={form.readTime}
+                      onChange={(e) => patch({ readTime: e.target.value })}
+                      placeholder="6 min read"
+                      aria-label="Read time (manual)"
+                      className={field}
+                    />
+                  )}
+                  <label className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={form.readTimeAuto}
+                      onChange={(e) => patch({ readTimeAuto: e.target.checked })}
+                    />
+                    Calculate from content
+                  </label>
+                </div>
+              </div>
+
+              <label className="block">
+                <span className={label}>Tags / categories</span>
+                <input
+                  value={form.tags}
+                  onChange={(e) => patch({ tags: e.target.value })}
+                  placeholder="RAG, Agents, Evaluation"
+                  className={field}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">Comma-separated.</p>
+              </label>
+
+              <label className="block">
+                <span className={label}>Visibility</span>
+                <select
+                  value={form.visibility}
+                  onChange={(e) => patch({ visibility: e.target.value as PostVisibility })}
+                  className={field}
+                >
+                  <option value="public">Public — listed on the blog</option>
+                  <option value="unlisted">Unlisted — reachable by URL only</option>
+                  <option value="private">Private — admin only</option>
+                </select>
+              </label>
+
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={form.featured}
+                  onChange={(e) => patch({ featured: e.target.checked })}
+                />
+                Feature on the blog index
+              </label>
+            </section>
+
+            <section className="space-y-3 border border-border p-4">
+              <h3 className="text-sm font-medium text-foreground">Blog index thumbnail</h3>
+              <ImageAssetField
+                label="Thumbnail"
+                hint="Small 4:3 image beside the post on /blog. Saved as optimized WebP. Without one, an image cover or a lettered tile is shown."
+                value={form.thumbnail}
+                onChange={(thumbnail) => patch({ thumbnail })}
+                thumbEdge={360}
+                cropAspect={4 / 3}
+                fullEdge={1200}
+              />
+            </section>
+
+            <section className="space-y-2 border border-border p-4">
+              <h3 className="text-sm font-medium text-foreground">Links</h3>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={form.externalLinksNewTab}
+                  onChange={(e) => patch({ externalLinksNewTab: e.target.checked })}
+                />
+                Open external links in a new tab
+              </label>
+              <p className="text-[11px] text-muted-foreground">
+                Select text and press Ctrl/⌘+K (or the link button) to add, edit or remove a link.
+                Paste a YouTube, Vimeo or GitHub URL on an empty line to embed it.
+              </p>
+            </section>
+
+            <section className="space-y-3 border border-border p-4">
+              <h3 className="text-sm font-medium text-foreground">Featured image</h3>
+              <ImageField
+                label="Cover"
+                value={form.cover}
+                onChange={(cover) => patch({ cover })}
+                withAltCaption
+              />
+            </section>
+
+            <section className="space-y-3 border border-border p-4">
+              <h3 className="text-sm font-medium text-foreground">SEO & sharing</h3>
+              <label className="block">
+                <span className={label}>SEO title</span>
+                <input
+                  value={form.seoTitle}
+                  onChange={(e) => patch({ seoTitle: e.target.value })}
+                  placeholder={form.title || "Defaults to the post title"}
+                  className={field}
+                />
+              </label>
+              <label className="block">
+                <span className={label}>SEO description</span>
+                <textarea
+                  value={form.seoDescription}
+                  onChange={(e) => patch({ seoDescription: e.target.value })}
+                  rows={3}
+                  placeholder={form.dek || "Defaults to the excerpt"}
+                  className={`${field} resize-y`}
+                />
+              </label>
+              <label className="block">
+                <span className={label}>Canonical URL</span>
+                <input
+                  value={form.canonical}
+                  onChange={(e) => patch({ canonical: e.target.value })}
+                  placeholder="https://example.com/original-post"
+                  className={field}
+                />
+              </label>
+              <ImageField
+                label="Social share image"
+                value={{ src: form.socialImage }}
+                onChange={(value) => patch({ socialImage: value.src ?? "" })}
+              />
+            </section>
+
+            {published && (
+              <section className="space-y-2 border border-border p-4 text-xs text-muted-foreground">
+                <h3 className="text-sm font-medium text-foreground">Live version</h3>
+                <p className="truncate">{published.title}</p>
+                <p>{published.date}</p>
+                {isPublic && (
+                  <Link
+                    to="/blog/$slug"
+                    params={{ slug: published.slug }}
+                    target="_blank"
+                    className="inline-block text-link hover:underline"
+                  >
+                    View live post ↗
+                  </Link>
+                )}
+              </section>
             )}
-          </>
+          </aside>
         )}
       </div>
     </div>
@@ -1239,123 +1295,5 @@ function ImageField({
         }
       />
     </div>
-  );
-}
-
-const LAYOUT_OPTIONS: { value: PostImageLayout["align"] | "default"; label: string }[] = [
-  { value: "default", label: "Default" },
-  { value: "left", label: "Left" },
-  { value: "right", label: "Right" },
-  { value: "center", label: "Center" },
-  { value: "full", label: "Full" },
-];
-
-/**
- * Per-image layout for images in the body. Koenig's own image card covers
- * regular/wide/full widths; this adds text-wrapping floats and centered
- * sizing, stored on the post (keyed by image src) and applied at render.
- * Floats stack full-width on phones automatically.
- */
-function ImageLayoutPanel({
-  html,
-  layouts,
-  onChange,
-}: {
-  html: string;
-  layouts: Record<string, PostImageLayout>;
-  onChange: (next: Record<string, PostImageLayout>) => void;
-}) {
-  const images = bodyImages(html);
-  if (!images.length) return null;
-
-  const set = (src: string, next: PostImageLayout | null) => {
-    const copy = { ...layouts };
-    if (next) copy[src] = next;
-    else delete copy[src];
-    onChange(copy);
-  };
-
-  return (
-    <section className="space-y-3 border border-border p-4">
-      <h3 className="text-sm font-medium text-foreground">Image layout</h3>
-      <p className="text-[11px] text-muted-foreground">
-        Left/Right wrap the text around the image (stacked on phones). Center and Full use the
-        article width.
-      </p>
-      <ul className="space-y-3">
-        {images.map(({ src, alt }) => {
-          const current = layouts[src];
-          const align = current?.align ?? "default";
-          const sized = align === "left" || align === "right" || align === "center";
-          return (
-            <li key={src} className="flex gap-3">
-              <img
-                src={src}
-                alt={alt}
-                loading="lazy"
-                className="h-12 w-16 shrink-0 border border-border bg-muted object-cover"
-              />
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <div
-                  className="flex flex-wrap gap-1"
-                  role="group"
-                  aria-label={`Layout for ${alt || "image"}`}
-                >
-                  {LAYOUT_OPTIONS.map((o) => (
-                    <button
-                      key={o.value}
-                      type="button"
-                      aria-pressed={align === o.value}
-                      onClick={() =>
-                        set(
-                          src,
-                          o.value === "default"
-                            ? null
-                            : {
-                                align: o.value,
-                                size: o.value === "full" ? undefined : (current?.size ?? "m"),
-                              },
-                        )
-                      }
-                      className={`border px-2 py-1 text-[11px] ${
-                        align === o.value
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {o.label}
-                    </button>
-                  ))}
-                </div>
-                {sized && current && (
-                  <div
-                    className="flex items-center gap-1 text-[11px]"
-                    role="group"
-                    aria-label="Size"
-                  >
-                    <span className="text-muted-foreground">Size</span>
-                    {(["s", "m", "l"] as const).map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        aria-pressed={(current.size ?? "m") === s}
-                        onClick={() => set(src, { ...current, size: s })}
-                        className={`border px-2 py-0.5 uppercase ${
-                          (current.size ?? "m") === s
-                            ? "border-foreground text-foreground"
-                            : "border-border text-muted-foreground"
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
   );
 }

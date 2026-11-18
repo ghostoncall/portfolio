@@ -9,6 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { Certificate } from "@/content/site";
 import { cn } from "@/lib/utils";
+import { plainText, Rich } from "@/lib/rich-inline";
 
 type CertificatePreviewDialogProps = {
   cert: Certificate;
@@ -45,12 +46,12 @@ export function CertificatePreviewDialog({ cert, children }: CertificatePreviewD
 
           {cert.title && (
             <h2 className="font-display text-[clamp(1.25rem,2vw,1.5rem)] text-foreground leading-snug mb-1">
-              {cert.title}
+              <Rich text={cert.title} />
             </h2>
           )}
           {cert.issuer && (
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter mb-4">
-              {cert.issuer}
+              <Rich text={cert.issuer} />
             </p>
           )}
 
@@ -61,8 +62,8 @@ export function CertificatePreviewDialog({ cert, children }: CertificatePreviewD
                 style={{ aspectRatio: "4/3", maxHeight: "60vh" }}
               >
                 <img
-                  src={cert.image.src}
-                  alt={cert.image.alt ?? cert.title ?? "Certificate"}
+                  src={cert.image?.src}
+                  alt={cert.image?.alt ?? (plainText(cert.title) || "Certificate")}
                   className="max-w-full max-h-full object-contain"
                   loading="lazy"
                   decoding="async"
@@ -72,7 +73,7 @@ export function CertificatePreviewDialog({ cert, children }: CertificatePreviewD
           )}
 
           {cert.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">{cert.description}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4"><Rich text={cert.description} /></p>
           )}
 
           {hasDocument && (

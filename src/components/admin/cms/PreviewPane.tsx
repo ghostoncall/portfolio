@@ -1,91 +1,95 @@
-// Preview pane: editor / split / preview toggle, persisted in localStorage.
+// Preview pane: editor / split / preview toggle, remembered in localStorage.
+//
+// The pane owns its mode. (It used to read the mode from props, and every
+// caller passed a fixed "editor" with a no-op change handler, so the Split and
+// Preview buttons did nothing.) `mode` is only the initial value now, and
+// `onModeChange` is an optional notification.
 
 import * as React from "react";
 
 export type CmsPreviewMode = "editor" | "split" | "preview";
 
+const STORAGE_KEY = "onlyme:cmsPreviewMode";
+const MODES: { value: CmsPreviewMode; label: string }[] = [
+  { value: "editor", label: "Editor" },
+  { value: "split", label: "Split" },
+  { value: "preview", label: "Preview" },
+];
+
 export function PreviewPane({
-  mode,
+  mode = "editor",
   onModeChange,
   renderEditor,
   renderPreview,
 }: {
-  mode: CmsPreviewMode;
-  onModeChange: (mode: CmsPreviewMode) => void;
+  mode?: CmsPreviewMode;
+  onModeChange?: (mode: CmsPreviewMode) => void;
   renderEditor: () => React.ReactNode;
   renderPreview: () => React.ReactNode;
 }) {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
+  const [current, setCurrent] = React.useState<CmsPreviewMode>(mode);
 
-  const persisted = mounted
-    ? (localStorage.getItem("onlyme:cmsPreviewMode") as CmsPreviewMode | null)
-    : null;
-  const current = persisted ?? mode;
-
-  const toggle = (m: CmsPreviewMode) => {
-    onModeChange(m);
+  // Restore the last choice after hydration (localStorage isn't on the server).
+  React.useEffect(() => {
     try {
-      localStorage.setItem("onlyme:cmsPreviewMode", m);
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === "editor" || saved === "split" || saved === "preview") setCurrent(saved);
+    } catch {
+      // Storage unavailable — keep the default.
+    }
+  }, []);
+
+  const choose = (m: CmsPreviewMode) => {
+    setCurrent(m);
+    onModeChange?.(m);
+    try {
+      localStorage.setItem(STORAGE_KEY, m);
     } catch {
       // Ignore storage errors.
     }
   };
 
-  const isPreview = current === "preview";
-  const isSplit = current === "split";
-
   return (
-    <div
-      className="flex flex-col gap-2 border border-border rounded-lg p-4 bg-muted/30"
-      data-testid="cms-preview"
-    >
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => toggle("editor")}
-          className={`px-3 py-1 text-xs border rounded-md text-xs transition-colors ${
-            current === "editor"
-              ? "bg-primary text-primary-foreground"
-              : "bg-background text-muted-foreground hover:bg-accent"
-          }`}
-        >
-          Editor
-        </button>
-        <button
-          onClick={() => toggle("split")}
-          className={`px-3 py-1 text-xs border rounded-md text-xs transition-colors ${
-            current === "split"
-              ? "bg-primary text-primary-foreground"
-              : "bg-background text-muted-foreground hover:bg-accent"
-          }`}
-        >
-          Split
-        </button>
-        <button
-          onClick={() => toggle("preview")}
-          className={`px-3 py-1 text-xs border rounded-md text-xs transition-colors ${
-            current === "preview"
-              ? "bg-primary text-primary-foreground"
-              : "bg-background text-muted-foreground hover:bg-accent"
-          }`}
-        >
-          Preview
-        </button>
+    <div className="flex flex-col gap-2 border border-border p-4 bg-muted/30" data-testid="cms-preview">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-muted-foreground">View:</span>
+        <div role="group" aria-label="Editor view" className="inline-flex border border-border">
+          {MODES.map((m) => (
+            <button
+              key={m.value}
+              type="button"
+              aria-pressed={current === m.value}
+              onClick={() => choose(m.value)}
+              className={`min-h-[40px] px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
+                current === m.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-foreground hover:bg-accent"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        {current === "split" && (
+          <span className="text-xs text-muted-foreground">
+            Side by side on wide screens; stacked on narrow ones.
+          </span>
+        )}
       </div>
-      <div className="flex-1 overflow-auto">
-        {isSplit ? (
-          <div className="grid grid-cols-2 gap-4 min-h-[400px]">
-            <div className="border border-border p-3 bg-background">{renderEditor()}</div>
-            <div className="border border-border p-3 bg-background">{renderPreview()}</div>
+      <div className="flex-1">
+        {current === "split" ? (
+          <div className="grid min-h-[400px] gap-4 xl:grid-cols-2">
+            <div className="min-w-0 border border-border bg-background p-3">{renderEditor()}</div>
+            <div className="min-w-0 border border-border bg-background p-3" aria-label="Live preview">
+              {renderPreview()}
+            </div>
           </div>
-        ) : isPreview ? (
-          <div className="border border-border p-3 bg-background min-h-[400px]">
+        ) : current === "preview" ? (
+          <div className="min-h-[400px] border border-border bg-background p-3" aria-label="Live preview">
             {renderPreview()}
           </div>
         ) : (
-          <div className="border border-border p-3 bg-background min-h-[400px]">
-            {renderEditor()}
-          </div>
+          <div className="min-h-[400px] border border-border bg-background p-3">{renderEditor()}</div>
         )}
       </div>
     </div>

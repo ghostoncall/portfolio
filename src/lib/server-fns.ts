@@ -6,9 +6,10 @@
 // context along with the Request for session verification.
 
 import { createServerFn } from "@tanstack/react-start";
+import { OEMBED_PROVIDERS } from "@/lib/oembed-providers";
 import { and, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/db/client";
-import { getAuthUser, getSupabaseServer } from "@/lib/supabase.server";
+import { getAuthUser, getSupabaseServer, isAllowedAdmin } from "@/lib/supabase.server";
 import { getEnv } from "@/lib/runtime-config";
 import { createHash } from "node:crypto";
 import nodemailer from "nodemailer";
@@ -45,26 +46,66 @@ import {
 import { planPageReferenceCleanup, planProjectDelete, planProjectRename } from "@/lib/cms-server";
 import { mergeBlogSettings } from "@/lib/blog-settings";
 import {
+  fillProjectFromAdditions,
   liveOverviewBlocks,
   mergePage,
   mergeProjects,
+  projectsMissingFromDb,
   SITE_FALLBACK,
   SEED_POSTS,
 } from "@/lib/merge-additions";
 import { withReadTime } from "@/lib/reading-time";
+import { RESERVED_POST_SLUGS, sectionOf, type BlogSectionId } from "@/lib/blog-sections";
+import { searchInPosts, suggestInPosts, tagsInPosts } from "@/lib/post-search";
+import { isPublicSection, type SectionVisibility } from "@/lib/section-visibility";
+import { readSectionVisibility, writeSectionVisibility } from "@/lib/section-visibility.server";
+
+/**
+ * Published, publicly listed posts (full documents) for the fallback search,
+ * minus posts in a hidden blog section. Uses the seed posts when the
+ * database can't be reached (local development).
+ */
+async function searchablePosts(): Promise<Post[]> {
+  try {
+    const db = getDb();
+    const now = new Date();
+    const [rows, settingsRow] = await Promise.all([
+      db
+        .select({ published: posts.published })
+        .from(posts)
+        .where(
+          and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
+        ),
+      db
+        .select({ value: blogSettings.value })
+        .from(blogSettings)
+        .where(eq(blogSettings.id, "blog"))
+        .limit(1),
+    ]);
+    const journalHidden = (settingsRow[0]?.value as any)?.sections?.journal?.visible === false;
+    return rows
+      .map((r) => r.published)
+      .filter((p) => (p.visibility ?? "public") === "public")
+      .filter((p) => !(journalHidden && sectionOf(p) === "journal"));
+  } catch {
+    return (SEED_POSTS as Post[]).filter((p) => (p.visibility ?? "public") === "public");
+  }
+}
 import type { Post } from "@/content/site";
 import {
   RESUME_MAX_BYTES,
   RESUME_MIME,
+  isResumeVisible,
+  publicResumeSettings,
   safeResumeFileName,
-  type PublicResume,
+  type PublicResumeSettings,
   type ResumeDoc,
   type ResumeSettings,
 } from "@/lib/resume";
 
 /** Verify the Supabase session on a Request. Throws 401 if invalid. */
 async function requireAdmin(request: Request): Promise<void> {
-  const user = await getAuthUser(request);
+  const user = await getAuthUser();
   if (!user) {
     const err: any = new Error("Unauthorized");
     err.statusCode = 401;
@@ -220,6 +261,13 @@ export const createItem = createServerFn({ method: "POST", strict: false }).hand
       err.statusCode = 400;
       throw err;
     }
+    if (data.table === "posts" && RESERVED_POST_SLUGS.has(slug)) {
+      const err: any = new Error(
+        `"${slug}" is used by a blog page (/blog/${slug}) — pick another slug`,
+      );
+      err.statusCode = 400;
+      throw err;
+    }
     const existing = await db.select().from(table).where(eq(table.slug, slug)).limit(1);
     if (existing[0]) {
       const err: any = new Error(`"${slug}" already exists — pick another slug`);
@@ -236,6 +284,7 @@ export const createItem = createServerFn({ method: "POST", strict: false }).hand
         date: now.toISOString().slice(0, 10),
         tags: [],
         blocks: [],
+        section: data.section === "journal" ? "journal" : "tech",
       };
     } else if (data.table === "projects") {
       doc = {
@@ -317,6 +366,23 @@ export const deleteItem = createServerFn({ method: "POST", strict: false }).hand
   },
 );
 
+/** Admin: save the manual post order (used when Blog settings → order = manual). */
+export const reorderPosts = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    await requireAdmin(context.request);
+    const slugs: string[] = Array.isArray(data?.slugs) ? data.slugs.map(String) : [];
+    if (!slugs.length) return { ok: true };
+    const db = getDb();
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      for (const [i, slug] of slugs.entries()) {
+        await tx.update(posts).set({ sort: i, updatedAt: now }).where(eq(posts.slug, slug));
+      }
+    });
+    return { ok: true };
+  },
+);
+
 /** Rename a post URL. The slug is the primary key, so it updates in place. */
 export const updatePostSlug = createServerFn({ method: "POST", strict: false }).handler(
   async ({ data, context }: any) => {
@@ -329,6 +395,12 @@ export const updatePostSlug = createServerFn({ method: "POST", strict: false }).
       throw httpError("Slug must be lowercase letters, numbers, and dashes.", 400);
     }
     if (newSlug === oldSlug) return { ok: true, slug: newSlug };
+    if (RESERVED_POST_SLUGS.has(newSlug)) {
+      throw httpError(
+        `"${newSlug}" is used by a blog page (/blog/${newSlug}) — pick another slug.`,
+        400,
+      );
+    }
     const existing = await db.select().from(posts).where(eq(posts.slug, newSlug)).limit(1);
     if (existing[0]) throw httpError(`"${newSlug}" already exists — pick another slug.`, 409);
 
@@ -881,8 +953,15 @@ function toListing(post: Post): Post {
   return { ...rest, blocks: [] } as Post;
 }
 
+/** Only posts of one section when `section` is given ("tech" also gets unassigned posts). */
+function inSection(section: unknown) {
+  return (p: Post) =>
+    section === "tech" || section === "journal" ? sectionOf(p) === section : true;
+}
+
 export const getPublishedPosts = createServerFn({ method: "GET", strict: false }).handler(
-  async () => {
+  async ({ data }: any) => {
+    const section = data?.section as BlogSectionId | undefined;
     try {
       const db = getDb();
       const now = new Date();
@@ -896,10 +975,13 @@ export const getPublishedPosts = createServerFn({ method: "GET", strict: false }
       return rows
         .map((r) => r.published)
         .filter((p) => (p.visibility ?? "public") === "public")
+        .filter(inSection(section))
         .map(toListing);
     } catch (err) {
       console.error("[getPublishedPosts] db unavailable, using seed content", err);
-      return SEED_POSTS.filter((p: any) => (p.visibility ?? "public") === "public").map(toListing);
+      return SEED_POSTS.filter((p: any) => (p.visibility ?? "public") === "public")
+        .filter(inSection(section))
+        .map(toListing);
     }
   },
 );
@@ -959,19 +1041,55 @@ export const searchPosts = createServerFn({ method: "GET", strict: false }).hand
   async ({ data }: any) => {
     try {
       const db = getDb();
-      const rows: any[] = await db.execute(sql`
+      const section = data?.section === "tech" || data?.section === "journal" ? data.section : null;
+      const page = Math.max(1, Number(data?.page ?? 1));
+      const perPage = Math.max(1, Math.min(50, Number(data?.perPage ?? 10)));
+      // The search function (search_blog_posts in Postgres) has no section
+      // parameter. With a section filter, fetch every match (the blog is
+      // small), filter by section here, then paginate.
+      let rows: any[] = await db.execute(sql`
       select * from search_blog_posts(
         ${data?.query ?? null},
         ${data?.tag ?? null},
         ${data?.year ?? null},
         ${data?.featured ?? null},
         ${data?.sort ?? "relevance"},
-        ${data?.page ?? 1},
-        ${data?.perPage ?? 10}
+        ${section ? 1 : page},
+        ${section ? 500 : perPage}
       )
     `);
+      // Attach each result's section (only for posts the search already returned).
+      const slugs = rows.map((r) => String(r.slug));
+      const sections = new Map<string, BlogSectionId>();
+      if (slugs.length) {
+        const meta = await db
+          .select({ slug: posts.slug, published: posts.published })
+          .from(posts)
+          .where(and(inArray(posts.slug, slugs), eq(posts.isPublic, true)));
+        for (const m of meta) sections.set(m.slug, sectionOf(m.published));
+      }
+      let total = rows.length ? Number(rows[0].total) : 0;
+      const journalHidden = await (async () => {
+        const s = await db
+          .select({ value: blogSettings.value })
+          .from(blogSettings)
+          .where(eq(blogSettings.id, "blog"))
+          .limit(1);
+        return (s[0]?.value as any)?.sections?.journal?.visible === false;
+      })();
+      if (journalHidden) {
+        const before = rows.length;
+        rows = rows.filter((r) => sections.get(String(r.slug)) !== "journal");
+        total -= before - rows.length;
+      }
+      if (section) {
+        rows = rows.filter((r) => (sections.get(String(r.slug)) ?? "tech") === section);
+        total = rows.length;
+        rows = rows.slice((page - 1) * perPage, page * perPage);
+      }
       return {
         posts: rows.map((r) => ({
+          section: sections.get(String(r.slug)) ?? "tech",
           slug: r.slug,
           title: r.title,
           dek: r.dek,
@@ -985,11 +1103,24 @@ export const searchPosts = createServerFn({ method: "GET", strict: false }).hand
         })),
         rank: rows.map((r) => r.rank),
         headline: rows.map((r) => r.headline),
-        total: rows.length ? Number(rows[0].total) : 0,
+        total,
       };
     } catch (err) {
-      console.error("[searchPosts] db unavailable, using seed content", err);
-      return { posts: [], rank: [], headline: [], total: 0 };
+      // The Postgres search isn't available (missing function, timeout, or no
+      // database locally): search the published posts directly instead of
+      // telling the visitor nothing matched.
+      console.error("[searchPosts] database search unavailable, using fallback search", err);
+      const result = searchInPosts(await searchablePosts(), {
+        query: data?.query ?? null,
+        tag: data?.tag ?? null,
+        year: data?.year ?? null,
+        featured: data?.featured ?? null,
+        section: data?.section === "tech" || data?.section === "journal" ? data.section : null,
+        sort: data?.sort ?? "relevance",
+        page: Number(data?.page ?? 1),
+        perPage: Number(data?.perPage ?? 10),
+      });
+      return { ...result, rank: result.posts.map(() => null) };
     }
   },
 );
@@ -1003,8 +1134,12 @@ export const searchSuggest = createServerFn({ method: "GET", strict: false }).ha
     `);
       return rows;
     } catch (err) {
-      console.error("[searchSuggest] db unavailable, using seed content", err);
-      return [];
+      console.error("[searchSuggest] database search unavailable, using fallback", err);
+      return suggestInPosts(
+        await searchablePosts(),
+        String(data?.query ?? ""),
+        Number(data?.limit ?? 6),
+      );
     }
   },
 );
@@ -1014,8 +1149,8 @@ export const getBlogTags = createServerFn({ method: "GET", strict: false }).hand
     const db = getDb();
     return await db.execute(sql`select * from get_blog_tags()`);
   } catch (err) {
-    console.error("[getBlogTags] db unavailable, using seed content", err);
-    return [];
+    console.error("[getBlogTags] database function unavailable, using fallback", err);
+    return tagsInPosts(await searchablePosts());
   }
 });
 
@@ -1221,12 +1356,19 @@ export const getPublishedProjects = createServerFn({ method: "GET", strict: fals
   async () => {
     try {
       const db = getDb();
-      const rows = await db
-        .select({ published: projects.published })
-        .from(projects)
-        .where(eq(projects.isPublic, true))
-        .orderBy(projects.sort);
-      return mergeProjects(rows.map((r) => r.published));
+      const [rows, adopted] = await Promise.all([
+        db
+          .select({ published: projects.published })
+          .from(projects)
+          .where(eq(projects.isPublic, true))
+          .orderBy(projects.sort),
+        codeContentAdopted(),
+      ]);
+      return mergeProjects(
+        rows.map((r) => r.published),
+        false,
+        adopted,
+      );
     } catch (err) {
       console.error("[getPublishedProjects] db unavailable, using additions only", err);
       return mergeProjects([], true);
@@ -1238,12 +1380,20 @@ export const getPublishedProject = createServerFn({ method: "GET", strict: false
   async ({ data }: any) => {
     try {
       const db = getDb();
-      const row = await db
-        .select({ published: projects.published })
-        .from(projects)
-        .where(eq(projects.slug, data.slug))
-        .limit(1);
-      if (!row[0]) return mergeProjects([]).find((p: any) => p.slug === data.slug) ?? null;
+      const [row, adopted] = await Promise.all([
+        db
+          .select({ published: projects.published, isPublic: projects.isPublic })
+          .from(projects)
+          .where(eq(projects.slug, data.slug))
+          .limit(1),
+        codeContentAdopted(),
+      ]);
+      // Hidden in the admin → hidden on the site (it used to stay reachable by URL).
+      if (row[0] && !row[0].isPublic) return null;
+      if (!row[0]) {
+        if (adopted) return null;
+        return mergeProjects([]).find((p: any) => p.slug === data.slug) ?? null;
+      }
       return row[0].published;
     } catch (err) {
       console.error("[getPublishedProject] db unavailable, using additions only", err);
@@ -1262,6 +1412,205 @@ export const getPublishedPage = createServerFn({ method: "GET", strict: false })
       console.error("[getPublishedPage] db unavailable, using additions only", err);
       return mergePage(data.slug, null, true);
     }
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Code-defined content → database (single source of truth)
+// ---------------------------------------------------------------------------
+//
+// Some live content was added in src/content/additions.ts and merged into the
+// database content on every public read. The admin only ever saw (and could
+// only edit) the database copy, so those entries could not be edited or
+// deleted, and cleared fields were refilled from the file. adoptCodeContent
+// copies that merged view into the database once and flags it; from then on
+// the database alone decides what the site shows.
+
+const CONTENT_FLAGS_ID = "content";
+
+/** True once adoptCodeContent has run (projects no longer merge additions). */
+async function codeContentAdopted(): Promise<boolean> {
+  try {
+    const row = await getDb()
+      .select({ published: settings.published })
+      .from(settings)
+      .where(eq(settings.id, CONTENT_FLAGS_ID))
+      .limit(1);
+    return (row[0]?.published as any)?.additionsAdopted === true;
+  } catch {
+    return false;
+  }
+}
+
+const ADOPTABLE_PAGES: { slug: string; kind: PageKind; title: string }[] = [
+  { slug: "overview", kind: "blocks", title: "Overview" },
+  { slug: "education", kind: "education", title: "Education" },
+  { slug: "skills", kind: "skills", title: "Skills" },
+  { slug: "certificates", kind: "certificates", title: "Certificates" },
+  { slug: "awards", kind: "awards", title: "Awards" },
+  { slug: "experience", kind: "experience", title: "Experience" },
+  { slug: "volunteering", kind: "volunteering", title: "Volunteering" },
+];
+
+const ENTRY_LISTS: Record<string, string[]> = {
+  overview: ["blocks"],
+  education: ["entries"],
+  skills: ["skills", "categories"],
+  certificates: ["certificates"],
+  awards: ["entries"],
+  experience: ["entries"],
+  volunteering: ["entries"],
+};
+
+function countEntries(slug: string, doc: any): number {
+  return (ENTRY_LISTS[slug] ?? []).reduce(
+    (n, key) => n + (Array.isArray(doc?.[key]) ? doc[key].length : 0),
+    0,
+  );
+}
+
+/** Admin: what the live site still takes from code instead of the database. */
+export const getCodeContentStatus = createServerFn({ method: "GET", strict: false }).handler(
+  async ({ context }: any) => {
+    await requireAdmin(context.request);
+    const db = getDb();
+    const [rows, projectRows, adopted] = await Promise.all([
+      db
+        .select({
+          slug: pages.slug,
+          published: pages.published,
+          staged: pages.staged,
+          isPublic: pages.isPublic,
+        })
+        .from(pages)
+        .where(
+          inArray(
+            pages.slug,
+            ADOPTABLE_PAGES.map((p) => p.slug),
+          ),
+        ),
+      db.select({ slug: projects.slug }).from(projects),
+      codeContentAdopted(),
+    ]);
+    const bySlug = new Map(rows.map((r) => [r.slug, r]));
+    const sections: { section: string; items: number }[] = [];
+    let pending = !adopted;
+    for (const page of ADOPTABLE_PAGES) {
+      const row = bySlug.get(page.slug);
+      const raw = row?.isPublic ? row.published : null;
+      if ((raw as any)?.additionsApplied && (row?.staged as any)?.additionsApplied) continue;
+      pending = true;
+      const extra =
+        countEntries(page.slug, mergePage(page.slug, raw)) - countEntries(page.slug, raw);
+      if (extra > 0) sections.push({ section: page.title, items: extra });
+    }
+    if (!adopted) {
+      const missing = projectsMissingFromDb(new Set(projectRows.map((r) => r.slug))).length;
+      if (missing > 0) sections.push({ section: "Projects", items: missing });
+    }
+    return {
+      pending,
+      totalItems: sections.reduce((n, s) => n + s.items, 0),
+      sections,
+    };
+  },
+);
+
+/**
+ * Admin: copy everything the public site currently shows into the database
+ * and mark it as owned by the admin. Idempotent; the public site looks the
+ * same before and after. The difference is that every entry is now editable
+ * and deletable in the admin panel, and cleared fields stay cleared.
+ */
+export const adoptCodeContent = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ context }: any) => {
+    await requireAdmin(context.request);
+    const db = getDb();
+    const now = new Date();
+    const own = (doc: any) => ({ ...(doc ?? {}), additionsApplied: true });
+    let changed = 0;
+    await db.transaction(async (tx) => {
+      for (const page of ADOPTABLE_PAGES) {
+        const [row] = await tx.select().from(pages).where(eq(pages.slug, page.slug)).limit(1);
+        if (!row) {
+          const content = own(mergePage(page.slug, null));
+          await tx.insert(pages).values({
+            slug: page.slug,
+            title: page.title,
+            kind: page.kind,
+            published: content as PageContent,
+            staged: content as PageContent,
+            sort: 99,
+            publishedAt: now,
+            updatedAt: now,
+            isPublic: true,
+          });
+          changed++;
+          continue;
+        }
+        const pubOwned = (row.published as any)?.additionsApplied === true;
+        const stagedOwned = (row.staged as any)?.additionsApplied === true;
+        if (pubOwned && stagedOwned && row.isPublic) continue;
+        // What visitors see right now (a non-public row shows the code content).
+        const published = pubOwned
+          ? row.published
+          : own(mergePage(page.slug, row.isPublic ? row.published : null));
+        const staged = stagedOwned ? row.staged : own(mergePage(page.slug, row.staged));
+        await tx
+          .update(pages)
+          .set({
+            published: published as PageContent,
+            staged: staged as PageContent,
+            isPublic: true,
+            updatedAt: now,
+          })
+          .where(eq(pages.slug, page.slug));
+        changed++;
+      }
+
+      const projectRows = await tx
+        .select({
+          slug: projects.slug,
+          published: projects.published,
+          staged: projects.staged,
+          isPublic: projects.isPublic,
+          sort: projects.sort,
+        })
+        .from(projects);
+      let sort = projectRows.reduce((m, r) => Math.max(m, r.sort ?? 0), 0) + 1;
+      for (const p of projectsMissingFromDb(new Set(projectRows.map((r) => r.slug)))) {
+        await tx.insert(projects).values({
+          slug: p.slug,
+          published: p,
+          staged: p,
+          isPublic: true,
+          sort: sort++,
+          publishedAt: now,
+          updatedAt: now,
+        });
+        changed++;
+      }
+      for (const r of projectRows) {
+        if (!r.isPublic) continue;
+        const published = fillProjectFromAdditions(r.published);
+        if (JSON.stringify(published) === JSON.stringify(r.published)) continue;
+        await tx
+          .update(projects)
+          .set({ published, staged: fillProjectFromAdditions(r.staged), updatedAt: now })
+          .where(eq(projects.slug, r.slug));
+        changed++;
+      }
+
+      const flags = { additionsAdopted: true, adoptedAt: now.toISOString() } as any;
+      await tx
+        .insert(settings)
+        .values({ id: CONTENT_FLAGS_ID, published: flags, staged: flags, updatedAt: now })
+        .onConflictDoUpdate({
+          target: settings.id,
+          set: { published: flags, staged: flags, updatedAt: now },
+        });
+    });
+    return { ok: true, changed };
   },
 );
 
@@ -1429,7 +1778,7 @@ export const createMediaUpload = createServerFn({ method: "POST", strict: false 
     const safeName = name.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/-+/g, "-") || "file";
     const storagePath = `${id}-${safeName}`;
 
-    const supabase = getSupabaseServer(request);
+    const supabase = getSupabaseServer();
     const { data: signed, error } = await supabase.storage
       .from(MEDIA_BUCKET)
       .createSignedUploadUrl(storagePath);
@@ -1531,7 +1880,7 @@ export const deleteMedia = createServerFn({ method: "POST", strict: false }).han
     }
 
     if (asset.storagePath) {
-      const supabase = getSupabaseServer(request);
+      const supabase = getSupabaseServer();
       const { error } = await supabase.storage.from(MEDIA_BUCKET).remove([asset.storagePath]);
       if (error) throw httpError(`Could not remove file from storage: ${error.message}`, 500);
     }
@@ -1544,17 +1893,6 @@ export const deleteMedia = createServerFn({ method: "POST", strict: false }).han
 // ---------------------------------------------------------------------------
 // Editor embeds (Koenig `cardConfig.fetchEmbed`)
 // ---------------------------------------------------------------------------
-
-const OEMBED_PROVIDERS: { test: RegExp; endpoint: string }[] = [
-  {
-    test: /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch|shorts|live)|youtu\.be\/)/i,
-    endpoint: "https://www.youtube.com/oembed?format=json&url=",
-  },
-  {
-    test: /^https?:\/\/(www\.|player\.)?vimeo\.com\//i,
-    endpoint: "https://vimeo.com/api/oembed.json?url=",
-  },
-];
 
 /** Only public http(s) hosts — never localhost, private ranges or IP literals. */
 function assertPublicUrl(raw: string): URL {
@@ -1660,7 +1998,7 @@ export const fetchEmbedData = createServerFn({ method: "POST", strict: false }).
         const res = await fetch(provider.endpoint + encodeURIComponent(url.href), {
           signal: AbortSignal.timeout(8000),
         });
-        if (!res.ok) throw httpError("That video couldn't be found or isn't embeddable.", 422);
+        if (!res.ok) throw httpError("That content couldn't be found or isn't embeddable.", 422);
         const oembed = (await res.json()) as Record<string, unknown>;
         return { ...oembed, type: oembed["type"] ?? "video", url: url.href };
       }
@@ -1679,7 +2017,11 @@ export const fetchEmbedData = createServerFn({ method: "POST", strict: false }).
 
 const RESUME_PATH_RE = /^resume\/[0-9a-f-]{36}\.pdf$/;
 
-async function readResumeRow(): Promise<{ staged: ResumeDoc | null; published: ResumeDoc | null }> {
+async function readResumeRow(): Promise<{
+  staged: ResumeDoc | null;
+  published: ResumeDoc | null;
+  visible: boolean;
+}> {
   const row = await getDb()
     .select({ staged: settings.staged, published: settings.published })
     .from(settings)
@@ -1687,7 +2029,8 @@ async function readResumeRow(): Promise<{ staged: ResumeDoc | null; published: R
     .limit(1);
   const staged = (row[0]?.staged as unknown as ResumeSettings | undefined)?.current ?? null;
   const published = (row[0]?.published as unknown as ResumeSettings | undefined)?.current ?? null;
-  return { staged, published };
+  const visible = isResumeVisible(row[0]?.published as unknown as ResumeSettings | undefined);
+  return { staged, published, visible };
 }
 
 async function writeResumeRow(next: { staged: ResumeDoc | null; published: ResumeDoc | null }) {
@@ -1697,7 +2040,15 @@ async function writeResumeRow(next: { staged: ResumeDoc | null; published: Resum
   await getDb()
     .insert(settings)
     .values({ id: "resume", staged, published, updatedAt: now })
-    .onConflictDoUpdate({ target: settings.id, set: { staged, published, updatedAt: now } });
+    .onConflictDoUpdate({
+      target: settings.id,
+      set: {
+        // Change only the document so uploads/publishing cannot reset visibility.
+        staged: sql`jsonb_set(coalesce(${settings.staged}, '{}'::jsonb), '{current}', ${JSON.stringify(next.staged)}::jsonb)`,
+        published: sql`jsonb_set(coalesce(${settings.published}, '{}'::jsonb), '{current}', ${JSON.stringify(next.published)}::jsonb)`,
+        updatedAt: now,
+      },
+    });
 }
 
 /** Delete résumé objects no longer referenced by the staged or published copy. */
@@ -1711,23 +2062,20 @@ async function removeOrphanedResumeFiles(
     (p) => !kept.has(p) && RESUME_PATH_RE.test(p),
   );
   if (!paths.length) return;
-  const { error } = await getSupabaseServer(request).storage.from(MEDIA_BUCKET).remove(paths);
+  const { error } = await getSupabaseServer().storage.from(MEDIA_BUCKET).remove(paths);
   // The document change already succeeded; a leftover file is harmless.
   if (error) console.error("[resume] could not remove old file(s):", error.message);
 }
 
 /** Public: metadata of the published résumé (never the storage path). */
 export const getPublishedResume = createServerFn({ method: "GET", strict: false }).handler(
-  async (): Promise<PublicResume | null> => {
+  async (): Promise<PublicResumeSettings> => {
     try {
-      const { published } = await readResumeRow();
-      if (!published) return null;
-      const { storagePath: _omit, ...pub } = published;
-      void _omit;
-      return pub;
+      const { published, visible } = await readResumeRow();
+      return publicResumeSettings({ current: published, visible });
     } catch (err) {
       console.error("[getPublishedResume] db unavailable", err);
-      return null;
+      return { current: null, visible: false };
     }
   },
 );
@@ -1737,13 +2085,62 @@ export const getResumeAdmin = createServerFn({ method: "GET", strict: false }).h
   async ({ context }: any) => {
     const { request } = context;
     await requireAdmin(request);
-    const { staged, published } = await readResumeRow();
-    const supabase = getSupabaseServer(request);
+    const { staged, published, visible } = await readResumeRow();
+    const supabase = getSupabaseServer();
     const urlFor = (d: ResumeDoc | null) =>
       d ? supabase.storage.from(MEDIA_BUCKET).getPublicUrl(d.storagePath).data.publicUrl : null;
-    return { staged, published, stagedUrl: urlFor(staged), publishedUrl: urlFor(published) };
+    return {
+      staged,
+      published,
+      visible,
+      stagedUrl: urlFor(staged),
+      publishedUrl: urlFor(published),
+    };
   },
 );
+
+/** Visibility saves immediately and retains both the published PDF and draft. */
+export const setResumeVisibility = createServerFn({ method: "POST", strict: false }).handler(
+  async ({ data, context }: any) => {
+    await requireAdmin(context.request);
+    if (typeof data?.visible !== "boolean")
+      throw httpError("Choose whether to show the résumé.", 400);
+    const visible = data.visible;
+    await writeSectionVisibility("resume", visible);
+    return { ok: true, visible };
+  },
+);
+
+/** Public flags only; hidden content remains available to its admin editors. */
+export const getPublishedSectionVisibility = createServerFn({
+  method: "GET",
+  strict: false,
+}).handler(async (): Promise<SectionVisibility> => {
+  try {
+    return await readSectionVisibility();
+  } catch (error) {
+    console.error("[getPublishedSectionVisibility] db unavailable", error);
+    // Preserve the existing résumé failure behavior and other sections' defaults.
+    return { resume: false };
+  }
+});
+
+export const getSectionVisibilityAdmin = createServerFn({ method: "GET", strict: false }).handler(
+  async ({ context }: any) => {
+    await requireAdmin(context.request);
+    return readSectionVisibility();
+  },
+);
+
+export const setSectionVisibility = createServerFn({ method: "POST", strict: false })
+  .inputValidator((data: { section: keyof SectionVisibility; visible: boolean }) => data)
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.request);
+    if (!isPublicSection(data?.section) || typeof data?.visible !== "boolean")
+      throw httpError("Choose a supported section and whether to show it.", 400);
+    await writeSectionVisibility(data.section, data.visible);
+    return { ok: true, section: data.section, visible: data.visible };
+  });
 
 /** Admin step 1: validate the file description and hand out a signed upload URL. */
 export const createResumeUpload = createServerFn({ method: "POST", strict: false }).handler(
@@ -1768,7 +2165,7 @@ export const createResumeUpload = createServerFn({ method: "POST", strict: false
 
     // Random object name: the original filename is kept in the DB only.
     const storagePath = `resume/${crypto.randomUUID()}.pdf`;
-    const { data: signed, error } = await getSupabaseServer(request)
+    const { data: signed, error } = await getSupabaseServer()
       .storage.from(MEDIA_BUCKET)
       .createSignedUploadUrl(storagePath);
     if (error || !signed) {
@@ -1791,7 +2188,7 @@ export const stageResume = createServerFn({ method: "POST", strict: false }).han
     const storagePath = String(data?.storagePath ?? "");
     if (!RESUME_PATH_RE.test(storagePath)) throw httpError("Invalid upload reference.", 400);
 
-    const supabase = getSupabaseServer(request);
+    const supabase = getSupabaseServer();
     const discard = async () => {
       await supabase.storage.from(MEDIA_BUCKET).remove([storagePath]);
     };
@@ -1878,10 +2275,50 @@ export const removeResume = createServerFn({ method: "POST", strict: false }).ha
 // Session probe (used by the /onlyme route guard)
 // ---------------------------------------------------------------------------
 
+/**
+ * Why the server does or doesn't accept this browser's session. The login
+ * page uses it so it only forwards to /onlyme when the server agrees —
+ * otherwise the two would bounce the visitor back and forth forever.
+ */
+export const getAdminStatus = createServerFn({ method: "GET", strict: false }).handler(
+  async ({ context }: any) => {
+    const { request } = context;
+    try {
+      const { data, error } = await getSupabaseServer().auth.getUser();
+      if (error || !data.user)
+        return { ok: false as const, reason: "no-session" as const, email: null };
+      const email = data.user.email ?? null;
+      if (!isAllowedAdmin(email)) {
+        return { ok: false as const, reason: "not-allowed" as const, email };
+      }
+      return { ok: true as const, reason: "ok" as const, email };
+    } catch {
+      return { ok: false as const, reason: "unreachable" as const, email: null };
+    }
+  },
+);
+
+/** Admin: can the server reach the database right now? */
+export const checkDatabase = createServerFn({ method: "GET", strict: false }).handler(
+  async ({ context }: any) => {
+    await requireAdmin(context.request);
+    const started = Date.now();
+    try {
+      await getDb().execute(sql`select 1`);
+      return { ok: true, ms: Date.now() - started };
+    } catch (error: any) {
+      console.error("[checkDatabase] probe failed", {
+        code: error?.cause?.code ?? error?.code ?? error?.name,
+      });
+      return { ok: false, ms: Date.now() - started };
+    }
+  },
+);
+
 export const getAdminUser = createServerFn({ method: "GET", strict: false }).handler(
   async ({ context }: any) => {
     const { request } = context;
-    const user = await getAuthUser(request);
+    const user = await getAuthUser();
     if (!user) return null;
     return { id: user.id, email: user.email ?? null };
   },

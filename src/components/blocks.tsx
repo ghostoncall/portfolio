@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { Block } from "@/content/site";
 import { Media } from "@/components/media";
 import { headingInlineStyle } from "@/lib/typography";
+import { Rich } from "@/lib/rich-inline";
+import { FeaturedProjects } from "@/components/public/FeaturedProjects";
 
 function Placeholder({ label, ratio = "16/9" }: { label: string; ratio?: string | undefined }) {
   return (
@@ -54,21 +56,27 @@ function CodeBlock({
 
 export function BlockView({ block }: { block: Block }) {
   switch (block.type) {
+    case "featured-projects":
+      return <FeaturedProjects block={block} />;
     case "media": {
       const { type: _type, ...props } = block;
       return <Media {...props} />;
     }
     case "text":
-      return <p className="prose-editorial my-5 text-foreground">{block.body}</p>;
+      return (
+        <p className="prose-editorial my-5 text-foreground">
+          <Rich text={block.body} />
+        </p>
+      );
     case "heading":
       // Per-heading style overrides the site-wide heading defaults.
       return block.level === 3 ? (
         <h3 className="mt-10 mb-3 text-2xl text-foreground" style={headingInlineStyle(block.style)}>
-          {block.text}
+          <Rich text={block.text} />
         </h3>
       ) : (
         <h2 className="mt-12 mb-4 text-3xl text-foreground" style={headingInlineStyle(block.style)}>
-          {block.text}
+          <Rich text={block.text} />
         </h2>
       );
     case "list": {
@@ -78,32 +86,33 @@ export function BlockView({ block }: { block: Block }) {
           className={`prose-editorial my-5 space-y-2 pl-6 ${block.ordered ? "list-decimal" : "list-disc"}`}
         >
           {block.items.map((i) => (
-            <li key={i}>{i}</li>
+            <li key={i}>
+              <Rich text={i} />
+            </li>
           ))}
         </Tag>
       );
     }
     case "image":
       return (
-        <figure className="my-10">
-          {block.src ? (
-            <img
-              src={block.src}
-              alt={block.alt}
-              loading="lazy"
-              className="w-full object-cover rounded-lg"
-              style={{ aspectRatio: block.ratio ?? "16/9" }}
-            />
-          ) : (
-            <Placeholder label="Image" ratio={block.ratio} />
-          )}
-          {(block.caption || block.credit) && (
-            <figcaption className="mt-2 flex flex-wrap justify-between gap-2 text-sm text-muted-foreground">
-              <span>{block.caption}</span>
-              {block.credit && <span className="label-caps">{block.credit}</span>}
-            </figcaption>
-          )}
-        </figure>
+        <Media
+          items={[
+            {
+              alt: block.alt,
+              ...(block.src ? { src: block.src } : {}),
+              ...(block.width ? { width: block.width } : {}),
+              ...(block.height ? { height: block.height } : {}),
+            },
+          ]}
+          ratio={block.ratio ?? "16/9"}
+          fit={block.fit ?? "cover"}
+          position={block.position ?? "center"}
+          caption={block.caption}
+          credit={block.credit}
+          captionContent={block.caption ? <Rich text={block.caption} /> : undefined}
+          creditContent={block.credit ? <Rich text={block.credit} /> : undefined}
+          frameClassName="rounded-lg"
+        />
       );
     case "video":
       return (
@@ -121,7 +130,9 @@ export function BlockView({ block }: { block: Block }) {
             <Placeholder label="Video" />
           )}
           {block.caption && (
-            <figcaption className="mt-2 text-sm text-muted-foreground">{block.caption}</figcaption>
+            <figcaption className="mt-2 text-sm text-muted-foreground">
+              <Rich text={block.caption} />
+            </figcaption>
           )}
         </figure>
       );
@@ -133,12 +144,18 @@ export function BlockView({ block }: { block: Block }) {
           rel="noreferrer"
           className="group my-6 block border-t border-b border-border py-4 transition-colors hover:bg-muted"
         >
-          {block.source && <span className="label-caps text-muted-foreground">{block.source}</span>}
+          {block.source && (
+            <span className="label-caps text-muted-foreground">
+              <Rich text={block.source} />
+            </span>
+          )}
           <span className="block font-serif text-lg text-foreground group-hover:underline">
-            {block.title} →
+            <Rich text={block.title} /> →
           </span>
           {block.description && (
-            <span className="text-sm text-muted-foreground">{block.description}</span>
+            <span className="text-sm text-muted-foreground">
+              <Rich text={block.description} />
+            </span>
           )}
         </a>
       );
@@ -151,9 +168,13 @@ export function BlockView({ block }: { block: Block }) {
             <span className="label-caps text-primary-foreground">{block.kind ?? "File"}</span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-serif text-foreground">{block.name}</p>
+            <p className="font-serif text-foreground">
+              <Rich text={block.name} />
+            </p>
             {block.description && (
-              <p className="text-sm text-muted-foreground">{block.description}</p>
+              <p className="text-sm text-muted-foreground">
+                <Rich text={block.description} />
+              </p>
             )}
           </div>
           {block.href ? (
@@ -174,11 +195,11 @@ export function BlockView({ block }: { block: Block }) {
       return (
         <blockquote className="my-12 border-l-2 border-foreground pl-6">
           <p className="font-display text-3xl italic leading-snug text-foreground">
-            “{block.text}”
+            “<Rich text={block.text} />”
           </p>
           {block.cite && (
             <cite className="label-caps mt-3 block not-italic text-muted-foreground">
-              {block.cite}
+              <Rich text={block.cite} />
             </cite>
           )}
         </blockquote>
@@ -186,8 +207,14 @@ export function BlockView({ block }: { block: Block }) {
     case "callout":
       return (
         <aside className="my-8 bg-muted p-6">
-          {block.title && <p className="label-caps mb-2 text-foreground">{block.title}</p>}
-          <p className="prose-editorial text-foreground">{block.body}</p>
+          {block.title && (
+            <p className="label-caps mb-2 text-foreground">
+              <Rich text={block.title} />
+            </p>
+          )}
+          <p className="prose-editorial text-foreground">
+            <Rich text={block.body} />
+          </p>
         </aside>
       );
   }

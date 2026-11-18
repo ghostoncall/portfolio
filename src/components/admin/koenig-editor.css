@@ -1,0 +1,532 @@
+/* Ghost's spacing assumes a 10px rem. Use the article's theme and type scale. */
+.koenig-host {
+  --portfolio-editor-font-size: 0.875rem;
+  --kg-font-body: var(--blog-font-body, "Libre Baskerville", Georgia, serif);
+  --kg-font-heading: var(--blog-font-heading, "Cormorant Garamond", Georgia, serif);
+  --kg-accent-color: var(--blog-accent, #1a1a1a);
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+.koenig-host .kg-content {
+  width: 100%;
+  margin-inline: auto;
+  min-height: 24rem;
+}
+
+.koenig-host .text-body {
+  font-size: var(--portfolio-editor-font-size);
+}
+
+.koenig-host .koenig-lexical-caption .kg-prose p {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.koenig-host .kg-content > [data-lexical-decorator] {
+  padding: 0;
+}
+.koenig-host .kg-content > [data-lexical-decorator]:not(.kg-layout-left):not(.kg-layout-right) {
+  margin-block: var(--blog-image-spacing);
+}
+.koenig-host .kg-content [data-kg-card="image"] figure {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+.koenig-host .kg-content [data-kg-card="image"] img {
+  width: 100%;
+  height: auto;
+}
+.koenig-host .kg-content li,
+.koenig-host .kg-content li:first-child {
+  margin: 0 0 0.45rem 1.4rem;
+  padding: 0;
+  line-height: inherit;
+}
+
+/* Editor-only document canvas. The public theme stylesheet is unchanged. */
+.koenig-host .portfolio-koenig {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  isolation: isolate;
+}
+.koenig-host .portfolio-koenig > .koenig-controls {
+  order: -1;
+}
+.koenig-host .portfolio-koenig > [data-kg="editor"] > .kg-prose {
+  container: portfolio-editor-body / inline-size;
+  display: flow-root;
+  max-width: var(--blog-content-width, 48rem);
+  min-height: 24rem;
+  width: 100%;
+  margin-inline: auto;
+  font-family: var(--blog-font-body, "Libre Baskerville", Georgia, serif);
+  font-size: var(--portfolio-editor-font-size);
+  line-height: var(--blog-line-height, 1.75);
+  color: var(--blog-text, #1a1a1a);
+}
+.koenig-host .portfolio-koenig .kg-prose :is(p, blockquote, ul, ol) {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+}
+.koenig-host .portfolio-koenig .kg-prose p {
+  margin: 0 0 var(--blog-paragraph-spacing, 1.25rem);
+}
+.koenig-host .portfolio-koenig .kg-prose :is(h1, h2, h3, h4, h5, h6) {
+  clear: both;
+  min-width: 0;
+  font-family: var(--blog-font-heading, "Cormorant Garamond", Georgia, serif);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: calc(var(--blog-paragraph-spacing, 1.25rem) * 2) 0 var(--blog-paragraph-spacing, 1.25rem);
+}
+.koenig-host .portfolio-koenig .kg-prose h1 {
+  font-size: calc(2.6rem * var(--blog-heading-scale, 1));
+}
+.koenig-host .portfolio-koenig .kg-prose h2 {
+  font-size: calc(2rem * var(--blog-heading-scale, 1));
+}
+.koenig-host .portfolio-koenig .kg-prose h3 {
+  font-size: calc(1.5rem * var(--blog-heading-scale, 1));
+}
+.koenig-host .portfolio-koenig .kg-prose h4 {
+  font-size: calc(1.2rem * var(--blog-heading-scale, 1));
+}
+.koenig-host .portfolio-koenig .kg-prose :is(h5, h6) {
+  font-size: 1em;
+}
+.koenig-host .portfolio-koenig .kg-prose blockquote {
+  display: flow-root;
+  min-width: 0;
+  border-left: 2px solid var(--blog-accent, #1a1a1a);
+  padding-left: 1.25rem;
+  margin: var(--blog-image-spacing, 2rem) 0;
+  font-style: italic;
+}
+.koenig-host .portfolio-koenig .kg-prose :is(ul, ol) {
+  margin: 0 0 var(--blog-paragraph-spacing, 1.25rem);
+  padding: 0;
+}
+.koenig-host .portfolio-koenig .kg-prose li,
+.koenig-host .portfolio-koenig .kg-prose li:first-child {
+  margin: 0 0 0.45rem 1.4rem;
+  padding: 0;
+  line-height: inherit;
+}
+.koenig-host .portfolio-koenig .koenig-lexical-caption .kg-prose p {
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.koenig-host .portfolio-koenig .kg-prose > [data-lexical-decorator] {
+  padding: 0;
+  margin: var(--blog-image-spacing, 2rem) 0;
+}
+.koenig-host .portfolio-koenig [data-portfolio-align] {
+  float: none;
+  width: var(--portfolio-card-width, 100%);
+  max-width: 100%;
+}
+.koenig-host .portfolio-koenig [data-portfolio-align] :is(figure, [data-kg-card-width]) {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+.koenig-host .portfolio-koenig [data-portfolio-align] [data-kg-card="image"] img {
+  width: 100%;
+  height: auto;
+}
+.koenig-host .portfolio-koenig .kg-prose > [data-portfolio-align="center"] {
+  clear: both;
+  margin-inline: auto;
+}
+.koenig-host .portfolio-koenig [data-portfolio-align="full"] {
+  clear: both;
+  width: 100%;
+}
+@container portfolio-editor-body (min-width: 40rem) {
+  .koenig-host .portfolio-koenig .kg-prose > [data-portfolio-align="left"] {
+    float: left;
+    margin: 0.35rem 1.75rem 1rem 0;
+  }
+  .koenig-host .portfolio-koenig .kg-prose > [data-portfolio-align="right"] {
+    float: right;
+    margin: 0.35rem 0 1rem 1.75rem;
+  }
+}
+@container portfolio-editor-body (max-width: 39.999rem) {
+  .koenig-host .portfolio-koenig .kg-prose > [data-portfolio-align] {
+    float: none;
+    width: 100%;
+    margin: var(--blog-image-spacing, 2rem) 0;
+  }
+}
+.koenig-controls {
+  margin: 0 0 1.5rem;
+  border: 1px solid var(--border, #d4d4d4);
+  padding: 0.9rem;
+  font: 13px/1.5 var(--font-sans, sans-serif);
+}
+.koenig-controls :is(button, input, textarea, select) {
+  font: inherit;
+  color: inherit;
+  border: 1px solid var(--border, #d4d4d4);
+  background: var(--background, white);
+  border-radius: 0;
+  padding: 0.35rem 0.5rem;
+  min-height: 34px;
+}
+.koenig-controls button {
+  cursor: pointer;
+}
+.koenig-controls button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.koenig-controls button[aria-pressed="true"] {
+  color: white;
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+.koenig-controls :is(button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--ring, #666);
+  outline-offset: 2px;
+}
+.koenig-controls label {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.koenig-controls :is(input, textarea, select) {
+  width: 100%;
+}
+.koenig-controls input[type="checkbox"] {
+  width: 16px;
+  min-height: 16px;
+}
+.koenig-controls fieldset {
+  min-width: 0;
+  border-top: 1px solid var(--border, #d4d4d4);
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+}
+.koenig-controls legend {
+  font-weight: 600;
+  padding-right: 0.5rem;
+}
+.koenig-controls-toolbar,
+.koenig-controls-actions,
+.koenig-layout-settings > [role="group"],
+.koenig-text-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.4rem;
+}
+.koenig-controls-actions,
+.koenig-layout-settings,
+.koenig-controls-grid,
+.koenig-controls-nested,
+.koenig-controls-url,
+.koenig-text-settings {
+  margin-top: 0.7rem;
+}
+.koenig-controls-hint {
+  color: var(--muted-foreground, #666);
+  align-self: center;
+}
+.koenig-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 0.6rem;
+}
+.koenig-controls-url {
+  display: flex;
+  align-items: end;
+  gap: 0.5rem;
+}
+.koenig-controls-url label {
+  flex: 1;
+}
+.koenig-controls-nested > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+.koenig-controls .koenig-control-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.koenig-controls [role="alert"] {
+  color: var(--destructive, #a00);
+  margin-top: 0.75rem;
+}
+.koenig-controls-gallery > div {
+  border-top: 1px solid var(--border, #d4d4d4);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Ghost's breakout cards assume a full-window editor. Keep every native view
+   inside this document canvas, including galleries and full-width headers. */
+.koenig-host
+  .portfolio-koenig
+  > [data-kg="editor"]
+  > .kg-prose
+  > [data-lexical-decorator]
+  > [data-kg-card] {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  margin-inline: 0 !important;
+  inset-inline: auto !important;
+  box-sizing: border-box;
+}
+.koenig-host .portfolio-koenig :is([data-kg-card="gallery"], [data-kg-card="header"]) {
+  transform: none !important;
+  translate: none !important;
+}
+.koenig-host .portfolio-koenig [data-kg-card="gallery"] :is(figure, img),
+.koenig-host .portfolio-koenig [data-kg-card="image"] img {
+  max-width: 100%;
+}
+.koenig-host .portfolio-koenig [data-kg-card="gallery"] img {
+  width: 100%;
+  height: auto;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing] {
+  width: var(--portfolio-card-width, 100%) !important;
+  max-width: 100%;
+}
+.koenig-host .portfolio-koenig [data-portfolio-align] > [data-kg-card] {
+  border-width: 0 !important;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing] > [data-kg-card] {
+  padding-inline: 0 !important;
+}
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing]
+  :is(figure, [data-kg-card] > div:first-child) {
+  max-width: 100%;
+  min-width: 0;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing="image"] figure {
+  width: 100%;
+  margin: 0;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing="image"] figure img {
+  width: 100% !important;
+  height: var(--portfolio-card-height, auto) !important;
+  object-fit: contain;
+  aspect-ratio: auto;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing="embed"] iframe,
+.koenig-host .portfolio-koenig [data-portfolio-sizing="video"] video,
+.koenig-host .portfolio-koenig [data-portfolio-sizing="video"] [data-testid="video-card-populated"],
+.koenig-host .portfolio-koenig [data-portfolio-sizing="video"] figure > div:first-child {
+  display: block;
+  width: 100% !important;
+  height: var(--portfolio-card-height, auto) !important;
+  max-width: 100%;
+  aspect-ratio: auto !important;
+  object-fit: contain;
+}
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing="video"]
+  [data-testid="video-card-populated"]
+  > div:first-child,
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing="video"]
+  [data-testid="video-card-populated"]
+  img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.koenig-controls-grid > output {
+  grid-column: 1 / -1;
+  min-height: 1.5em;
+  font-size: 12px;
+}
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing="embed"]
+  [data-kg-card]
+  > div:first-child
+  > div:first-child,
+.koenig-host .portfolio-koenig [data-portfolio-sizing="gallery"] figure > div:first-child {
+  width: 100%;
+  height: var(--portfolio-card-height, auto) !important;
+  min-height: 0 !important;
+  overflow: auto;
+}
+.koenig-host
+  .portfolio-koenig
+  :is(
+    [data-portfolio-sizing="audio"],
+    [data-portfolio-sizing="file"],
+    [data-portfolio-sizing="bookmark"],
+    [data-portfolio-sizing="html"],
+    [data-portfolio-sizing="markdown"]
+  )
+  [data-kg-card]
+  > div:first-child
+  > div:first-child,
+.koenig-host
+  .portfolio-koenig
+  :is(
+    [data-portfolio-sizing="callout"],
+    [data-portfolio-sizing="toggle"],
+    [data-portfolio-sizing="header"],
+    [data-portfolio-sizing="product"]
+  )
+  [data-kg-card]
+  > div:first-child {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: var(--portfolio-card-height, auto) !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow: auto;
+}
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing="header"]
+  [data-kg-card]
+  > div:first-child
+  > div:first-child {
+  max-width: 100%;
+  min-width: 0;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing="codeblock"] :is(pre, .CodeMirror) {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--portfolio-card-height, auto) !important;
+  min-height: 0;
+  overflow: auto;
+}
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing="button"]
+  [data-kg-card]
+  > div:first-child
+  > div:first-child {
+  width: 100%;
+  height: var(--portfolio-card-height, auto);
+  margin: 0 !important;
+}
+.koenig-host
+  .portfolio-koenig
+  [data-portfolio-sizing="button"]
+  [data-kg-card]
+  > div:first-child
+  > div:first-child
+  > :first-child {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  max-width: 100%;
+  height: var(--portfolio-card-height, auto) !important;
+}
+.koenig-host .portfolio-koenig [data-portfolio-sizing="horizontalrule"] hr {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--portfolio-card-height, 1px);
+  border-top-width: var(--portfolio-card-height, 1px);
+  margin: 0;
+  padding: 0;
+}
+.koenig-host .koenig-resize-boundary {
+  position: absolute;
+  pointer-events: none;
+  z-index: 60;
+  outline: 1px solid #1a1a1a;
+}
+.koenig-host .koenig-resize-handle {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0;
+  background: white;
+  border: 1px solid #1a1a1a;
+  border-radius: 0;
+  transform: translate(-50%, -50%);
+}
+.koenig-host .koenig-resize-handle:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 3px;
+}
+.koenig-host .koenig-resize-nw {
+  left: 0;
+  top: 0;
+  cursor: nwse-resize;
+}
+.koenig-host .koenig-resize-n {
+  left: 50%;
+  top: 0;
+  cursor: ns-resize;
+}
+.koenig-host .koenig-resize-ne {
+  left: 100%;
+  top: 0;
+  cursor: nesw-resize;
+}
+.koenig-host .koenig-resize-w {
+  left: 0;
+  top: 50%;
+  cursor: ew-resize;
+}
+.koenig-host .koenig-resize-e {
+  left: 100%;
+  top: 50%;
+  cursor: ew-resize;
+}
+.koenig-host .koenig-resize-sw {
+  left: 0;
+  top: 100%;
+  cursor: nesw-resize;
+}
+.koenig-host .koenig-resize-s {
+  left: 50%;
+  top: 100%;
+  cursor: ns-resize;
+}
+.koenig-host .koenig-resize-se {
+  left: 100%;
+  top: 100%;
+  cursor: nwse-resize;
+}
+.koenig-host .koenig-resize-measurement {
+  position: absolute;
+  right: 0;
+  top: -1.7rem;
+  white-space: nowrap;
+  background: white;
+  border: 1px solid #1a1a1a;
+  padding: 2px 4px;
+  font: 11px/1.3 var(--font-sans, sans-serif);
+}
+@media (pointer: coarse) {
+  .koenig-host .koenig-resize-handle {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+  }
+}

@@ -8,9 +8,9 @@ export function AwardsView({ awards }: { awards: Award[] }) {
   if (!visibleAwards.length) return null;
 
   return (
-    <section id="awards" className="space-y-6">
-      <h2 className="text-heading-2 sm:text-3xl text-foreground">Awards</h2>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <section id="awards" aria-label="Awards" className="space-y-6">
+      
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {visibleAwards.map((a) => (
           <AwardTile key={a.id} award={a} />
         ))}

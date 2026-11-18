@@ -21,7 +21,26 @@ export type ResumeDoc = {
 /** What the public page receives — no storage path. */
 export type PublicResume = Omit<ResumeDoc, "storagePath">;
 
-export type ResumeSettings = { current: ResumeDoc | null };
+import { isVisible, type VisibilitySettings } from "@/lib/section-visibility";
+
+export type ResumeSettings = VisibilitySettings & { current: ResumeDoc | null };
+export type PublicResumeSettings = { current: PublicResume | null; visible: boolean };
+
+/** Existing settings remain visible until the owner explicitly hides them. */
+export function isResumeVisible(settings: ResumeSettings | null | undefined): boolean {
+  return isVisible(settings);
+}
+
+export function publicResumeSettings(
+  settings: ResumeSettings | null | undefined,
+): PublicResumeSettings {
+  const visible = isResumeVisible(settings);
+  const doc = settings?.current;
+  if (!visible || !doc) return { visible, current: null };
+  const { storagePath: _private, ...current } = doc;
+  void _private;
+  return { visible, current };
+}
 
 export const RESUME_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 export const RESUME_MIME = "application/pdf";

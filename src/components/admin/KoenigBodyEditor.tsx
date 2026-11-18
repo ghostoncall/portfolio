@@ -3,15 +3,22 @@
 // Koenig touches DOM APIs during import, so it must only render in the
 // browser. React.lazy keeps it in its own chunk; nothing loads until the
 // admin editor is opened.
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState, type MutableRefObject } from "react";
+import type { EditorHandle } from "./koenig/EditorBridge";
+export type { EditorHandle } from "./koenig/EditorBridge";
 import type { KoenigValue } from "./KoenigInner";
+import type { PostImageLayout } from "@/content/site";
 
 const KoenigInner = lazy(() => import("./KoenigInner"));
 
 export type KoenigBodyEditorProps = {
   initialLexical?: Record<string, unknown> | null;
   initialHtml?: string;
+  imageLayouts?: Record<string, PostImageLayout>;
+  themeVars?: Record<string, string>;
   onChange: (value: KoenigValue) => void;
+  onInitialValue?: (value: KoenigValue) => void;
+  editorRef?: MutableRefObject<EditorHandle | null>;
   onReady?: () => void;
   siteTitle?: string;
   siteDescription?: string;
@@ -21,7 +28,6 @@ export type KoenigBodyEditorProps = {
   fontBodyScale?: number;
   fontHeadingScale?: number;
   fontSize?: string;
-  onFontSizeChange?: (size: string) => void;
   heightClassName?: string;
 };
 

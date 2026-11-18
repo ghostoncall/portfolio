@@ -2,74 +2,52 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
-import { Blocks } from "@/components/blocks";
-import { ProjectSummary } from "@/components/public/ProjectSummary";
+import { OverviewView } from "@/components/public/OverviewView";
 import { getPublishedPage, getPublishedProjects } from "@/lib/server-fns";
+import { copyText, pageCopy, pageMeta, safeImageSrc } from "@/lib/site-copy";
+import { overviewProjectCatalog, type BlocksPage } from "@/lib/featured-projects";
 
 export const Route = createFileRoute("/")({
   loader: async ({ parentMatchPromise }) => {
     const [overviewPage, projects, site] = await Promise.all([
       (getPublishedPage as any)({ data: { slug: "overview" } }),
       (getPublishedProjects as any)(),
-      siteFromRoot(parentMatchPromise),
+      siteFromRoot(parentMatchPromise, "overview"),
     ]);
+    const overview = (overviewPage ?? { kind: "blocks", blocks: [] }) as BlocksPage;
+    const overviewProjects = overviewProjectCatalog(overview, projects, site);
     return {
-      overview: overviewPage ?? { kind: "blocks", blocks: [] },
-      featured: (projects as any[])
-        .filter((p) => p.status !== "archived")
-        .sort(
-          (a, b) =>
-            Number(b.featured ?? 0) - Number(a.featured ?? 0) ||
-            Number(b.priority ?? 0) - Number(a.priority ?? 0) ||
-            Number(a.sort ?? 0) - Number(b.sort ?? 0),
-        )
-        .slice(0, 3),
+      overview,
+      featured: overviewProjects,
+      projects: overviewProjects,
       site,
     };
   },
-  head: ({ loaderData }) => {
-    const site = loaderData?.site;
-    return {
-      meta: [
-        { title: `${site?.name ?? "Portfolio"} — ${site?.title ?? "AI Engineer"} Portfolio` },
-        {
-          name: "description",
-          content:
-            "Portfolio of an AI engineer: LLM applications, retrieval, computer vision and MLOps.",
-        },
-        {
-          property: "og:title",
-          content: `${site?.name ?? "Portfolio"} — ${site?.title ?? "AI Engineer"}`,
-        },
-        { property: "og:description", content: "Selected AI projects, skills and experience." },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site, "overview") }),
   component: Index,
 });
 
 function Index() {
-  const { overview, featured, site } = Route.useLoaderData();
+  const { overview, featured, projects, site } = Route.useLoaderData();
+  const { title } = pageCopy(site, "overview");
+  // Default is a 400×400 WebP (2× the 200px display size); Settings can
+  // replace it or clear it to show no photo.
+  const photo = safeImageSrc(copyText(site, "profileImage"));
   return (
     <PageShell
-      crumbs={["Overview"]}
-      title={`${site?.name}`}
+      crumbs={[pageCopy(site, "overview").navLabel]}
+      title={title}
       site={site}
-      // 400×400 WebP (2× the 200px display size) — 23 KB vs 67 KB for the
-      // original profile.jpeg, which stays in public/ for external links.
-      profileImage="/images/profile.webp"
+      profileImage={photo || undefined}
+      profileAlt={copyText(site, "profileAlt") || undefined}
     >
-      <Blocks blocks={(overview as any).blocks} />
-      <h2 className="mt-12 mb-2 text-3xl text-foreground">Featured Work</h2>
-      <ul className="border-t border-border">
-        {featured.map((p) => (
-          <li key={p.slug} className="border-b border-border py-5">
-            <ProjectSummary project={p} />
-          </li>
-        ))}
-      </ul>
+      <OverviewView
+        blocks={(overview as any).blocks}
+        featured={featured}
+        projects={projects}
+        site={site}
+        featuredWorkManaged={(overview as any).featuredWorkManaged === true}
+      />
     </PageShell>
   );
 }

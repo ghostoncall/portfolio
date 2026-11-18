@@ -43,6 +43,18 @@ describe("prepareBlogHtml", () => {
     expect(out).toContain('aria-label="Play video: Demo"');
   });
 
+  it("replaces an old image alignment even with single-quoted figure classes", () => {
+    const out = prepareBlogHtml(
+      `<figure class='kg-card kg-image-card kg-layout-right kg-size-l'><img src="/x?a=1&amp;b=2"></figure>`,
+      {
+        imageLayouts: { "/x?a=1&b=2": { align: "left", size: "s" } },
+      },
+    );
+    expect(out).toContain('class="kg-card kg-image-card kg-layout-left kg-size-s"');
+    expect(out).not.toContain("kg-layout-right");
+    expect(bodyImages(out)[0]?.src).toBe("/x?a=1&b=2");
+  });
+
   it("replaces non-allowlisted iframes with a link", () => {
     const out = prepareBlogHtml(`<iframe src="https://evil.example/x"></iframe>`);
     expect(out).not.toMatch(/<iframe/);

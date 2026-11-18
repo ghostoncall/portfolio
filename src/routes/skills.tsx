@@ -2,37 +2,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
+import { pageCopy, pageMeta } from "@/lib/site-copy";
 import { getPublishedSkills } from "@/lib/server-fns";
 import { SkillsView } from "@/components/public/SkillsView";
 
 export const Route = createFileRoute("/skills")({
   loader: async ({ parentMatchPromise }) => {
     const [site, skills] = await Promise.all([
-      siteFromRoot(parentMatchPromise),
+      siteFromRoot(parentMatchPromise, "skills"),
       (getPublishedSkills as any)(),
     ]);
     return { site, skills };
   },
-  head: ({ loaderData }) => {
-    const site = loaderData?.site;
-    return {
-      meta: [
-        { title: `Skills — ${site?.name ?? "Portfolio"}` },
-        {
-          name: "description",
-          content:
-            "Technical skills in AI engineering: LLMs, agents, RAG, deep learning, MLOps, and more.",
-        },
-        { property: "og:title", content: `Skills — ${site?.name ?? "Portfolio"}` },
-        {
-          property: "og:description",
-          content: "Technical skills in AI engineering.",
-        },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site as any, "skills") }),
   component: SkillsPage,
 });
 
@@ -42,7 +24,7 @@ function SkillsPage() {
     skills: any;
   };
   return (
-    <PageShell crumbs={["Skills"]} title="Skills" site={site}>
+    <PageShell crumbs={[pageCopy(site, "skills").navLabel]} title={pageCopy(site, "skills").title} site={site}>
       <SkillsView skills={skills?.skills ?? []} categories={skills?.categories ?? []} />
     </PageShell>
   );

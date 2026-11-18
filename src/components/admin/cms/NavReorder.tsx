@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { GripVertical } from "lucide-react";
 import { SortableList } from "@/components/admin/cms/SortableList";
 import { applyNavOrder } from "@/components/nav-projects";
+import { pageCopy, type PublicPageSlug } from "@/lib/site-copy";
+import type { SiteIdentity } from "@/db/schema";
 
 const DEFAULT_NAV = [
   { slug: "overview", label: "Overview" },
@@ -34,7 +36,7 @@ type NavItem = {
   navOrder: number;
 };
 
-export function NavReorder() {
+export function NavReorder({ site }: { site?: SiteIdentity }) {
   const [items, setItems] = React.useState<NavItem[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -106,7 +108,10 @@ export function NavReorder() {
           Section
         </div>
         <SortableList
-          items={items}
+          items={items.map((item) => ({
+            ...item,
+            label: pageCopy(site, item.slug as PublicPageSlug).navLabel,
+          }))}
           getId={(item) => item.slug}
           onReorder={handleReorder}
           renderItem={(item, { index, moveUp, moveDown }) => (
@@ -122,7 +127,7 @@ export function NavReorder() {
                 <GripVertical className="size-5 text-muted-foreground" />
               </div>
 
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 [overflow-wrap:anywhere]">
                 <div className="font-serif text-lg text-foreground">{item.label}</div>
                 <div className="text-xs font-mono text-muted-foreground">{item.slug}</div>
               </div>

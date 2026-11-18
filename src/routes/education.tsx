@@ -2,43 +2,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
+import { pageCopy, pageMeta } from "@/lib/site-copy";
 import { getPublishedEducation } from "@/lib/server-fns";
 import { EducationView } from "@/components/public/EducationView";
 
 export const Route = createFileRoute("/education")({
   loader: async ({ parentMatchPromise }) => {
     const [site, education] = await Promise.all([
-      siteFromRoot(parentMatchPromise),
+      siteFromRoot(parentMatchPromise, "education"),
       (getPublishedEducation as any)(),
     ]);
     return { site, education };
   },
-  head: ({ loaderData }) => {
-    const site = loaderData?.site;
-    return {
-      meta: [
-        { title: `Education — ${site?.name ?? "Portfolio"}` },
-        {
-          name: "description",
-          content:
-            "Academic qualifications, degrees, coursework, research interests, and scholarly achievements.",
-        },
-        { property: "og:title", content: `Education — ${site?.name ?? "Portfolio"}` },
-        {
-          property: "og:description",
-          content:
-            "Academic qualifications, degrees, coursework, research interests, and scholarly achievements.",
-        },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site as any, "education") }),
   component: EducationPage,
 });
 
 function EducationPage() {
   const { site, education } = Route.useLoaderData() as { site: any; education: any };
   return (
-    <PageShell crumbs={["Education"]} title="Education" site={site}>
+    <PageShell crumbs={[pageCopy(site, "education").navLabel]} title={pageCopy(site, "education").title} site={site}>
       <EducationView content={education ?? { kind: "education", entries: [] }} />
     </PageShell>
   );

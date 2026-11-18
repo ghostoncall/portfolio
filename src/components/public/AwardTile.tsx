@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { Award, ImageAsset } from "@/content/site";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { plainText, Rich } from "@/lib/rich-inline";
 
 const isImageUrl = (src?: string) => !!src && /\.(avif|webp|png|jpe?g|gif)(\?|#|$)/i.test(src);
 
@@ -74,33 +75,33 @@ export function AwardTile({ award }: { award: Award }) {
       )}
     >
       <header className="flex items-start gap-4 mb-3">
-        {image && <AwardImage image={image} title={award.title} />}
+        {image && <AwardImage image={image} title={plainText(award.title)} />}
         <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2">
-          <h3 className="font-serif text-[clamp(1rem,1.5vw,1.125rem)] text-foreground leading-snug">
-            {award.title}
-          </h3>
+          <h2 className="font-serif text-[clamp(1rem,1.5vw,1.125rem)] text-foreground leading-snug">
+            <Rich text={award.title} />
+          </h2>
           {award.date && (
             <time className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter leading-none">
-              {award.date}
+              <Rich text={award.date} />
             </time>
           )}
         </div>
       </header>
       {award.issuer && (
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter mb-1">
-          {award.issuer}
+          <Rich text={award.issuer} />
         </p>
       )}
-      {award.category && <p className="text-sm text-muted-foreground mb-1">{award.category}</p>}
+      {award.category && <p className="text-sm text-muted-foreground mb-1"><Rich text={award.category} /></p>}
       {award.description && (
-        <p className="text-sm text-muted-foreground leading-relaxed mb-4">{award.description}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4"><Rich text={award.description} /></p>
       )}
       {award.reason && (
         <section className="mt-auto border-t border-border pt-3 text-sm text-foreground leading-relaxed">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter block mb-1">
             Why recognized
           </p>
-          <p className="font-serif text-foreground">{award.reason}</p>
+          <p className="font-serif text-foreground"><Rich text={award.reason} /></p>
         </section>
       )}
       {award.referenceUrl && (

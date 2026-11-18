@@ -89,7 +89,14 @@ export async function uploadFileToLibrary(
   } catch (error) {
     // Do not leave a database row pointing at a file that never arrived.
     const { deleteMedia } = await import("@/lib/server-fns");
-    await (deleteMedia as any)({ data: { id: created.asset.id } }).catch(() => {});
+    try {
+      await (deleteMedia as any)({ data: { id: created.asset.id } });
+    } catch (cleanupError) {
+      console.error(
+        `[media-upload] Upload failed and asset ${created.asset.id} could not be cleaned up automatically. It can be removed safely from the Media library.`,
+        cleanupError,
+      );
+    }
     throw error;
   }
 

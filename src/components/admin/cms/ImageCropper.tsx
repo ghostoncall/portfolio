@@ -55,11 +55,25 @@ export function ImageCropper({
   // Load the image (CORS-enabled so the canvas can be exported).
   useEffect(() => {
     const el = new Image();
+    let disposed = false;
+    initialised.current = false;
+    setImg(null);
+    setLoadError(null);
+    setCenter(null);
+    setZoom(1);
     if (/^https?:/i.test(src)) el.crossOrigin = "anonymous";
-    el.onload = () => setImg(el);
+    el.onload = () => {
+      if (!disposed) setImg(el);
+    };
     el.onerror = () =>
+      !disposed &&
       setLoadError("This image couldn't be loaded for cropping. Try uploading it again.");
     el.src = src;
+    return () => {
+      disposed = true;
+      el.onload = null;
+      el.onerror = null;
+    };
   }, [src]);
 
   useLayoutEffect(() => {
@@ -107,14 +121,36 @@ export function ImageCropper({
 
   const c = center ? clamp(center, scale) : { x: nw / 2, y: nh / 2 };
 
-  function setZoomKeepingCenter(z: number) {
-    const next = Math.min(4, Math.max(minZoom, z));
-    setZoom(next);
-    setCenter((prev) => (prev ? clamp(prev, coverScale * next) : prev));
-  }
+  const setZoomKeepingCenter = useCallback(
+    (z: number) => {
+      const next = Math.min(4, Math.max(minZoom, z));
+      setZoom(next);
+      setCenter((prev) => (prev ? clamp(prev, coverScale * next) : prev));
+    },
+    [minZoom, clamp, coverScale],
+  );
 
-  function onPointerDown(e: React.PointerEvent) {
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  // React's delegated wheel events can be passive. The crop surface needs its
+  // own non-passive handler; wheel elsewhere still scrolls the dialog normally.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || !img || !frameW || busy) return;
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const delta =
+        event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? frameW : 1);
+      setZoomKeepingCenter(zoom * Math.exp(-delta * 0.002));
+    };
+    frame.addEventListener("wheel", wheel, { passive: false });
+    return () => frame.removeEventListener("wheel", wheel);
+  }, [img, frameW, busy, zoom, setZoomKeepingCenter]);
+
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (!img || !frameW || busy) return;
+    e.preventDefault();
+    e.currentTarget.focus({ preventScroll: true });
+    e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY };
   }
   function onPointerMove(e: React.PointerEvent) {
@@ -127,6 +163,7 @@ export function ImageCropper({
     );
   }
   function onKeyDown(e: React.KeyboardEvent) {
+    if (!img || !frameW || busy) return;
     const step = 12 / scale;
     const moves: Record<string, [number, number]> = {
       ArrowLeft: [-step, 0],
@@ -139,8 +176,12 @@ export function ImageCropper({
       e.preventDefault();
       setCenter(clamp({ x: c.x + m[0], y: c.y + m[1] }, scale));
     } else if (e.key === "+" || e.key === "=") {
+      e.preventDefault();
+      e.stopPropagation();
       setZoomKeepingCenter(zoom * 1.1);
     } else if (e.key === "-") {
+      e.preventDefault();
+      e.stopPropagation();
       setZoomKeepingCenter(zoom / 1.1);
     }
   }
@@ -191,7 +232,26 @@ export function ImageCropper({
 
   return (
     <Dialog open onOpenChange={(open) => !open && !busy && onCancel()}>
-      <DialogContent className="max-w-[min(94vw,40rem)]">
+      <DialogContent
+        className="max-w-[min(94vw,40rem)]"
+        style={{
+          width: "min(94vw, 40rem)",
+          maxHeight: "calc(100dvh - 2rem)",
+          overflowY: "auto",
+          left: "50%",
+          top: "50%",
+          translate: "none",
+          transform: "translate(-50%, -50%)",
+          animation: "none",
+        }}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          frameRef.current?.focus({ preventScroll: true });
+        }}
+        onKeyDown={(event) => {
+          if (!(event.target as HTMLElement).closest("input,textarea,select")) onKeyDown(event);
+        }}
+      >
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>
           Drag to position · zoom to crop, or zoom all the way out to fit the whole image. Arrow
@@ -209,13 +269,16 @@ export function ImageCropper({
               role="application"
               aria-label="Crop area. Use arrow keys to move, plus and minus to zoom."
               tabIndex={0}
-              onKeyDown={onKeyDown}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={() => (drag.current = null)}
               onPointerCancel={() => (drag.current = null)}
-              className="relative w-full cursor-grab touch-none select-none overflow-hidden border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
-              style={{ aspectRatio: String(aspect), background: PAPER }}
+              className="relative mx-auto cursor-grab touch-none select-none overflow-hidden border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+              style={{
+                width: `min(100%, max(8rem, calc((100dvh - 19rem) * ${aspect})))`,
+                aspectRatio: String(aspect),
+                background: PAPER,
+              }}
             >
               {img && frameW > 0 && (
                 <img
@@ -235,6 +298,15 @@ export function ImageCropper({
             </div>
 
             <div className="flex flex-wrap items-center gap-3 text-sm">
+              <button
+                type="button"
+                aria-label="Zoom out"
+                disabled={!img || busy}
+                onClick={() => setZoomKeepingCenter(zoom / 1.1)}
+                className="border border-border px-2.5 py-1"
+              >
+                −
+              </button>
               <label className="flex flex-1 items-center gap-2">
                 <span className="text-xs text-muted-foreground">Zoom</span>
                 <input
@@ -248,6 +320,15 @@ export function ImageCropper({
                   aria-label="Zoom"
                 />
               </label>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                disabled={!img || busy}
+                onClick={() => setZoomKeepingCenter(zoom * 1.1)}
+                className="border border-border px-2.5 py-1"
+              >
+                +
+              </button>
               <button
                 type="button"
                 onClick={() => setZoomKeepingCenter(1)}

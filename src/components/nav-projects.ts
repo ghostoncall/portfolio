@@ -2,6 +2,7 @@
 // `projects.sort` order (the order written by the admin drag-to-reorder list).
 
 import { createContext } from "react";
+import type { SectionVisibility } from "@/lib/section-visibility";
 
 export type NavProject = { slug: string; title: string };
 
@@ -11,6 +12,9 @@ export const NavProjectsContext = createContext<NavProject[] | null>(null);
 // the root loader so the menu renders in the saved order on the very first
 // paint — no client refetch, so it can never reorder under the cursor.
 export const NavOrderContext = createContext<string[] | null>(null);
+
+export const ResumeVisibilityContext = createContext(true);
+export const SectionVisibilityContext = createContext<SectionVisibility>({});
 
 /**
  * Apply an admin-saved order to the default nav list. Sections missing from

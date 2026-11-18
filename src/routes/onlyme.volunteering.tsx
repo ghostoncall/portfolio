@@ -462,6 +462,18 @@ function VolunteeringAdmin() {
         </Field>
       </FormSection>
 
+      <FormSection
+        title="Experiences list"
+        description="Heading above your volunteering entries. Leave empty to show no heading."
+      >
+        <Field label="Heading">
+          <InputField
+            value={doc.entriesHeading ?? "Volunteering experiences"}
+            onChange={(e) => patchDoc({ entriesHeading: e.target.value })}
+          />
+        </Field>
+      </FormSection>
+
       <FormSection title="Why I volunteer" description="Your motivations and values.">
         <Field label="Heading">
           <InputField
@@ -522,7 +534,16 @@ function VolunteeringAdmin() {
       </FormSection>
 
       <FormSection title="Open to opportunities" description="Call-to-action linking to Contact.">
-        <Field label="Heading">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="size-4 cursor-pointer"
+            checked={!doc.cta?.hidden}
+            onChange={(e) => setCta({ hidden: !e.target.checked })}
+          />
+          Show this section on the site
+        </label>
+        <Field label="Heading" hint='Empty → "Open to volunteering opportunities".'>
           <InputField
             value={doc.cta?.heading ?? ""}
             onChange={(e) => setCta({ heading: e.target.value })}
@@ -534,7 +555,7 @@ function VolunteeringAdmin() {
             onChange={(e) => setCta({ body: e.target.value })}
           />
         </Field>
-        <Field label="Button text">
+        <Field label="Button text" hint='Empty → "Get in touch".'>
           <InputField
             value={doc.cta?.buttonText ?? ""}
             onChange={(e) => setCta({ buttonText: e.target.value })}

@@ -1,8 +1,8 @@
 // Server-side Supabase client (Supabase Auth verification).
-// Read-only cookie access: the browser client owns session writes.
 // Import only from server code (server functions / server entry).
 
 import { createServerClient } from "@supabase/ssr";
+import { getCookies, setCookie, setResponseHeader } from "@tanstack/react-start/server";
 import { getEnv } from "@/lib/runtime-config";
 
 function parseCookieHeader(header: string | null): { name: string; value: string }[] {
@@ -28,9 +28,9 @@ function parseCookieHeader(header: string | null): { name: string; value: string
     .filter((cookie): cookie is { name: string; value: string } => cookie !== null);
 }
 
-export function getSupabaseServer(request: Request) {
-  const url = (import.meta.env as any).VITE_SUPABASE_URL as string | undefined;
-  const anonKey = (import.meta.env as any).VITE_SUPABASE_ANON_KEY as string | undefined;
+export function getSupabaseServer(request?: Request) {
+  const url = getEnv("VITE_SUPABASE_URL") ?? import.meta.env["VITE_SUPABASE_URL"];
+  const anonKey = getEnv("VITE_SUPABASE_ANON_KEY") ?? import.meta.env["VITE_SUPABASE_ANON_KEY"];
   if (!url || !anonKey) {
     throw new Error(
       "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.",
@@ -39,15 +39,34 @@ export function getSupabaseServer(request: Request) {
 
   return createServerClient(url, anonKey, {
     cookies: {
-      getAll: () => parseCookieHeader(request.headers.get("cookie")),
-      // Server-side verification never needs to refresh/write cookies.
-      setAll: () => {},
+      getAll: () =>
+        request
+          ? parseCookieHeader(request.headers.get("cookie"))
+          : Object.entries(getCookies()).map(([name, value]) => ({ name, value })),
+      setAll: (cookies, headers) => {
+        // The raw Request form is used only by non-TanStack callers. They have
+        // no response-cookie context, so the route-level/server-function auth
+        // checks own refreshes and persist them for the browser.
+        if (request) return;
+        for (const { name, value, options } of cookies) setCookie(name, value, options);
+        for (const [name, value] of Object.entries(headers)) setResponseHeader(name, value);
+      },
     },
   });
 }
 
+/**
+ * Who may use /onlyme: every user in this project's Supabase Auth user list
+ * (Supabase dashboard → Authentication → Users). Add or remove people there.
+ * Keep "Allow new users to sign up" turned off in Supabase so nobody can add
+ * themselves. ADMIN_EMAIL is no longer used for access.
+ */
+export function isAllowedAdmin(_email: string | null | undefined): boolean {
+  return true;
+}
+
 /** Returns the authenticated Supabase user for this request, or null. */
-export async function getAuthUser(request: Request) {
+export async function getAuthUser(request?: Request) {
   try {
     const supabase = getSupabaseServer(request);
     const { data, error } = await supabase.auth.getUser();
@@ -55,12 +74,7 @@ export async function getAuthUser(request: Request) {
     const user = data.user;
     if (!user) return null;
 
-    // Optional allowlist: when ADMIN_EMAIL is set, only that account may
-    // enter /onlyme (prevents any other Supabase signup from getting in).
-    const allowed = getEnv("ADMIN_EMAIL");
-    if (allowed && (user.email ?? "").toLowerCase() !== allowed.toLowerCase()) {
-      return null;
-    }
+    if (!isAllowedAdmin(user.email)) return null;
 
     return user;
   } catch {

@@ -9,6 +9,7 @@ import * as React from "react";
 import type { Certificate } from "@/content/site";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { plainText, Rich } from "@/lib/rich-inline";
 
 type CertificateTileProps = {
   cert: Certificate;
@@ -35,8 +36,8 @@ const CertificateTile = React.forwardRef<HTMLButtonElement, CertificateTileProps
         {hasImage && (
           <div className="relative mb-3 overflow-hidden" style={{ aspectRatio: "4/3" }}>
             <img
-              src={cert.image.src}
-              alt={cert.image.alt ?? cert.title ?? "Certificate"}
+              src={cert.image?.src}
+              alt={cert.image?.alt ?? (plainText(cert.title) || "Certificate")}
               loading="lazy"
               decoding="async"
               className="absolute inset-0 h-full w-full object-cover bg-muted"
@@ -44,9 +45,9 @@ const CertificateTile = React.forwardRef<HTMLButtonElement, CertificateTileProps
           </div>
         )}
         <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
-          <h3 className="font-display text-[clamp(1rem,1.5vw,1.125rem)] text-foreground leading-snug">
-            {cert.title}
-          </h3>
+          <h2 className="font-display text-[clamp(1rem,1.5vw,1.125rem)] text-foreground leading-snug">
+            <Rich text={cert.title} />
+          </h2>
           {cert.featured && (
             <Badge variant="outline" className="text-[0.65rem] px-2 py-0.5">
               Featured
@@ -55,31 +56,31 @@ const CertificateTile = React.forwardRef<HTMLButtonElement, CertificateTileProps
         </div>
         {cert.issuer && (
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter mb-1">
-            {cert.issuer}
+            <Rich text={cert.issuer} />
           </p>
         )}
-        {cert.category && <p className="text-sm text-muted-foreground mb-1">{cert.category}</p>}
+        {cert.category && <p className="text-sm text-muted-foreground mb-1"><Rich text={cert.category} /></p>}
         {cert.description && (
-          <p className="text-sm text-muted-foreground leading-relaxed mb-2">{cert.description}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-2"><Rich text={cert.description} /></p>
         )}
         {(cert.issueDate || cert.expiryDate || cert.credentialId) && (
           <dl className="grid grid-cols-2 gap-x-2 gap-y-1 mb-3 text-[clamp(0.75rem,2vw,0.8125rem)] sm:text-sm text-muted-foreground">
             {cert.issueDate && (
               <>
                 <dt className="text-muted-foreground">Issued</dt>
-                <dd className="text-foreground">{cert.issueDate}</dd>
+                <dd className="text-foreground"><Rich text={cert.issueDate} /></dd>
               </>
             )}
             {cert.expiryDate && (
               <>
                 <dt className="text-muted-foreground">Expires</dt>
-                <dd className="text-foreground">{cert.expiryDate}</dd>
+                <dd className="text-foreground"><Rich text={cert.expiryDate} /></dd>
               </>
             )}
             {cert.credentialId && (
               <>
                 <dt className="text-muted-foreground">Credential ID</dt>
-                <dd className="text-foreground truncate">{cert.credentialId}</dd>
+                <dd className="text-foreground truncate"><Rich text={cert.credentialId} /></dd>
               </>
             )}
           </dl>

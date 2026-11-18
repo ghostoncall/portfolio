@@ -270,6 +270,8 @@
 }
 
 .blog-theme .kg-content {
+  container: blog-body / inline-size;
+  display: flow-root;
   max-width: var(--blog-content-width);
   font-family: var(--blog-font-body);
   font-size: var(--blog-font-size);
@@ -279,6 +281,10 @@
 
 .blog-theme .kg-content p {
   margin: 0 0 var(--blog-paragraph-spacing);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
 }
 
 .blog-theme .kg-content h1,
@@ -316,6 +322,12 @@
 }
 
 .blog-theme .kg-content blockquote {
+  display: flow-root;
+  min-width: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
   margin: var(--blog-image-spacing) 0;
   border-left: 2px solid var(--blog-accent);
   padding-left: 1.25rem;
@@ -326,6 +338,9 @@
 .blog-theme .kg-content ol {
   margin: 0 0 var(--blog-paragraph-spacing) 1.4rem;
   padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 .blog-theme .kg-content ul {
   list-style: disc;
@@ -335,6 +350,7 @@
 }
 .blog-theme .kg-content li {
   margin-bottom: 0.45rem;
+  line-height: inherit;
 }
 
 .blog-theme .kg-content img,
@@ -353,6 +369,10 @@
   clear: both;
 }
 .blog-theme .kg-content h2,
+.blog-theme .kg-content h1,
+.blog-theme .kg-content h4,
+.blog-theme .kg-content h5,
+.blog-theme .kg-content h6,
 .blog-theme .kg-content h3,
 .blog-theme .kg-content hr,
 .blog-theme .kg-content .kg-layout-full,
@@ -370,28 +390,32 @@
 .blog-theme .kg-content .kg-size-l {
   --kg-img-width: 58%;
 }
-.blog-theme .kg-content figure.kg-layout-center {
+.blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-center {
   width: var(--kg-img-width, 72%);
   margin-inline: auto;
 }
-.blog-theme .kg-content figure.kg-layout-full {
+.blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-full {
   width: 100%;
 }
-@media (min-width: 640px) {
-  .blog-theme .kg-content figure.kg-layout-left {
+@container blog-body (min-width: 40rem) {
+  .blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-left {
     float: left;
     width: var(--kg-img-width, 45%);
     margin: 0.35rem 1.75rem 1rem 0;
   }
-  .blog-theme .kg-content figure.kg-layout-right {
+  .blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-right {
     float: right;
     width: var(--kg-img-width, 45%);
     margin: 0.35rem 0 1rem 1.75rem;
   }
 }
-@media (max-width: 639px) {
-  .blog-theme .kg-content figure.kg-layout-center {
+@container blog-body (max-width: 39.999rem) {
+  .blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-left,
+  .blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-right,
+  .blog-theme .kg-content :is(figure, [data-lexical-decorator]).kg-layout-center {
+    float: none;
     width: 100%;
+    margin: var(--blog-image-spacing) 0;
   }
 }
 

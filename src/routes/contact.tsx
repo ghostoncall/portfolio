@@ -4,32 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { CopyEmailButton } from "@/components/CopyEmailButton";
 import { siteFromRoot } from "@/lib/root-data";
+import { copyText, pageCopy, pageMeta } from "@/lib/site-copy";
+import { Rich } from "@/lib/rich-inline";
 import { sendContactEmail } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/contact")({
   loader: async ({ parentMatchPromise }) => {
-    const site = await siteFromRoot(parentMatchPromise);
+    const site = await siteFromRoot(parentMatchPromise, "contact");
     return { site };
   },
-  head: ({ loaderData }) => {
-    const site = loaderData?.site;
-    return {
-      meta: [
-        { title: `Contact — ${site?.name ?? "Portfolio"}` },
-        {
-          name: "description",
-          content: `Get in touch with ${site?.name ?? "the site owner"} about AI projects and roles.`,
-        },
-        { property: "og:title", content: `Contact ${site?.name ?? "Portfolio"}` },
-        {
-          property: "og:description",
-          content: "Email, GitHub, LinkedIn and a contact form.",
-        },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site as any, "contact") }),
   component: Contact,
 });
 
@@ -96,6 +80,10 @@ function validate(values: Fields): Errors {
 
 function Contact() {
   const { site } = Route.useLoaderData() as { site: any };
+  const heading = copyText(site, "contactHeading");
+  const lead = copyText(site, "contactLead");
+  const formNote = copyText(site, "contactFormNote");
+  const thanks = copyText(site, "contactThanks") || "Thank you — your message has been sent.";
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -200,17 +188,25 @@ function Contact() {
   };
 
   return (
-    <PageShell crumbs={["Contact"]} title="Correspondence" site={site}>
-      <section aria-labelledby="contact-cta">
-        <h2
-          id="contact-cta"
-          className="font-display text-[clamp(2rem,1.4rem+2.6vw,3.25rem)] leading-[1.1] text-foreground"
-        >
-          Have a project or role in mind?
-        </h2>
+    <PageShell crumbs={[pageCopy(site, "contact").navLabel]} title={pageCopy(site, "contact").title} site={site}>
+      <section aria-labelledby={heading ? "contact-cta" : undefined} aria-label={heading ? undefined : "Contact"}>
+        {heading && (
+          <h2
+            id="contact-cta"
+            className="font-display text-[clamp(2rem,1.4rem+2.6vw,3.25rem)] leading-[1.1] text-foreground"
+          >
+            <Rich text={heading} />
+          </h2>
+        )}
         {site.email && (
-          <p className="prose-editorial mt-5 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span>Write to</span>
+          <p
+            className={`prose-editorial flex flex-wrap items-center gap-x-2 gap-y-1 ${heading ? "mt-5" : ""}`}
+          >
+            {lead && (
+              <span>
+                <Rich text={lead} />
+              </span>
+            )}
             {/* Email and its copy button stay together when the line wraps. */}
             <span className="inline-flex items-center gap-2 whitespace-nowrap">
               <a
@@ -223,11 +219,11 @@ function Contact() {
             </span>
           </p>
         )}
-        <p className="mt-2 text-sm text-muted-foreground">Or use the form below.</p>
+        {formNote && <p className="mt-2 text-sm text-muted-foreground"><Rich text={formNote} /></p>}
       </section>
       {sent ? (
         <p className="mt-8 bg-muted p-6 font-serif" role="status">
-          Thank you — your message has been noted.
+          <Rich text={thanks} />
         </p>
       ) : (
         <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>

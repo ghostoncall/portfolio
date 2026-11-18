@@ -7,6 +7,7 @@
 // Each entry owns its state, so several can be open at once.
 import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { Rich } from "@/lib/rich-inline";
 
 export type CourseworkGroup = { category: string; courses: string[] };
 
@@ -46,10 +47,10 @@ export function CourseworkDisclosure({ groups }: { groups: CourseworkGroup[] }) 
             {groups.map((c) => (
               <div key={c.category} className="rounded bg-muted/40 p-2">
                 <span className="mb-1 block text-[0.68rem] font-semibold uppercase text-muted-foreground">
-                  {c.category}
+                  <Rich text={c.category} />
                 </span>
                 <p className="text-sm leading-relaxed text-foreground">
-                  {(c.courses ?? []).join(", ")}
+                  <Rich text={(c.courses ?? []).join(", ")} />
                 </p>
               </div>
             ))}

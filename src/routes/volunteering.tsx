@@ -2,7 +2,8 @@
 // Public Volunteering page — editorial journal, placed before Contact.
 //
 // Reads the published `pages` document (slug "volunteering", kind "volunteering")
-// so drafts never leak to the public site.
+// so drafts never leak to the public site. Every section is optional: an
+// empty section renders nothing (no default headings over empty content).
 
 import React from "react";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
@@ -10,8 +11,8 @@ import { PageShell } from "@/components/PageShell";
 import { siteFromRoot } from "@/lib/root-data";
 import { getPublishedPage } from "@/lib/server-fns";
 import { normalizeVolunteeringPage } from "@/lib/cms-normalize";
+import { pageCopy, pageMeta } from "@/lib/site-copy";
 import { Media } from "@/components/media";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -21,39 +22,114 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Rich } from "@/lib/rich-inline";
 
 export const Route = createFileRoute("/volunteering")({
   loader: async ({ parentMatchPromise }) => {
     const [raw, site] = await Promise.all([
       (getPublishedPage as any)({ data: { slug: "volunteering" } }),
-      siteFromRoot(parentMatchPromise),
+      siteFromRoot(parentMatchPromise, "volunteering"),
     ]);
     if (!raw) throw notFound();
     const content = normalizeVolunteeringPage(raw);
     return { content, site };
   },
-  head: ({ loaderData }) => {
-    const site = loaderData?.site;
-    return {
-      meta: [
-        { title: `Volunteering — ${site?.name ?? "Portfolio"}` },
-        {
-          name: "description",
-          content:
-            "Volunteering beyond engineering — causes, communities, reflections and what I want to contribute next.",
-        },
-        { property: "og:title", content: `Volunteering — ${site?.name ?? "Portfolio"}` },
-        {
-          property: "og:description",
-          content: "Giving back: causes, communities and reflections.",
-        },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
-  },
+  head: ({ loaderData }) => ({ meta: pageMeta(loaderData?.site, "volunteering") }),
   component: VolunteeringPage,
 });
+
+const sectionHeading = "text-3xl leading-tight text-foreground sm:text-4xl";
+const meta = "text-xs uppercase tracking-wider text-muted-foreground";
+
+function images(entry: any): any[] {
+  return [...(entry.media ?? [])].filter((m: any) => m?.src);
+}
+
+function EntryCard({
+  entry,
+  index,
+  onOpen,
+}: {
+  entry: any;
+  index: number;
+  onOpen: () => void;
+}) {
+  const media = images(entry);
+  const captions = media
+    .map((m: any) => m.caption)
+    .filter(Boolean)
+    .join(" · ");
+  const details = [entry.date, entry.location, entry.category].filter(Boolean);
+  const hasMore = Boolean(
+    entry.narrative ||
+      entry.contribution ||
+      entry.reflections ||
+      entry.takeaways?.length ||
+      entry.links?.length ||
+      media.length > 1,
+  );
+  // Alternate image side on wide screens; entries without images span the row.
+  const flip = index % 2 === 1;
+  return (
+    <li
+      className={`grid items-start gap-6 border-t border-border pt-8 ${
+        media.length ? "md:grid-cols-2 md:gap-10" : ""
+      }`}
+      data-testid="volunteering-card"
+    >
+      {media.length > 0 && (
+        <div className={`space-y-2 ${flip ? "md:order-2" : ""}`}>
+          <Media items={media} ratio="16/9" />
+          {captions && <p className="font-serif text-sm text-muted-foreground">{captions}</p>}
+        </div>
+      )}
+      <div className="space-y-3">
+        {(details.length > 0 || entry.featured) && (
+          <p className={`${meta} flex flex-wrap gap-x-2`}>
+            {details.map((d: string, i: number) => (
+              <span key={i}>
+                {i > 0 && (
+                  <span aria-hidden="true" className="mr-2">
+                    ·
+                  </span>
+                )}
+                <Rich text={d} />
+              </span>
+            ))}
+            {entry.featured && (
+              <span className="text-foreground">
+                {details.length > 0 && (
+                  <span aria-hidden="true" className="mr-2 text-muted-foreground">
+                    ·
+                  </span>
+                )}
+                Featured
+              </span>
+            )}
+          </p>
+        )}
+        <h3 className="text-2xl leading-snug text-foreground sm:text-3xl"><Rich text={entry.title} /></h3>
+        {entry.organisation && (
+          <p className="font-serif text-lg text-muted-foreground"><Rich text={entry.organisation} /></p>
+        )}
+        {entry.shortDescription && (
+          <p className="font-serif text-foreground"><Rich text={entry.shortDescription} /></p>
+        )}
+        {hasMore && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-h-[44px] px-4"
+            onClick={onOpen}
+            data-testid={`volunteering-readmore-${index}`}
+          >
+            Read the full story
+          </Button>
+        )}
+      </div>
+    </li>
+  );
+}
 
 function VolunteeringPage() {
   const { content, site } = Route.useLoaderData() as {
@@ -63,225 +139,59 @@ function VolunteeringPage() {
 
   const [modalEntry, setModalEntry] = React.useState<any | null>(null);
 
+  // Featured first, then the admin's order.
   const entries = (content.entries ?? [])
     .filter((e: any) => e.visible !== false)
-    .sort((a: any, b: any) => Number(b.sort ?? 0) - Number(a.sort ?? 0));
+    .sort(
+      (a: any, b: any) =>
+        Number(!!b.featured) - Number(!!a.featured) || Number(b.sort ?? 0) - Number(a.sort ?? 0),
+    );
 
-  const featured = entries.filter((e: any) => e.featured);
-  const regular = entries.filter((e: any) => !e.featured);
-
-  const openModal = (entry: any) => {
-    setModalEntry(entry);
-  };
-
-  const ctaLink = content.cta
-    ? `/contact?subject=${encodeURIComponent("Volunteering Opportunity")}`
-    : "/contact";
+  const intro = content.introduction ?? {};
+  const why = content.whyVolunteering ?? {};
+  const ahead = content.lookingAhead ?? {};
+  const interests: string[] = content.interests ?? [];
+  const cta = content.cta ?? {};
+  const entriesHeading =
+    typeof content.entriesHeading === "string"
+      ? content.entriesHeading
+      : "Volunteering experiences";
+  const ctaLink = `/contact?subject=${encodeURIComponent("Volunteering Opportunity")}`;
 
   return (
-    <PageShell crumbs={["Volunteering"]} title="Volunteering" site={site}>
+    <PageShell
+      crumbs={[pageCopy(site, "volunteering").navLabel]}
+      title={pageCopy(site, "volunteering").title}
+      site={site}
+    >
       {/* A. Introduction */}
-      {content.introduction?.heading ||
-        content.introduction?.body ||
-        (content.introduction?.image && (
-          <section className="mt-6 space-y-6">
-            <h2 className="text-5xl leading-tight text-foreground">
-              {content.introduction?.heading || "Beyond Engineering"}
-            </h2>
-            {content.introduction?.body && (
-              <p className="mt-2 font-serif text-lg text-foreground">{content.introduction.body}</p>
-            )}
-            {content.introduction?.image && (
-              <figure className="mt-6">
-                <Media items={[content.introduction.image]} ratio="16/9" />
-              </figure>
-            )}
-          </section>
-        ))}
-
-      {/* B. Volunteering Experiences */}
-      <section className="mt-12">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-5xl leading-tight text-foreground">Volunteering experiences</h2>
-          {featured.length > 0 && (
-            <Badge variant="secondary" className="text-[0.65rem]">
-              {featured.length} featured
-            </Badge>
+      {(intro.heading || intro.body || intro.image?.src) && (
+        <section className="space-y-5">
+          {intro.heading && <h2 className={sectionHeading}><Rich text={intro.heading} /></h2>}
+          {intro.body && (
+            <p className="font-serif text-lg text-foreground whitespace-pre-line"><Rich text={intro.body} /></p>
           )}
-        </div>
+          {intro.image?.src && (
+            <figure>
+              <Media items={[intro.image]} ratio="16/9" />
+            </figure>
+          )}
+        </section>
+      )}
 
-        {(featured.length || regular.length) && (
-          <ul className="mt-8 space-y-12" data-testid="volunteering-journal">
-            {featured.map((entry: any, i: number) => (
-              <li
-                key={entry.id}
-                className="grid gap-8 md:grid-cols-[1fr_1.2fr] items-start border border-border rounded-lg p-6 hover:bg-muted/20 transition-colors"
-                data-testid="volunteering-card"
-              >
-                <div className="space-y-4">
-                  <Media items={[...(entry.media ?? [])].filter((m: any) => m.src)} ratio="16/9" />
-                  {entry.media?.some((m: any) => m.caption || m.credit) && (
-                    <p className="text-sm text-muted-foreground font-serif">
-                      {entry.media
-                        .map((m: any) => m.caption)
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-4">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="text-[0.68rem] uppercase tracking-wider text-muted-foreground">
-                      {entry.date}
-                    </span>
-                    {entry.location && (
-                      <span className="text-[0.68rem] text-muted-foreground">{entry.location}</span>
-                    )}
-                    {entry.category && (
-                      <Badge variant="outline" className="text-[0.65rem] px-2 py-0.5">
-                        {entry.category}
-                      </Badge>
-                    )}
-                    <Badge variant="secondary" className="text-[0.65rem]">
-                      Featured
-                    </Badge>
-                  </div>
-                  <h3 className="text-3xl text-foreground">{entry.title}</h3>
-                  <p className="font-serif text-lg text-muted-foreground">{entry.organisation}</p>
-                  {entry.shortDescription && (
-                    <p className="mt-2 font-serif text-foreground">{entry.shortDescription}</p>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openModal(entry)}
-                    data-testid={`volunteering-readmore-${i}`}
-                  >
-                    Read more
-                  </Button>
-                </div>
-              </li>
-            ))}
-            {regular.map((entry: any, i: number) => (
-              <li
-                key={entry.id}
-                className={`
-                  grid gap-8 md:grid-cols-[${i % 2 === 0 ? "1fr 1.2fr" : "1.2fr 1fr"}] items-start
-                  border border-border rounded-lg p-6 hover:bg-muted/20 transition-colors
-                `}
-                data-testid="volunteering-card"
-              >
-                {i % 2 === 0 ? (
-                  <>
-                    <div className="space-y-4">
-                      <Media
-                        items={[...(entry.media ?? [])].filter((m: any) => m.src)}
-                        ratio="16/9"
-                      />
-                      {entry.media?.some((m: any) => m.caption || m.credit) && (
-                        <p className="text-sm text-muted-foreground font-serif">
-                          {entry.media
-                            .map((m: any) => m.caption)
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="text-[0.68rem] uppercase tracking-wider text-muted-foreground">
-                          {entry.date}
-                        </span>
-                        {entry.location && (
-                          <span className="text-[0.68rem] text-muted-foreground">
-                            {entry.location}
-                          </span>
-                        )}
-                        {entry.category && (
-                          <Badge variant="outline" className="text-[0.65rem] px-2 py-0.5">
-                            {entry.category}
-                          </Badge>
-                        )}
-                      </div>
-                      <h3 className="text-3xl text-foreground">{entry.title}</h3>
-                      <p className="font-serif text-lg text-muted-foreground">
-                        {entry.organisation}
-                      </p>
-                      {entry.shortDescription && (
-                        <p className="mt-2 font-serif text-foreground">{entry.shortDescription}</p>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openModal(entry)}
-                        data-testid={`volunteering-readmore-${i + featured.length}`}
-                      >
-                        Read more
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="text-[0.68rem] uppercase tracking-wider text-muted-foreground">
-                          {entry.date}
-                        </span>
-                        {entry.location && (
-                          <span className="text-[0.68rem] text-muted-foreground">
-                            {entry.location}
-                          </span>
-                        )}
-                        {entry.category && (
-                          <Badge variant="outline" className="text-[0.65rem] px-2 py-0.5">
-                            {entry.category}
-                          </Badge>
-                        )}
-                      </div>
-                      <h3 className="text-3xl text-foreground">{entry.title}</h3>
-                      <p className="font-serif text-lg text-muted-foreground">
-                        {entry.organisation}
-                      </p>
-                      {entry.shortDescription && (
-                        <p className="mt-2 font-serif text-foreground">{entry.shortDescription}</p>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openModal(entry)}
-                        data-testid={`volunteering-readmore-${i + featured.length}`}
-                      >
-                        Read more
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      <Media
-                        items={[...(entry.media ?? [])].filter((m: any) => m.src)}
-                        ratio="16/9"
-                      />
-                      {entry.media?.some((m: any) => m.caption || m.credit) && (
-                        <p className="text-sm text-muted-foreground font-serif">
-                          {entry.media
-                            .map((m: any) => m.caption)
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </li>
+      {/* B. Volunteering experiences */}
+      {entries.length > 0 && (
+        <section className={intro.heading || intro.body || intro.image?.src ? "mt-14" : ""}>
+          {entriesHeading && <h2 className={`${sectionHeading} mb-6`}>{entriesHeading}</h2>}
+          <ul className="space-y-10" data-testid="volunteering-journal">
+            {entries.map((entry: any, i: number) => (
+              <EntryCard key={entry.id} entry={entry} index={i} onOpen={() => setModalEntry(entry)} />
             ))}
           </ul>
-        )}
-        {entries.length === 0 && (
-          <p className="mt-8 text-sm text-muted-foreground text-center">
-            No volunteering experiences shared yet.
-          </p>
-        )}
-      </section>
+        </section>
+      )}
 
-      {/* Read more modal */}
+      {/* Read more dialog */}
       <Dialog open={modalEntry !== null} onOpenChange={(o) => !o && setModalEntry(null)}>
         <DialogContent
           data-testid="volunteering-dialog"
@@ -290,9 +200,11 @@ function VolunteeringPage() {
           {modalEntry && (
             <div className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden">
               <DialogHeader className="shrink-0 border-b border-border px-6 pb-4 pr-14 pt-6">
-                <DialogTitle>{modalEntry.title}</DialogTitle>
+                <DialogTitle><Rich text={modalEntry.title} /></DialogTitle>
                 <DialogDescription>
-                  {modalEntry.organisation} · {modalEntry.date} · {modalEntry.location}
+                  {[modalEntry.organisation, modalEntry.date, modalEntry.location]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </DialogDescription>
               </DialogHeader>
               <div
@@ -302,52 +214,44 @@ function VolunteeringPage() {
                 aria-label="Volunteering entry details"
                 className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-6 font-serif text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                {!!modalEntry.media?.length && (
+                {images(modalEntry).length > 0 && (
                   <figure className="mb-6">
-                    <Media items={modalEntry.media.filter((m: any) => m.src)} ratio="16/9" />
+                    <Media items={images(modalEntry)} ratio="16/9" />
                   </figure>
                 )}
                 {modalEntry.shortDescription && (
-                  <p className="text-lg italic">{modalEntry.shortDescription}</p>
+                  <p className="text-lg italic"><Rich text={modalEntry.shortDescription} /></p>
                 )}
-                {modalEntry.narrative && (
-                  <>
-                    <h3 className="text-xl label-caps text-muted-foreground mb-2">The story</h3>
-                    <p className="whitespace-pre-line">{modalEntry.narrative}</p>
-                  </>
-                )}
-                {modalEntry.contribution && (
-                  <>
-                    <h3 className="text-xl label-caps text-muted-foreground mb-2">
-                      My contribution
-                    </h3>
-                    <p className="whitespace-pre-line">{modalEntry.contribution}</p>
-                  </>
-                )}
-                {modalEntry.reflections && (
-                  <>
-                    <h3 className="text-xl label-caps text-muted-foreground mb-2">Reflections</h3>
-                    <p className="whitespace-pre-line">{modalEntry.reflections}</p>
-                  </>
-                )}
+                {(
+                  [
+                    ["The story", modalEntry.narrative],
+                    ["My contribution", modalEntry.contribution],
+                    ["Reflections", modalEntry.reflections],
+                  ] as const
+                )
+                  .filter(([, text]) => Boolean(text))
+                  .map(([label, text]) => (
+                    <div key={label}>
+                      <h3 className="label-caps mb-2 text-muted-foreground">{label}</h3>
+                      <p className="whitespace-pre-line">{text}</p>
+                    </div>
+                  ))}
                 {!!modalEntry.takeaways?.length && (
-                  <>
-                    <h3 className="text-xl label-caps text-muted-foreground mb-2">
-                      What I learned
-                    </h3>
-                    <ul className="list-disc pl-6 space-y-2">
+                  <div>
+                    <h3 className="label-caps mb-2 text-muted-foreground">What I learned</h3>
+                    <ul className="list-disc space-y-2 pl-6">
                       {modalEntry.takeaways.map((t: string, i: number) => (
-                        <li key={i}>{t}</li>
+                        <li key={i}><Rich text={t} /></li>
                       ))}
                     </ul>
-                  </>
+                  </div>
                 )}
-                {!!modalEntry.links?.length && (
-                  <>
-                    <h3 className="text-xl label-caps text-muted-foreground mb-2">Links</h3>
-                    <div className="flex flex-wrap gap-2 text-sm">
+                {modalEntry.links?.some((l: any) => l?.href) && (
+                  <div>
+                    <h3 className="label-caps mb-2 text-muted-foreground">Links</h3>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
                       {modalEntry.links
-                        .filter((l: any) => l.href)
+                        .filter((l: any) => l?.href)
                         .map((l: any, i: number) => (
                           <a
                             key={l.id ?? i}
@@ -356,11 +260,11 @@ function VolunteeringPage() {
                             rel="noreferrer"
                             className="text-link underline"
                           >
-                            {l.label || l.href} ↗
+                            <Rich text={l.label || l.href} /> ↗
                           </a>
                         ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
               <DialogFooter className="shrink-0 border-t border-border px-6 py-4">
@@ -374,58 +278,47 @@ function VolunteeringPage() {
       </Dialog>
 
       {/* D. Why I volunteer */}
-      {(content.whyVolunteering?.heading || content.whyVolunteering?.body) && (
-        <section className="mt-16 space-y-4">
-          <h2 className="text-5xl leading-tight text-foreground">
-            {content.whyVolunteering.heading || "Why I volunteer"}
-          </h2>
-          {content.whyVolunteering.body && (
-            <p className="font-serif text-lg text-foreground whitespace-pre-line">
-              {content.whyVolunteering.body}
-            </p>
+      {(why.heading || why.body) && (
+        <section className="mt-14 space-y-4">
+          {why.heading && <h2 className={sectionHeading}><Rich text={why.heading} /></h2>}
+          {why.body && (
+            <p className="font-serif text-lg text-foreground whitespace-pre-line"><Rich text={why.body} /></p>
           )}
         </section>
       )}
 
       {/* E. Looking ahead */}
-      {(content.lookingAhead?.heading ||
-        content.lookingAhead?.body ||
-        content.interests?.length) && (
-        <section className="mt-16 space-y-6">
-          <h2 className="text-5xl leading-tight text-foreground">
-            {content.lookingAhead.heading || "Looking ahead"}
-          </h2>
-          {content.lookingAhead?.body && (
-            <p className="font-serif text-lg text-foreground whitespace-pre-line">
-              {content.lookingAhead.body}
-            </p>
+      {(ahead.heading || ahead.body || interests.length > 0) && (
+        <section className="mt-14 space-y-4">
+          {ahead.heading && <h2 className={sectionHeading}><Rich text={ahead.heading} /></h2>}
+          {ahead.body && (
+            <p className="font-serif text-lg text-foreground whitespace-pre-line"><Rich text={ahead.body} /></p>
           )}
-          {!!content.interests?.length && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {content.interests.map((interest: string, i: number) => (
-                <Badge key={i} variant="outline" className="text-xs px-3 py-1.5">
-                  {interest}
-                </Badge>
+          {interests.length > 0 && (
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-sm text-foreground">
+              {interests.map((interest, i) => (
+                <li key={i}><Rich text={interest} /></li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
       )}
 
-      {/* F. CTA */}
-      <section className="mt-16 border-t border-border pt-12 space-y-4">
-        <h2 className="text-5xl leading-tight text-foreground">
-          {content.cta?.heading || "Open to volunteering opportunities"}
-        </h2>
-        {content.cta?.body && (
-          <p className="font-serif text-lg text-foreground whitespace-pre-line">
-            {content.cta.body}
-          </p>
-        )}
-        <Link to={ctaLink} className="inline-flex items-center gap-2">
-          <Button>{content.cta?.buttonText || "Get in touch"}</Button>
-        </Link>
-      </section>
+      {/* F. Call to action (hidden with the admin toggle) */}
+      {!cta.hidden && (
+        <section className="mt-14 space-y-4 border-t border-border pt-10">
+          <h2 className={sectionHeading}>{cta.heading || "Open to volunteering opportunities"}</h2>
+          {cta.body && (
+            <p className="font-serif text-lg text-foreground whitespace-pre-line"><Rich text={cta.body} /></p>
+          )}
+          <Link
+            to={ctaLink}
+            className="inline-flex min-h-[44px] items-center bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Rich text={cta.buttonText || "Get in touch"} />
+          </Link>
+        </section>
+      )}
     </PageShell>
   );
 }

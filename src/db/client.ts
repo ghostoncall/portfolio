@@ -20,6 +20,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import { getBinding, getEnv } from "@/lib/runtime-config";
+import { assertMatchingSupabaseProjects } from "@/lib/supabase-project";
 import * as schema from "./schema";
 
 // Load .env into process.env for local dev (Vite only injects VITE_* vars).
@@ -31,13 +32,16 @@ type HyperdriveBinding = { connectionString?: string };
 
 function createClient() {
   const hyperdriveUrl = getBinding<HyperdriveBinding>("HYPERDRIVE")?.connectionString;
-  const url = hyperdriveUrl ?? getEnv("DATABASE_URL");
+  const configuredDatabaseUrl = getEnv("DATABASE_URL");
+  const url = hyperdriveUrl ?? configuredDatabaseUrl;
 
   if (!url) {
     throw new Error(
       "No database connection configured. Bind Hyperdrive as HYPERDRIVE or set DATABASE_URL (see .env.example).",
     );
   }
+
+  assertMatchingSupabaseProjects(configuredDatabaseUrl ?? url, getEnv("VITE_SUPABASE_URL"));
 
   const viaHyperdrive = Boolean(hyperdriveUrl);
   const pool = postgres(url, {

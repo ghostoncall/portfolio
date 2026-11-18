@@ -12,6 +12,11 @@
 //    and a button). No third-party player JS loads until the visitor asks.
 //  • Links: external links open in a new tab with rel="noopener noreferrer".
 import type { PostImageLayout } from "@/content/site";
+import {
+  decodeImageAttribute,
+  imageLayoutClasses,
+  imageLayoutForSource,
+} from "@/lib/blog-image-layout";
 
 export type BlogHtmlOptions = {
   imageLayouts?: Record<string, PostImageLayout> | undefined;
@@ -22,6 +27,7 @@ export type BlogHtmlOptions = {
 /** Hosts whose iframes may be shown as-is (lazy-loaded). */
 const IFRAME_ALLOW = [
   "open.spotify.com",
+  "w.soundcloud.com",
   "codepen.io",
   "www.google.com",
   "docs.google.com",
@@ -64,12 +70,30 @@ function sanitize(html: string): string {
   );
 }
 
-function facade(embedSrc: string, title: string, thumb?: string): string {
+function facade(
+  embedSrc: string,
+  title: string,
+  thumb?: string,
+  ratio?: string,
+  frameSize?: { width?: number; height: number; proportional?: number },
+): string {
   const t = escAttr(title || "Embedded video");
+  const height = frameSize
+    ? frameSize.proportional
+      ? `calc(100cqw * ${frameSize.proportional})`
+      : frameSize.width
+        ? `min(${frameSize.height}px, calc(100cqw * ${frameSize.height / frameSize.width}))`
+        : `${frameSize.height}px`
+    : "";
+  const style = frameSize
+    ? `width:100%;height:${height};aspect-ratio:auto`
+    : ratio
+      ? `aspect-ratio: ${ratio}`
+      : "";
   return (
-    `<div class="kg-facade" data-embed="${escAttr(embedSrc)}" data-title="${t}">` +
+    `<div class="kg-facade"${frameSize ? ' data-portfolio-element="embed"' : ""}${style ? ` style="${style}"` : ""} data-embed="${escAttr(embedSrc)}" data-title="${t}">` +
     (thumb
-      ? `<img src="${escAttr(thumb)}" alt="" width="480" height="360" loading="lazy" decoding="async">`
+      ? `<img src="${escAttr(thumb)}" alt="" width="480" height="360" loading="lazy" decoding="async"${frameSize ? ' style="object-fit:contain"' : ""}>`
       : "") +
     `<button type="button" class="kg-facade__play" aria-label="Play video: ${t}"></button>` +
     `</div>`
@@ -79,18 +103,74 @@ function facade(embedSrc: string, title: string, thumb?: string): string {
 function transformIframe(tag: string): string {
   const src = attr(tag, "src") ?? "";
   const title = attr(tag, "title") ?? "";
+  const frameHeight = Number(attr(tag, "data-portfolio-frame-height")),
+    frameWidth = Number(attr(tag, "data-portfolio-frame-width"));
+  const framePercent = Number(attr(tag, "data-portfolio-frame-percent")),
+    frameRatio = Number(attr(tag, "data-portfolio-frame-ratio"));
+  const frameSize =
+    frameHeight > 0 && frameHeight <= 8192
+      ? {
+          height: frameHeight,
+          ...(frameWidth > 0 && frameWidth <= 8192 ? { width: frameWidth } : {}),
+          ...(framePercent > 0 && framePercent <= 100 && frameRatio > 0 && frameRatio <= 8192
+            ? { proportional: framePercent / 100 / frameRatio }
+            : {}),
+        }
+      : undefined;
+  const requestedRatio = attr(tag, "data-portfolio-embed-ratio");
+  const ratio =
+    requestedRatio && /^(16\/9|4\/3|1\/1|9\/16)$/.test(requestedRatio)
+      ? requestedRatio.replace("/", " / ")
+      : undefined;
+  const parameters = (base: string, allowed: string[]) => {
+    const target = new URL(base);
+    try {
+      const original = new URL(decodeImageAttribute(src));
+      for (const key of allowed) {
+        const value = original.searchParams.get(key);
+        if (value !== null && /^[\w.-]{1,100}$/.test(value)) target.searchParams.set(key, value);
+      }
+    } catch {
+      /* Retain the established default player URL. */
+    }
+    return target.href;
+  };
   const yt = /(?:youtube(?:-nocookie)?\.com\/embed\/|youtu\.be\/)([\w-]{11})/i.exec(src);
   if (yt) {
     const id = yt[1];
     return facade(
-      `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+      parameters(`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`, [
+        "start",
+        "end",
+        "controls",
+        "mute",
+        "loop",
+        "playlist",
+        "cc_load_policy",
+      ]),
       title,
       `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+      ratio,
+      frameSize,
     );
   }
   const vimeo = /player\.vimeo\.com\/video\/(\d+)/i.exec(src);
   if (vimeo) {
-    return facade(`https://player.vimeo.com/video/${vimeo[1]}?autoplay=1&dnt=1`, title);
+    return facade(
+      parameters(`https://player.vimeo.com/video/${vimeo[1]}?autoplay=1&dnt=1`, [
+        "h",
+        "loop",
+        "muted",
+        "controls",
+        "title",
+        "byline",
+        "portrait",
+      ]),
+      title,
+      undefined,
+      ratio,
+      frameSize,
+    );
   }
   const host = hostOf(src);
   if (src.startsWith("https://") && host && IFRAME_ALLOW.includes(host)) {
@@ -117,13 +197,18 @@ export function prepareBlogHtml(html: string, opts: BlogHtmlOptions = {}): strin
     out = out.replace(
       /<figure\b([^>]*)>([\s\S]*?)<\/figure>/gi,
       (whole, attrs: string, inner: string) => {
+        // Node metadata is authoritative. The map is for older saved posts only.
+        if (/\bdata-portfolio-layout\s*=/i.test(attrs)) return whole;
         const img = /<img\b[^>]*>/i.exec(inner)?.[0];
         const src = img ? attr(img, "src") : undefined;
-        const layout = src ? layouts[src] : undefined;
+        const layout = src ? imageLayoutForSource(layouts, src) : undefined;
         if (!layout) return whole;
-        const cls = `kg-layout-${layout.align}${layout.size ? ` kg-size-${layout.size}` : ""}`;
-        const withClass = /\sclass\s*=\s*"/i.test(attrs)
-          ? attrs.replace(/\sclass\s*=\s*"([^"]*)"/i, (_c, v: string) => ` class="${v} ${cls}"`)
+        const cls = imageLayoutClasses(layout).join(" ");
+        const withClass = /\sclass\s*=/i.test(attrs)
+          ? attrs.replace(/\sclass\s*=\s*(["'])(.*?)\1/i, (_c, _quote: string, v: string) => {
+              const kept = v.split(/\s+/).filter((c) => !/^kg-(?:layout|size)-/.test(c));
+              return ` class="${escAttr([...kept, cls].filter(Boolean).join(" "))}"`;
+            })
           : `${attrs} class="${cls}"`;
         return `<figure${withClass}>${inner}</figure>`;
       },
@@ -166,7 +251,8 @@ export function bodyImages(html: string): { src: string; alt: string }[] {
   const list: { src: string; alt: string }[] = [];
   for (const m of html.matchAll(/<figure\b[^>]*kg-image-card[^>]*>[\s\S]*?<\/figure>/gi)) {
     const img = /<img\b[^>]*>/i.exec(m[0])?.[0];
-    const src = img ? attr(img, "src") : undefined;
+    const rawSrc = img ? attr(img, "src") : undefined;
+    const src = rawSrc ? decodeImageAttribute(rawSrc) : undefined;
     if (src && !seen.has(src)) {
       seen.add(src);
       list.push({ src, alt: attr(img!, "alt") ?? "" });

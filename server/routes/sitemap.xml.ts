@@ -3,8 +3,10 @@
 import { defineEventHandler } from "h3";
 import { getDb } from "../../src/db/client";
 import { getEnv } from "../../src/lib/runtime-config";
-import { pages, posts, projects, settings } from "../../src/db/schema";
+import { blogSettings, pages, posts, projects, settings } from "../../src/db/schema";
 import { and, eq, isNull, lte, ne, or } from "drizzle-orm";
+import { readSectionVisibility } from "../../src/lib/section-visibility.server";
+import { publicPathVisible, sectionVisible } from "../../src/lib/section-visibility";
 
 const SITE_NAME = "Aryan Mehndiratta";
 
@@ -16,7 +18,7 @@ export default defineEventHandler(async () => {
   const siteUrl = getEnv("VITE_SITE_URL") || "https://example.com";
 
   // Independent queries — run them concurrently rather than back-to-back.
-  const [siteRow, postRows, projectRows, pageRows] = await Promise.all([
+  const [siteRow, postRows, projectRows, pageRows, blogRow, visibility] = await Promise.all([
     // Site identity for lastmod reference
     db
       .select({ updatedAt: settings.updatedAt })
@@ -25,7 +27,7 @@ export default defineEventHandler(async () => {
       .limit(1),
     // Published blog posts
     db
-      .select({ slug: posts.slug, updatedAt: posts.updatedAt })
+      .select({ slug: posts.slug, updatedAt: posts.updatedAt, published: posts.published })
       .from(posts)
       .where(
         and(eq(posts.isPublic, true), or(isNull(posts.publishedAt), lte(posts.publishedAt, now))),
@@ -44,7 +46,16 @@ export default defineEventHandler(async () => {
       .from(pages)
       .where(and(eq(pages.isPublic, true), ne(pages.slug, "overview")))
       .orderBy(pages.updatedAt),
+    // Blog sections (is My Journal visible?)
+    db
+      .select({ value: blogSettings.value })
+      .from(blogSettings)
+      .where(eq(blogSettings.id, "blog"))
+      .limit(1),
+    readSectionVisibility(),
   ]);
+  const journalVisible = blogRow[0]?.value?.sections?.journal?.visible !== false;
+  const resumeVisible = sectionVisible(visibility, "resume");
   const siteUpdatedAt = siteRow[0]?.updatedAt ?? now;
 
   const siteLastMod = new Date(siteUpdatedAt ?? Date.now()).toISOString();
@@ -58,30 +69,39 @@ export default defineEventHandler(async () => {
     { url: `${siteUrl}/certificates`, updated: siteLastMod },
     { url: `${siteUrl}/contact`, updated: siteLastMod },
     { url: `${siteUrl}/volunteering`, updated: siteLastMod },
-    { url: `${siteUrl}/resume`, updated: siteLastMod },
+    ...(resumeVisible ? [{ url: `${siteUrl}/resume`, updated: siteLastMod }] : []),
     { url: `${siteUrl}/blog`, updated: siteLastMod },
+    ...(journalVisible ? [{ url: `${siteUrl}/blog/journal`, updated: siteLastMod }] : []),
   ];
 
-  const blogItems = postRows.map((r) => ({
-    url: `${siteUrl}/blog/${r.slug}`,
-    updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
-  }));
+  // Unlisted and private posts are never advertised; neither are posts in a hidden section.
+  const blogItems = postRows
+    .filter((r) => (r.published?.visibility ?? "public") === "public")
+    .filter((r) => journalVisible || r.published?.section !== "journal")
+    .map((r) => ({
+      url: `${siteUrl}/blog/${r.slug}`,
+      updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
+    }));
 
   const projectItems = projectRows.map((r) => ({
     url: `${siteUrl}/projects/${r.slug}`,
     updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
   }));
 
-  const pageItems = pageRows.map((r) => ({
-    url: `${siteUrl}/${r.slug}`,
-    updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
-  }));
+  const pageItems = pageRows
+    .filter((r) => r.slug !== "resume" || resumeVisible)
+    .map((r) => ({
+      url: `${siteUrl}/${r.slug}`,
+      updated: new Date(r.updatedAt ?? Date.now()).toISOString(),
+    }));
 
   const allPages = [...corePages, ...blogItems, ...projectItems, ...pageItems];
 
   // Deduplicate by URL
   const seen = new Set<string>();
   const uniquePages = allPages.filter((p) => {
+    if (!publicPathVisible(visibility, p.url.slice(siteUrl.length).replace(/^\/+/, "/")))
+      return false;
     if (seen.has(p.url)) return false;
     seen.add(p.url);
     return true;
@@ -106,7 +126,7 @@ ${urls}
       "content-type": "application/xml; charset=utf-8",
       "cache-control": "public, max-age=0, must-revalidate",
       // Crawlers don't need second-level freshness; serve from Netlify's CDN.
-      "netlify-cdn-cache-control": "public, durable, s-maxage=3600, stale-while-revalidate=86400",
+      "cdn-cache-control": "public, s-maxage=3600, stale-while-revalidate=86400",
     },
   });
 });

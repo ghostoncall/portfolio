@@ -32,7 +32,11 @@ export function MediaGallery({
   };
 
   const addFromAsset = (asset: any) => {
-    const next: MediaItem = { src: asset.url };
+    const next: MediaItem = {
+      src: asset.url,
+      width: asset.width ?? undefined,
+      height: asset.height ?? undefined,
+    };
     if (asset.alt ?? asset.name) next.alt = asset.alt ?? asset.name;
     onChange([...items, next]);
     setOpen(false);

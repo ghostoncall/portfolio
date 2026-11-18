@@ -5,6 +5,7 @@ import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Blocks } from "@/components/blocks";
 import { Media } from "@/components/media";
+import { Rich } from "@/lib/rich-inline";
 
 export function ProjectView({ project, skills = [] }: { project: any; skills?: any[] }) {
   const skillMap = React.useMemo(() => new Map(skills.map((s) => [s.id, s])), [skills]);
@@ -13,12 +14,14 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2 mb-2">
-        <span className="text-[0.68rem] uppercase tracking-wider text-muted-foreground">
-          {project.year}
-        </span>
+        {project.year && (
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">
+            <Rich text={project.year} />
+          </span>
+        )}
         {project.status && (
           <Badge variant="secondary" className="text-[0.65rem] px-2 py-0.5">
-            {project.status}
+            <Rich text={project.status} />
           </Badge>
         )}
         {project.featured && (
@@ -28,34 +31,40 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
         )}
       </div>
 
-      <h1 className="font-display text-4xl text-foreground">{project.title}</h1>
+      <h1 className="font-display text-4xl text-foreground"><Rich text={project.title} /></h1>
       {project.dek && (
-        <p className="font-serif text-xl italic text-muted-foreground">{project.dek}</p>
+        <p className="font-serif text-xl italic text-muted-foreground"><Rich text={project.dek} /></p>
       )}
 
       <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-border py-4 text-sm md:grid-cols-3">
-        <div>
-          <dt className="label-caps text-muted-foreground">Year</dt>
-          <dd>{project.year}</dd>
-        </div>
-        <div>
-          <dt className="label-caps text-muted-foreground">Category</dt>
-          <dd>{project.category}</dd>
-        </div>
-        <div className="col-span-2 md:col-span-1">
-          <dt className="label-caps text-muted-foreground">Stack</dt>
-          <dd>{project.stack?.join(", ") ?? ""}</dd>
-        </div>
+        {project.year && (
+          <div>
+            <dt className="label-caps text-muted-foreground">Year</dt>
+            <dd><Rich text={project.year} /></dd>
+          </div>
+        )}
+        {project.category && (
+          <div>
+            <dt className="label-caps text-muted-foreground">Category</dt>
+            <dd><Rich text={project.category} /></dd>
+          </div>
+        )}
+        {!!project.stack?.length && (
+          <div className="col-span-2 md:col-span-1">
+            <dt className="label-caps text-muted-foreground">Stack</dt>
+            <dd><Rich text={project.stack.join(", ")} /></dd>
+          </div>
+        )}
         {project.duration && (
           <div>
             <dt className="label-caps text-muted-foreground">Duration</dt>
-            <dd>{project.duration}</dd>
+            <dd><Rich text={project.duration} /></dd>
           </div>
         )}
         {project.role && (
           <div>
             <dt className="label-caps text-muted-foreground">Role</dt>
-            <dd>{project.role}</dd>
+            <dd><Rich text={project.role} /></dd>
           </div>
         )}
       </dl>
@@ -63,7 +72,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
       {project.summary && (
         <div className="my-6">
           <h2 className="mb-3 text-2xl text-foreground">Summary</h2>
-          <p className="font-serif text-foreground">{project.summary}</p>
+          <p className="font-serif text-foreground"><Rich text={project.summary} /></p>
         </div>
       )}
 
@@ -99,9 +108,9 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
                   rel="noreferrer"
                   className="group border-t border-b border-border py-3 flex items-center gap-2 hover:bg-muted"
                 >
-                  <span className="label-caps text-muted-foreground">{link.kind}</span>
+                  <span className="label-caps text-muted-foreground"><Rich text={link.kind} /></span>
                   <span className="font-serif text-foreground group-hover:underline">
-                    {link.label}
+                    <Rich text={link.label} />
                   </span>
                 </a>
               ))}
@@ -115,7 +124,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
           <div className="flex flex-wrap gap-2">
             {related.map((s: any) => (
               <Badge key={s.id} variant="outline" className="text-xs px-2 py-1">
-                {s.name}
+                <Rich text={s.name} />
               </Badge>
             ))}
           </div>
@@ -125,7 +134,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
       {project.challenges && (
         <div className="my-6">
           <h2 className="mb-3 text-2xl text-foreground">Challenges</h2>
-          <p className="font-serif text-foreground">{project.challenges}</p>
+          <p className="font-serif text-foreground"><Rich text={project.challenges} /></p>
         </div>
       )}
 
@@ -134,7 +143,7 @@ export function ProjectView({ project, skills = [] }: { project: any; skills?: a
           <h2 className="mb-3 text-2xl text-foreground">Achievements</h2>
           <ul className="list-disc pl-6 space-y-1 font-serif text-foreground">
             {project.achievements.map((a: string, i: number) => (
-              <li key={i}>{a}</li>
+              <li key={i}><Rich text={a} /></li>
             ))}
           </ul>
         </div>
